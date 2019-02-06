@@ -1,0 +1,5 @@
+[run]
+include = data_fusion_vis/*
+omit = *migrations*, *tests*
+plugins =
+    django_coverage_plugin
