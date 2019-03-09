@@ -23,6 +23,7 @@ const getClientEnvironment = require('./env');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin-alt');
 const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
+const getLocalIdent = require('css-loader/lib/getLocalIdent');
 
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
@@ -35,7 +36,7 @@ const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
 const useTypeScript = fs.existsSync(paths.appTsConfig);
 
 // style files regexes
-const cssRegex = /\.css$/;
+const cssRegex = /\.(css|scss)$/;
 const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
@@ -78,7 +79,25 @@ module.exports = function(webpackEnv) {
       },
       {
         loader: require.resolve('css-loader'),
-        options: cssOptions,
+        // previously 
+        // cssOptions
+        options: {
+          importLoaders: 1,
+          modules: true,
+          localIdentName: "[path][name]__[local]",
+          getLocalIdent: (loaderContext, localIdentName, localName, options) => {
+            return loaderContext.resourcePath.includes('antd') ?
+              localName :
+              getLocalIdent(loaderContext, localIdentName, localName, options);
+          },
+          camelCase: "dashes"
+        },
+      },
+      {
+        loader: require.resolve("sass-loader"),
+        options: {
+          sourceMap: true
+        }
       },
       {
         // Options for PostCSS as we reference these options twice
@@ -451,6 +470,12 @@ module.exports = function(webpackEnv) {
             // In production, they would get copied to the `build` folder.
             // This loader doesn't use a "test" so it will catch all modules
             // that fall through the other loaders.
+            // {
+            //   loader: require.resolve("sass-loader"),
+            //   options: {
+            //     sourceMap: true
+            //   }
+            // },
             {
               loader: require.resolve('file-loader'),
               // Exclude `js` files to keep "css" loader working as it injects
@@ -461,7 +486,7 @@ module.exports = function(webpackEnv) {
               options: {
                 name: 'static/media/[name].[hash:8].[ext]',
               },
-            },
+            }
             // ** STOP ** Are you adding a new loader?
             // Make sure to add the new loader(s) before the "file" loader.
           ],

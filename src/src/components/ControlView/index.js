@@ -6,12 +6,9 @@ import _ from 'lodash';
 import styles from './styles.scss';
 import index from '../../index.css';
 
-import ControlView from '../ControlView';
-import MainView from '../MainView';
-
 import data from '../../data/data1';
 
-class App extends Component {
+class ControlView extends Component {
 	constructor(props) {
     super(props);
 
@@ -30,15 +27,16 @@ class App extends Component {
   }
 
   render() {
+    const dataUser1 = data.map((d) => d['PUH-2018-080']);
 
     return (
-      <div className={styles.App}>
-        <div className={styles.title}>Data Fusion Vis</div>
-        <ControlView />
-        <MainView />
+      <div className={styles.ControlView}>
+        <div className={styles.title}>Control View</div>
+        <div className={styles.title}>Difference</div>
+        <div className={styles.title}>Groups by</div>
       </div>
     );
   }
 }
 
-export default App;
+export default ControlView;
