@@ -31,7 +31,7 @@ class ControlView extends Component {
 
     return (
       <div className={styles.ControlView}>
-        <div className={styles.title}>Control View</div>
+        <div className={index.title}>Control View</div>
         <div className={styles.title}>Difference</div>
         <div className={styles.title}>Groups by</div>
       </div>

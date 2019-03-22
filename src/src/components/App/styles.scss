@@ -12,3 +12,10 @@
 
   color: #292929;
 }
+
+.title {
+  grid-area: t;
+  font-weight: 900;
+  font-size: 1.5rem;
+  border-bottom: 2px solid gray;
+}

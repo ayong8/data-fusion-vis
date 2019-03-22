@@ -2,3 +2,9 @@
   grid-area: m;
   padding: 10px;
 }
+
+.userViewTitle,
+.diffViewTitle,
+.groupViewTitle {
+  border-bottom: 1px solid lightgray;
+}
