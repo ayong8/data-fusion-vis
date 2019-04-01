@@ -6,6 +6,8 @@ import _ from 'lodash';
 import styles from './styles.scss';
 import index from '../../index.css';
 
+import Glyph from '../Glyph';
+
 class MainView extends Component {
 	constructor(props) {
     super(props);
@@ -66,7 +68,7 @@ class MainView extends Component {
         .range([200, 0]);
 
     this.individualScale = d3.scaleLinear()
-        .domain(d3.extent(selectedUser))
+        .domain([0, 0.004])
         .range(['white', 'blue']);
 
     this.diffScale = d3.scaleLinear()
@@ -213,6 +215,13 @@ class MainView extends Component {
         <div className={styles.groupView}>
           {this.renderGroupView()}
         </div>
+        <Glyph 
+           selectedUser={this.props.selectedUser}
+           diff={this.props.diff}
+           groups={this.props.groups}
+           numTime={this.props.numTime}
+           numDataPerTime={this.props.numDataPerTime}
+        />
       </div>
     );
   }
