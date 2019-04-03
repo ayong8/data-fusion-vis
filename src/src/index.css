@@ -15,5 +15,23 @@ code {
 
 .title {
   font-weight: 800;
-  padding: 5px;
+  padding: 5px 0;
+}
+
+.subTitle {
+  padding-bottom: 5px;
+  padding-top: 10px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.borderBottom {
+  border-bottom: 1px solid lightgray;
+}
+
+.subsubTitle {
+  padding-bottom: 5px;
+  padding-top: 10px;
+  font-weight: 500;
+  font-size:  0.9rem;
 }

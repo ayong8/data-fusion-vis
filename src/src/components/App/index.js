@@ -5,6 +5,7 @@ import _ from 'lodash';
 
 import styles from './styles.scss';
 import index from '../../index.css';
+import { Grommet } from 'grommet';
 
 import ControlView from '../ControlView';
 import MainView from '../MainView';
@@ -25,17 +26,79 @@ class App extends Component {
     }
 
     this.state = {
-      selectedUser: [],
-      diff: [],
+      // For initial load
+      userNames: [],
+
+      // Hyperparameters
+      numTotal: 5000,
+      numDataPerTime: 8,
+      numTimepoints: 100,
+      numGroups: 5,
       numGroup: 5,
+
+      // For users
+      selectedUsers: ['PUH-2018-080'],
+      usersData: {},
+
+      // For diff
+      diff: [],
+
+      // For groups
       groups: [],
-      numTime: 75,
-      numDataPerTime: 8
+      groupData: []
     };
   }
 
   componentDidMount() {
-    const { numTime, numDataPerTime } = this.state;
+    const { numTimepoints, numTime, numDataPerTime, numGroups, selectedUsers } = this.state;
+
+    const userData = this.calculateUser();
+
+    fetch('/data/loadUserNames')
+      .then( (response) => {
+          return response.json() 
+      })   
+      .then( (file) => {
+        const userNames = JSON.parse(file);
+
+        this.setState({
+          userNames: userNames
+        });
+      });
+
+    fetch('/data/loadUsers/', {
+        method: 'post',
+        body: JSON.stringify(selectedUsers)
+      }).then( (response) => {
+          return response.json() 
+      })   
+      .then( (file) => {
+        const usersData = JSON.parse(file);
+
+        this.setState({
+          usersData: usersData
+        });
+      });
+
+    fetch('/data/clusterGroups')
+      .then( (response) => {
+          return response.json() 
+      })   
+      .then( (response) => {
+        const groupData = JSON.parse(response);
+
+        this.setState({
+          groupData: groupData
+        });
+      });
+
+    this.setState({
+      selectedUser: userData
+    });
+  }
+
+  calculateUser() {
+    const { numTimepoints, numTime, numDataPerTime } = this.state;
     const dataUser1 = data.map((d) => d['PUH-2018-080']);
   
     let groupedData = [],
@@ -47,67 +110,33 @@ class App extends Component {
         blocksPerGroup = [];
 
     // For a user
-    for (let i=0; i<numTime; i++) {
-      userBlockSum = dataUser1.filter((d, idx) => (idx > i*numDataPerTime) && (idx < (i+1)*numDataPerTime))
-            .reduce((acc, curr) => acc + curr);
+    let userBlockArrays = _.chunk(dataUser1, numDataPerTime);
+    userData = userBlockArrays.map((d) => _.sum(d));
 
-      userData.push(userBlockSum / 5000);
-    }
-
-    // For groups
-    // Go over five groups
-    let groups = [];
-    let groupArray = [];
-    for (let j=0; j<5; j++){
-      // Gather the property of each group
-      Object.keys(data[0]).forEach((d, i) => {
-        if (j > 50*i) {
-          groupArray = [];
-          // e is each object (timepoint), and 
-          // d is the property name for each user e.g., 'PUH-2018-080'
-          let user = data.map((e) => ({ d: e[d], time: e.time }));  
-
-          // Go over timepoints of a user
-          for (let i=0; i<numTime; i++) {
-            blocks = user.filter((d) => (d.time > i*numDataPerTime) && (d.time < (i+1)*numDataPerTime))
-              .map((d) => _.omit(d, 'time'));
-      
-            blocks.forEach(timeObj => {
-              block_sum = 0;
-              const values = Object.values(timeObj);
-              const timeObjSum = values.reduce((acc, curr) => acc + curr);
-              block_sum += timeObjSum;
-            });
-            
-            groupArray.push(block_sum / (300 * 5000));
-          }  
-        }
-      });
-      groups.push(groupArray);
-    }
-
-    diffData = _.difference(userData, diffData);
-    console.log(userData);
-    console.log('groups: ', groups);
-
-    this.setState({
-      selectedUser: userData,
-      diff: diffData,
-      groups: groups
-    });
+    return userData;
   }
 
   render() {
+    if ((!this.state.groupData || this.state.groupData.length === 0) ||
+        (!this.state.userNames || this.state.userNames.length === 0) ||
+        (!this.state.usersData || this.state.usersData.length === 0)
+    ) {
+      return <div />
+    }
 
     return (
       <div className={styles.App}>
-        <div className={styles.title}>Data Fusion Vis</div>
-        <ControlView />
+        <div className={styles.title}>EEG Fusion</div>
+        <ControlView 
+          userNames={this.state.userNames}
+        />
         <MainView 
-          selectedUser={this.state.selectedUser}
+          selectedUsers={this.state.selectedUsers}
           diff={this.state.diff}
           groups={this.state.groups}
-          numTime={this.state.numTime}
+          groupData={this.state.groupData}
+          usersData={this.state.usersData}
+          numTime={this.state.numTimepoints}
           numDataPerTime={this.state.numDataPerTime}
         />
       </div>

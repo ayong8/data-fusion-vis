@@ -1,5 +1,9 @@
 .ControlView {
   grid-area: c;
-  backgroudn-color: lightgray;
-  border-right: 2px solid gray;
+  border-right: 2px solid lightgray;
+  padding-right: 10px;
+}
+
+.patientDropdown {
+  height: 60px;
 }

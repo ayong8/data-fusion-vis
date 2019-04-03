@@ -1,5 +1,5 @@
 """
-WSGI config for data-fusion-vis project.
+WSGI config for app project.
 
 This module contains the WSGI application used by Django's development server
 and any production WSGI deployments. It should expose a module-level variable
@@ -19,11 +19,11 @@ import sys
 from django.core.wsgi import get_wsgi_application
 
 # This allows easy placement of apps within the interior
-# data_fusion_vis directory.
-app_path = os.path.abspath(os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), os.pardir))
-sys.path.append(os.path.join(app_path, 'data_fusion_vis'))
-
+# app directory.
+app_path = os.path.abspath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
+)
+sys.path.append(os.path.join(app_path, "app"))
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
 # if running multiple sites in the same mod_wsgi process. To fix this, use
 # mod_wsgi daemon mode with each site in its own daemon process, or use
@@ -34,7 +34,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.production")
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
 application = get_wsgi_application()
-
 # Apply WSGI middleware here.
 # from helloworld.wsgi import HelloWorldApplication
 # application = HelloWorldApplication(application)

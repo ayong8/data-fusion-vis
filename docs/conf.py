@@ -1,4 +1,4 @@
-# data-fusion-vis documentation build configuration file, created by
+# app documentation build configuration file, created by
 # sphinx-quickstart.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -39,7 +39,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "data-fusion-vis"
+project = "app"
 copyright = """2019, Daniel Roy Greenfeld"""
 
 # The version info for the project you're documenting, acts as replacement for
@@ -163,7 +163,7 @@ html_static_path = ["_static"]
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "data_fusion_visdoc"
+htmlhelp_basename = "appdoc"
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -182,8 +182,8 @@ latex_elements = {
 latex_documents = [
     (
         "index",
-        "data_fusion_vis.tex",
-        "data-fusion-vis Documentation",
+        "app.tex",
+        "app Documentation",
         """Daniel Roy Greenfeld""",
         "manual",
     )
@@ -217,8 +217,8 @@ latex_documents = [
 man_pages = [
     (
         "index",
-        "data_fusion_vis",
-        "data-fusion-vis Documentation",
+        "app",
+        "app Documentation",
         ["""Daniel Roy Greenfeld"""],
         1,
     )
@@ -236,10 +236,10 @@ man_pages = [
 texinfo_documents = [
     (
         "index",
-        "data_fusion_vis",
-        "data-fusion-vis Documentation",
+        "app",
+        "app Documentation",
         """Daniel Roy Greenfeld""",
-        "data-fusion-vis",
+        "app",
         """Behold My Awesome Project!""",
         "Miscellaneous",
     )
