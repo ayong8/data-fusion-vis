@@ -31,10 +31,9 @@ class App extends Component {
 
       // Hyperparameters
       numTotal: 5000,
-      numDataPerTime: 8,
+      numDataPerTime: 50,
       numTimepoints: 100,
       numGroups: 5,
-      numGroup: 5,
 
       // For users
       selectedUsers: ['PUH-2018-080'],
@@ -52,8 +51,6 @@ class App extends Component {
   componentDidMount() {
     const { numTimepoints, numTime, numDataPerTime, numGroups, selectedUsers } = this.state;
 
-    const userData = this.calculateUser();
-
     fetch('/data/loadUserNames')
       .then( (response) => {
           return response.json() 
@@ -68,7 +65,11 @@ class App extends Component {
 
     fetch('/data/loadUsers/', {
         method: 'post',
-        body: JSON.stringify(selectedUsers)
+        body: JSON.stringify({
+          selectedUsers: selectedUsers,
+          tNum: numTimepoints,
+          tSize: numDataPerTime
+        })
       }).then( (response) => {
           return response.json() 
       })   
@@ -91,10 +92,6 @@ class App extends Component {
           groupData: groupData
         });
       });
-
-    this.setState({
-      selectedUser: userData
-    });
   }
 
   calculateUser() {
@@ -131,10 +128,10 @@ class App extends Component {
           userNames={this.state.userNames}
         />
         <MainView 
-          selectedUsers={this.state.selectedUsers}
           diff={this.state.diff}
           groups={this.state.groups}
           groupData={this.state.groupData}
+          selectedUsers={this.state.selectedUsers}
           usersData={this.state.usersData}
           numTime={this.state.numTimepoints}
           numDataPerTime={this.state.numDataPerTime}

@@ -14,11 +14,12 @@ class MainView extends Component {
 
     this.layout = {
       userView: {
-        width: 400,
-        height: 400,
+        width: 900,
+        height: 140,
+        paddingBottom: 20,
         svg: {
           width: 900,
-          height: 100
+          height: 150
         }
       },
       diffView: {
@@ -30,7 +31,7 @@ class MainView extends Component {
         }
       },
       groupView: {
-        width: 400,
+        width: 900,
         height: 400,
         paddingBottom: 40,
         margin: 10,
@@ -53,7 +54,10 @@ class MainView extends Component {
     this.yGroupScale = '';
     this.diffScale = '';
 
+    this.riskRatioScale = '';
+
     this.state = {
+      selectedRegion: []
     };
   }
 
@@ -64,7 +68,8 @@ class MainView extends Component {
     const groupSums = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.sum))),
           groupStds = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.std)));
 
-    const usersRawData = [].concat(...Object.values(usersData).map((group) => group.map((d) => d.sum)))
+    const usersRawData = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.sum)));
+    const wholeData = [ ...groupSums, ...usersRawData ];
 
     this.xRectScale = d3.scaleBand()
         .domain(d3.range(numTime))
@@ -75,8 +80,8 @@ class MainView extends Component {
         .range([0, this.layout.groupView.height]);
 
     this.yIndividualScale = d3.scaleLinear()
-        .domain(d3.extent(groupSums))
-        .range([0, this.layout.groupView.height]);
+        .domain(d3.extent(usersRawData))
+        .range([0, this.layout.userView.height - this.layout.rectHeight - this.layout.userView.paddingBottom]);
 
     this.stdScale = d3.scaleLinear()
         .domain(d3.extent(groupStds))
@@ -89,7 +94,17 @@ class MainView extends Component {
     this.diffScale = d3.scaleLinear()
         .domain(d3.extent(diff))
         .range(['white', 'red']);
+
+    this.riskRatioScale = d3.scaleLinear()
+        .domain(d3.extent(wholeData)) // Spread all data within groups
+        .range(['white', 'blue']);
   }
+
+  // brushend() {
+  //   this.setState({
+
+  //   });
+  // }
 
   renderUserView() {
     const _self = this;
@@ -100,28 +115,40 @@ class MainView extends Component {
     _self.svgUserView.setAttribute('width', this.layout.userView.svg.width);
     _self.svgUserView.setAttribute('height', this.layout.userView.svg.height);
 
-    const gUserRects = d3.select(this.svgUserView)
+    const gUsers = d3.select(this.svgUserView)
             .append('g')
             .attr('class', 'g_user_rects')
-            .attr('transform', 'translate(80,10)');
+            .attr('transform', 'translate(120,10)');
 
     selectedUsers.forEach((user, idx) => {
+      // User name legend
       d3.select(this.svgUserView).append('text')
             .attr('x', 0)
-            .attr('y', idx*25)
+            .attr('y', idx*25 + 30)
             .text(user);
-    });
 
-    const userRects = gUserRects.selectAll('.user_rect')
-            .data(selectedUser)
+      // Rectangles
+      gUsers.selectAll('.user_rect')
+            .data(usersData[user])
             .enter().append('rect')
             .attr('class', 'user_rect')
             .attr('x', (d, i) => this.xRectScale(i))
-            .attr('y', 0)
+            .attr('y', (d, i) => this.yIndividualScale(d.sum))
             .attr('width', this.layout.rectWidth)
-            .attr('height', 20)
-            .style('fill', (d) => this.individualScale(d))
+            .attr('height', this.layout.rectHeight)
+            .style('fill', (d) => this.riskRatioScale(d.sum))
             .style('stroke', 'black');
+    });
+
+    const xAxisSetting = d3.axisBottom(this.xRectScale)
+            .tickValues([10, 30, 50, 70, 90])
+            .tickSizeInner(-this.layout.userView.svg.height)
+            .tickSizeOuter(0);
+
+    const xAxis = gUsers.append('g')
+            .call(xAxisSetting)
+            .attr('class', 'g_user_axis')
+            .attr('transform', 'translate(0,' + (this.layout.userView.svg.height - this.layout.userView.paddingBottom) + ')');
 
     return (
       <div>
@@ -171,10 +198,6 @@ class MainView extends Component {
     this.svgGroupView.setAttribute('width', this.layout.groupView.svg.width);
     this.svgGroupView.setAttribute('height', this.layout.groupView.svg.height);
 
-    const groupScale = d3.scaleLinear()
-            .domain([100000, 1000000]) // Spread all data within groups
-            .range(['white', 'blue']);
-
     const gGroups = d3.select(this.svgGroupView)
             .append('g')
             .attr('class', 'g_groups')
@@ -188,6 +211,11 @@ class MainView extends Component {
             .tickValues([10, 30, 50, 70, 90])
             .tickSizeInner(-this.layout.groupView.svg.height)
             .tickSizeOuter(0);
+
+    const xAxis = gGroups.append('g')
+            .call(xAxisSetting)
+            .attr('class', 'g_group_axis')
+            .attr('transform', 'translate(0,' + (this.layout.groupView.svg.height-this.layout.groupView.paddingBottom) + ')');
 
     const groupText1 = gGroupName.append('text')
             .attr('x', 0)
@@ -211,7 +239,6 @@ class MainView extends Component {
             .text('Group 1');
 
     Object.keys(groupData).forEach((groupIdx) => {
-
       const gGroup = gGroups.append('g')
         .attr('class', 'g_group_' + groupIdx)
         .selectAll('.group_rect')
@@ -233,14 +260,14 @@ class MainView extends Component {
         .attr('y', (d) => this.yGroupScale(d.sum))
         .attr('width', this.layout.rectWidth)
         .attr('height', this.layout.rectHeight)
-        .style('fill', (d) => groupScale(d.sum))
+        .style('fill', (d) => this.riskRatioScale(d.sum))
         .style('stroke', 'black');
     });
 
-    const xAxis = gGroups.append('g')
-          .call(xAxisSetting)
-          .attr('class', 'g_group_axis')
-          .attr('transform', 'translate(0,' + (this.layout.groupView.svg.height-this.layout.groupView.paddingBottom) + ')');
+    // Brush
+    // d3.select(this.svgGroupView).append("g")
+    //   .attr("class", "brush")
+    //   .call(d3.brushX().on("brush", brushend));
 
     return (
       <div>

@@ -50,14 +50,20 @@ class LoadUsers(APIView):
     pass
   
   def post(self, request, format=None):
-    user_names = json.loads(request.body.decode(encoding='UTF-8'))
+    json_request = json.loads(request.body.decode(encoding='UTF-8'))
+    user_ids = json_request['selectedUsers']
+    t_num = json_request['tNum']
+    t_size = json_request['tSize']
 
     whole_dataset_df = open_dataset(data)
-    print('user_names: ', user_names)
-    df_selected_users = whole_dataset_df[user_names]
-    print('df_selected_users: ', df_selected_users)
+    df_selected_users = whole_dataset_df[user_ids]
 
-    return Response(json.dumps(df_selected_users.to_json()))
+    user_chunks_dict = {}
+    for user_id in user_ids:
+      user_chunks = chunk(whole_dataset_df[user_id], t_num, t_size)
+      user_chunks_dict[user_id] = user_chunks
+
+    return Response(json.dumps(user_chunks_dict))
 
 class ClusterGroups(APIView):
   def get(self, request, format=None):
