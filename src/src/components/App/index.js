@@ -30,10 +30,12 @@ class App extends Component {
       userNames: [],
 
       // Hyperparameters
-      numTotal: 5000,
-      numDataPerTime: 50,
-      numTimepoints: 100,
+      numData: 5000,
+      numDataPerTime: 100,
+      numTimepoints: 50,
+      numUsers: 300,
       numGroups: 5,
+      groupSize: 60,
 
       // For users
       selectedUsers: ['PUH-2018-080'],
@@ -46,10 +48,12 @@ class App extends Component {
       groups: [],
       groupData: []
     };
+
+    this.handleTimeGranularity = this.handleTimeGranularity.bind(this);
   }
 
   componentDidMount() {
-    const { numTimepoints, numTime, numDataPerTime, numGroups, selectedUsers } = this.state;
+    const { numTimepoints, numData, numUsers, numTime, numDataPerTime, numGroups, groupSize, selectedUsers } = this.state;
 
     fetch('/data/loadUserNames')
       .then( (response) => {
@@ -81,36 +85,75 @@ class App extends Component {
         });
       });
 
-    fetch('/data/clusterGroups')
-      .then( (response) => {
-          return response.json() 
-      })   
-      .then( (response) => {
-        const groupData = JSON.parse(response);
-
-        this.setState({
-          groupData: groupData
+    fetch('/data/clusterGroups/', {
+        method: 'post',
+        body: JSON.stringify({
+          numGroups: numGroups,
+          groupSize: groupSize,
+          tNum: numTimepoints,
+          tSize: numDataPerTime
+        })
+      }).then( (response) => {
+            return response.json() 
+        })   
+        .then( (response) => {
+          const groupData = JSON.parse(response);
+  
+          this.setState({
+            groupData: groupData
+          });
         });
-      });
   }
 
-  calculateUser() {
-    const { numTimepoints, numTime, numDataPerTime } = this.state;
-    const dataUser1 = data.map((d) => d['PUH-2018-080']);
-  
-    let groupedData = [],
-        blocks = [],
-        block_sum = 0,
-        userBlockSum = 0,
-        userData = [],
-        diffData = [],
-        blocksPerGroup = [];
+  componentDidUpdate(prevProps, prevState) {
+    const { selectedUsers, numData, numUsers, numTimepoints, numDataPerTime, numGroups, groupSize } = this.state;
+    if (prevState.numDataPerTime !== this.state.numDataPerTime) {
 
-    // For a user
-    let userBlockArrays = _.chunk(dataUser1, numDataPerTime);
-    userData = userBlockArrays.map((d) => _.sum(d));
+      fetch('/data/loadUsers/', {
+        method: 'post',
+        body: JSON.stringify({
+          selectedUsers: selectedUsers,
+          tNum: numData / numDataPerTime,
+          tSize: parseInt(numDataPerTime)
+        })
+      }).then( (response) => {
+          return response.json() 
+      })   
+      .then( (file) => {
+        const usersData = JSON.parse(file);
 
-    return userData;
+        this.setState({
+          usersData: usersData
+        });
+      });
+
+    }
+    if (prevState.numDataPerTime !== this.state.numDataPerTime) {
+      fetch('/data/clusterGroups/', {
+        method: 'post',
+        body: JSON.stringify({
+          numGroups: numGroups,
+          groupSize: numUsers / numGroups,
+          tNum: numData / numDataPerTime,
+          tSize: parseInt(numDataPerTime)
+        })
+      }).then( (response) => {
+            return response.json() 
+        })   
+        .then( (response) => {
+          const groupData = JSON.parse(response);
+
+          this.setState({
+            groupData: groupData
+          });
+        });
+    }
+  }
+
+  handleTimeGranularity(numDataPerTime) {
+    this.setState({
+      numDataPerTime: numDataPerTime
+    });
   }
 
   render() {
@@ -133,8 +176,9 @@ class App extends Component {
           groupData={this.state.groupData}
           selectedUsers={this.state.selectedUsers}
           usersData={this.state.usersData}
-          numTime={this.state.numTimepoints}
+          numTimepoints={this.state.numData / this.state.numDataPerTime}
           numDataPerTime={this.state.numDataPerTime}
+          onChangeTimeGranularity={this.handleTimeGranularity}
         />
       </div>
     );

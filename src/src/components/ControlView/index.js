@@ -30,8 +30,6 @@ class ControlView extends Component {
   render() {
     const { userNames, selectedUsers } = this.props;
 
-    console.log('userNames: ', userNames);
-
     const value = 'medium',
           options = ['medium', 'large'];
 
@@ -71,59 +69,6 @@ class ControlView extends Component {
           onChange={({ option }) => 'medium'}
         />
       </div>
-    );
-  }
-}
-
-class ManyOptions extends Component {
-  state = {
-    selected: [],
-    options: ['medium', 'large']
-  };
-
-  render() {
-    const { options, selected } = this.state;
-    return (
-      <Box fill align="center" justify="start" pad="large">
-        <Select
-          multiple
-          closeOnChange={false}
-          placeholder="select an option..."
-          margin={'small'}
-          selected={selected}
-          options={options}
-          dropHeight="medium"
-          onClose={() =>
-            this.setState({
-              options: options.sort((p1, p2) => {
-                const p1Exists = selected.includes(p1);
-                const p2Exists = selected.includes(p2);
-
-                if (!p1Exists && p2Exists) {
-                  return 1;
-                }
-                if (p1Exists && !p2Exists) {
-                  return -1;
-                }
-                return p1.localeCompare(p2, undefined, {
-                  numeric: true,
-                  sensitivity: "base"
-                });
-              })
-            })
-          }
-          onChange={({ selected: nextSelected }) => {
-            this.setState({ selected: nextSelected });
-          }}
-        >
-          {(option, index) => (
-            <Option
-              value={option}
-              selected={selected.indexOf(index) !== -1}
-            />
-          )}
-        </Select>
-      </Box>
     );
   }
 }

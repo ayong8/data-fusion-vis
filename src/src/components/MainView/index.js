@@ -5,6 +5,7 @@ import _ from 'lodash';
 
 import styles from './styles.scss';
 import index from '../../index.css';
+import { Select} from 'grommet';
 
 import Glyph from '../Glyph';
 
@@ -59,57 +60,31 @@ class MainView extends Component {
     this.state = {
       selectedRegion: []
     };
+
+    this.handleChangeTimeGranularity = this.handleChangeTimeGranularity.bind(this);
   }
 
   componentWillMount() {
-    const { selectedUser, diff, groupData, usersData,
-            numTime, numDataPerTime } = this.props;
-
-    const groupSums = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.sum))),
-          groupStds = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.std)));
-
-    const usersRawData = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.sum)));
-    const wholeData = [ ...groupSums, ...usersRawData ];
-
-    this.xRectScale = d3.scaleBand()
-        .domain(d3.range(numTime))
-        .range([0, this.layout.userView.svg.width - 50]);
-
-    this.yGroupScale = d3.scaleLinear()
-        .domain(d3.extent(groupSums))
-        .range([0, this.layout.groupView.height]);
-
-    this.yIndividualScale = d3.scaleLinear()
-        .domain(d3.extent(usersRawData))
-        .range([0, this.layout.userView.height - this.layout.rectHeight - this.layout.userView.paddingBottom]);
-
-    this.stdScale = d3.scaleLinear()
-        .domain(d3.extent(groupStds))
-        .range([4, this.layout.stdBarMaxHeight]);
-
-    this.individualScale = d3.scaleLinear()
-        .domain([0, 0.004])
-        .range(['white', 'blue']);
-
-    this.diffScale = d3.scaleLinear()
-        .domain(d3.extent(diff))
-        .range(['white', 'red']);
-
-    this.riskRatioScale = d3.scaleLinear()
-        .domain(d3.extent(wholeData)) // Spread all data within groups
-        .range(['white', 'blue']);
   }
 
-  // brushend() {
-  //   this.setState({
+  componentDidMount() {
 
-  //   });
-  // }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log('shouldComponentUpdate: ', nextProps.numTimepoints, this.props.groupData[0].length, nextProps.groupData[0].length);
+    const groupDataPropsChange = this.props.groupData !== nextProps.groupData;
+    const groupDataPropsDetailedChange = this.props.groupData[0].length !== nextProps.groupData[0].length;
+    const numTimepointsGroupDataMatch = nextProps.numTimepoints === nextProps.groupData[0].length;
+    const usersDataPropsChange = this.props.usersData !== nextProps.usersData; 
+    console.log(numTimepointsGroupDataMatch);   
+    return numTimepointsGroupDataMatch;
+  }
 
   renderUserView() {
     const _self = this;
 
-    const { selectedUsers, usersData } = this.props;
+    const { selectedUsers, usersData, numTimepoints } = this.props;
 
     _self.svgUserView = new ReactFauxDOM.Element('svg');
     _self.svgUserView.setAttribute('width', this.layout.userView.svg.width);
@@ -141,7 +116,7 @@ class MainView extends Component {
     });
 
     const xAxisSetting = d3.axisBottom(this.xRectScale)
-            .tickValues([10, 30, 50, 70, 90])
+            .tickValues(d3.range(0, numTimepoints, 5))
             .tickSizeInner(-this.layout.userView.svg.height)
             .tickSizeOuter(0);
 
@@ -158,7 +133,7 @@ class MainView extends Component {
   }
 
   renderDiffView() {
-    const { numTime, numDataPerTime } = this.state;
+    const { numTimepoints, numDataPerTime } = this.props;
     const { diff } = this.props;
 
     this.svgDiffView = new ReactFauxDOM.Element('svg');
@@ -189,10 +164,13 @@ class MainView extends Component {
   }
 
   renderGroupView() {
-    const { numTime, numDataPerTime } = this.state;
+    const { numTimepoints, numDataPerTime } = this.props;
     const { groups, groupData } = this.props;
 
-    _.values(groupData).forEach((d) => console.log(_.min(d.sum), _.max(d.sum)));
+    const groupSums = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.sum))),
+          groupStds = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.std)));
+
+    console.log('MainView: renderGroupView', groupData);
 
     this.svgGroupView = new ReactFauxDOM.Element('svg');
     this.svgGroupView.setAttribute('width', this.layout.groupView.svg.width);
@@ -208,7 +186,7 @@ class MainView extends Component {
             .attr('transform', 'translate(0,0)');
 
     const xAxisSetting = d3.axisBottom(this.xRectScale)
-            .tickValues([10, 30, 50, 70, 90])
+            .tickValues(d3.range(0, numTimepoints, 5))
             .tickSizeInner(-this.layout.groupView.svg.height)
             .tickSizeOuter(0);
 
@@ -221,33 +199,43 @@ class MainView extends Component {
             .attr('x', 0)
             .attr('y', 25)
             .text('Group 1'),
-            groupText2 = gGroupName.append('text')
+          groupText2 = gGroupName.append('text')
             .attr('x', 0)
             .attr('y', 75)
-            .text('Group 1'),
-            groupText3 = gGroupName.append('text')
+            .text('Group 2'),
+          groupText3 = gGroupName.append('text')
             .attr('x', 0)
             .attr('y', 125)
-            .text('Group 1'),
-            groupText4 = gGroupName.append('text')
+            .text('Group 3'),
+          groupText4 = gGroupName.append('text')
             .attr('x', 0)
             .attr('y', 175)
-            .text('Group 1'),
-            groupText5 = gGroupName.append('text')
+            .text('Group 4'),
+          groupText5 = gGroupName.append('text')
             .attr('x', 0)
             .attr('y', 225)
-            .text('Group 1');
+            .text('Group 5');
+
+    gGroups.selectAll('.g_group').exit().remove();
 
     Object.keys(groupData).forEach((groupIdx) => {
+      console.log('groupIdx: ', groupIdx);
       const gGroup = gGroups.append('g')
-        .attr('class', 'g_group_' + groupIdx)
+        .attr('class', 'g_group g_group_' + groupIdx)
         .selectAll('.group_rect')
         .data(groupData[groupIdx])
         .enter();
+      // console.log(this.xRectScale(0));
+      // console.log(this.xRectScale.domain());
+      // console.log(this.layout.rectWidth/2);
+      // console.log(this.xRectScale(0) + this.layout.rectWidth/2);
 
       const bars = gGroup.append('line')
         .attr('class', 'std_bar')
-        .attr('x1', (d, i) => this.xRectScale(i) + this.layout.rectWidth/2)
+        .attr('x1', (d, i) => {
+          // console.log(i, this.xRectScale(i) + this.layout.rectWidth/2);
+          return this.xRectScale(i) + this.layout.rectWidth/2;
+        })
         .attr('y1', (d) => this.yGroupScale(d.sum) - this.stdScale(d.std))
         .attr('x2', (d, i) => this.xRectScale(i) + this.layout.rectWidth/2)
         .attr('y2', (d) => this.yGroupScale(d.sum) + this.layout.rectHeight + this.stdScale(d.std))
@@ -264,11 +252,6 @@ class MainView extends Component {
         .style('stroke', 'black');
     });
 
-    // Brush
-    // d3.select(this.svgGroupView).append("g")
-    //   .attr("class", "brush")
-    //   .call(d3.brushX().on("brush", brushend));
-
     return (
       <div>
         {this.svgGroupView.toReact()}
@@ -276,10 +259,81 @@ class MainView extends Component {
     );
   }
 
+  handleChangeTimeGranularity(e) {
+    const timeGranularity = e.value;
+    this.props.onChangeTimeGranularity(timeGranularity);
+  }
+
+  update() {
+    const { selectedUser, diff, groupData, usersData,
+            numTimepoints, numDataPerTime } = this.props;
+
+    console.log('update: ', d3.range(numTimepoints));
+
+    const groupSums = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.sum))),
+          groupStds = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.std)));
+
+    const usersRawData = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.sum)));
+    const wholeData = [ ...groupSums, ...usersRawData ];
+
+    if (numDataPerTime == 50) {
+      this.layout.rectWidth = 5;
+    }
+    else if (numDataPerTime == 100) {
+      this.layout.rectWidth = 10;
+    }
+    else if (numDataPerTime == 20) {
+      this.layout.rectWidth = 2.5;
+    }
+
+    this.xRectScale = d3.scaleBand()
+      .domain(d3.range(numTimepoints))
+      .range([0, this.layout.userView.svg.width - 50]);
+
+    this.yGroupScale = d3.scaleLinear()
+      .domain(d3.extent(groupSums))
+      .range([this.layout.groupView.height, 0]);
+
+    this.yIndividualScale = d3.scaleLinear()
+      .domain(d3.extent(usersRawData))
+      .range([this.layout.userView.height - this.layout.rectHeight - this.layout.userView.paddingBottom, 0]);
+
+    this.stdScale = d3.scaleLinear()
+      .domain(d3.extent(groupStds))
+      .range([4, this.layout.stdBarMaxHeight]);
+
+    this.individualScale = d3.scaleLinear()
+      .domain(d3.extent(usersRawData))
+      .range(['blue', 'red']);
+
+    this.diffScale = d3.scaleLinear()
+      .domain(d3.extent(diff))
+      .range(['white', 'red']);
+
+    this.riskRatioScale = d3.scaleLinear()
+      .domain(d3.extent(wholeData)) // Spread all data within groups
+      .range(['blue', 'red']);
+  }
+
   render() {
+    const { numTimepoints, numDataPerTime, groupData } = this.props;
+    console.log('MainView: render():', groupData);
+
+    this.update();
     
     return (
       <div className={styles.MainView}>
+        <div style={{'display': 'flex'}}>
+          <div className={index.subTitle}>Time Granularity</div>
+          &nbsp;
+          <Select
+            small
+            options={['20', '50', '100']}
+            value={numDataPerTime}
+            onChange={this.handleChangeTimeGranularity}
+          />
+        </div>
+        
         <div className={index.subTitle + ' ' + index.borderBottom}>User</div>
         <div className={styles.userView}>
           {this.renderUserView()}
@@ -292,13 +346,6 @@ class MainView extends Component {
         <div className={styles.groupView}>
           {this.renderGroupView()}
         </div>
-        {/* <Glyph 
-           selectedUser={this.props.selectedUser}
-           diff={this.props.diff}
-           groups={this.props.groups}
-           numTime={this.props.numTime}
-           numDataPerTime={this.props.numDataPerTime}
-        /> */}
       </div>
     );
   }

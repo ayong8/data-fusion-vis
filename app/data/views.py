@@ -51,6 +51,7 @@ class LoadUsers(APIView):
   
   def post(self, request, format=None):
     json_request = json.loads(request.body.decode(encoding='UTF-8'))
+    print('LoadUsers: ', json_request)
     user_ids = json_request['selectedUsers']
     t_num = json_request['tNum']
     t_size = json_request['tSize']
@@ -67,27 +68,33 @@ class LoadUsers(APIView):
 
 class ClusterGroups(APIView):
   def get(self, request, format=None):
+    pass
+
+  def post(self, request, format=None):
+    json_request = json.loads(request.body.decode(encoding='UTF-8'))
+    num_groups = json_request['numGroups']
+    group_size = json_request['groupSize']
+    t_num = json_request['tNum']
+    t_size = json_request['tSize']
+    print('in ClusterGroups: ', json_request)
+
     whole_dataset_df = open_dataset(data)
 
     clusters = {}
 
-    # Hyperparameters
-    num_group = 5
-    group_size = 60
-
     # Grouping
     groups = []
     columns = list(whole_dataset_df.columns)
-    for group_idx in range(0, 5): # For now, just group by index
+    for group_idx in range(0, num_groups): # For now, just group by index
         df_group = whole_dataset_df[ columns[ group_idx*group_size: (group_idx+1)*group_size ] ].sum(axis=1)
         groups.append(df_group)
 
     # Chunk by timepoints
-    t_num = 100
-    t_size = 50
     for group_idx, df_group in enumerate(groups):
         clusters[group_idx] = []
         chunk_list = chunk(df_group, t_num, t_size)
         clusters[group_idx] = chunk_list
+
+    print('cluster result: ', clusters)
 
     return Response(json.dumps(clusters))
