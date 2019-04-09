@@ -24,26 +24,27 @@ class ControlView extends Component {
     }
 
     this.state = {
+      clusteringMethod: 'kmeans',
+      diffMethod: 'DTW',
+      reprMethod: 'PCA'
     };
   }
 
   render() {
-    const { userNames, selectedUsers } = this.props;
-
-    const value = 'medium',
-          options = ['medium', 'large'];
 
     return (
       <div className={styles.ControlView}>
         <div className={index.title}>Control View</div>
+        {/*** Data ***/}
         <div>
           <div className={index.subTitle + ' ' + index.borderBottom}>Data</div>
           <div>{'right_hemis_simple.csv'}</div>
         </div>
+        {/*** Select patients ***/}
         <div className={index.subTitle + ' ' + index.borderBottom}>Patients</div>
         <Select
           multiple={true}
-          value={selectedUsers}
+          value={this.props.selectedUsers[0]}
           onSearch={(searchText) => {
             const regexp = new RegExp(searchText, 'i');
             // this.setState({ options: OPTIONS.filter(o => o.match(regexp)) });
@@ -52,21 +53,36 @@ class ControlView extends Component {
           //   value: event.value,
           //   options: OPTIONS,
           // })}
-          options={userNames}
+          options={this.props.userNames}
         />
-        <div className={styles.title + ' ' + index.subTitle}>Difference</div>
+        {/*** Select the difference setting ***/}
+        <div className={index.subTitle + ' ' + index.borderBottom}>Difference</div>
+        <Select
+          options={['DTW']}
+          value={this.state.diffMethod}
+          onChange={({ option }) => 'DTW'}
+        />
+        {/*** Select the difference setting ***/}
+        <div className={index.subTitle + ' ' + index.borderBottom}>Representation</div>
+        <Select
+          options={['PCA']}
+          value={this.state.reprMethod}
+          onChange={({ option }) => 'PCA'}
+        />
+        <div className={styles.plot}></div>
+        {/*** Select clustering settings ***/}
         <div className={index.subTitle + ' ' + index.borderBottom}>Group by</div>
         <div className={index.subsubTitle}>Number of groups</div>
         <Select
-          options={['small', 'medium', 'large']}
-          value={value}
-          onChange={({ option }) => 'medium'}
+          options={[5,6,7]}
+          value={this.props.numGroups}
+          onChange={({ option }) => 5}
         />
         <div className={index.subsubTitle}>Clustering</div>
         <Select
-          options={['small', 'medium', 'large']}
-          value={value}
-          onChange={({ option }) => 'medium'}
+          options={['kmeans']}
+          value={this.state.clusteringMethod}
+          onChange={({ option }) => 'kmeans'}
         />
       </div>
     );

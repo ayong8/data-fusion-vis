@@ -31,8 +31,8 @@ class App extends Component {
 
       // Hyperparameters
       numData: 5000,
-      numDataPerTime: 100,
-      numTimepoints: 50,
+      numDataPerTime: 20,
+      numTimepoints: 250,
       numUsers: 300,
       numGroups: 5,
       groupSize: 60,
@@ -91,7 +91,8 @@ class App extends Component {
           numGroups: numGroups,
           groupSize: groupSize,
           tNum: numTimepoints,
-          tSize: numDataPerTime
+          tSize: numDataPerTime,
+          clusteringOption: 'kmeans'
         })
       }).then( (response) => {
             return response.json() 
@@ -135,7 +136,8 @@ class App extends Component {
           numGroups: numGroups,
           groupSize: numUsers / numGroups,
           tNum: numData / numDataPerTime,
-          tSize: parseInt(numDataPerTime)
+          tSize: parseInt(numDataPerTime),
+          clusteringOption: 'kmeans'
         })
       }).then( (response) => {
             return response.json() 
@@ -169,6 +171,8 @@ class App extends Component {
         <div className={styles.title}>EEG Fusion</div>
         <ControlView 
           userNames={this.state.userNames}
+          numGroups={this.state.numGroups}
+          selectedUsers={this.state.selectedUsers}
         />
         <MainView 
           diff={this.state.diff}

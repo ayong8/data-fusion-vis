@@ -38,6 +38,7 @@ django_coverage_plugin = "==1.6.0"
 django-cors-headers = "*"
 pandas = "*"
 numpy = "*"
+tslearn = "*"
 
 [requires]
-python_version = "3.5"
+python_version = "3.7.2"
