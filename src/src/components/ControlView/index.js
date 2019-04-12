@@ -15,11 +15,13 @@ class ControlView extends Component {
     super(props);
 
     this.layout = {
-      width: 400,
-      height: 400,
-      svg: {
-        width: 300,
-        height: 300
+      dimReductionPlot: {
+        width: 250,
+        height: 250,
+        svg: {
+          width: 240,
+          height: 240
+        }
       }
     }
 
@@ -28,6 +30,60 @@ class ControlView extends Component {
       diffMethod: 'DTW',
       reprMethod: 'PCA'
     };
+  }
+
+  renderDimReductionPlot() {
+    const { dimReductions, numGroups } = this.props;
+    console.log('dimReductions: ', dimReductions);
+    console.log(typeof(dimReductions))
+
+    const svg = new ReactFauxDOM.Element('svg');
+
+    svg.setAttribute('width', this.layout.dimReductionPlot.svg.width);
+    svg.setAttribute('height', this.layout.dimReductionPlot.svg.height)
+    svg.setAttribute('class', 'svg_dim_reduction_plot');
+    svg.style.setProperty('background-color', 'whitesmoke');
+    svg.style.setProperty('border', '1px solid lightgray');
+
+    let xScale = d3.scaleLinear()
+        .domain(d3.extent(dimReductions, (d) => d.x))
+        .range([5, this.layout.dimReductionPlot.svg.width]);
+
+    let yScale = d3.scaleLinear()
+        .domain(d3.extent(dimReductions, (d) => d.y))
+        .range([this.layout.dimReductionPlot.svg.height, 5]);
+
+    const groupColorScale = d3.scaleOrdinal()
+        .domain(d3.range(numGroups))
+        .range(['red', 'orange', 'yellow', 'green', 'blue']);
+
+    let gCircles = d3.select(svg)
+        .append('g')
+        .attr('transform', 'translate(0,0)');
+
+    const circles = gCircles
+        .selectAll('.circle_patient')
+        .data(dimReductions)
+        .enter().append('circle')
+        .attr('class', (d, i) => 'circle_patient circle_patient_' + i)
+        .attr('cx', (d) => xScale(d.x))
+        .attr('cy', (d) => yScale(d.y))
+        .attr('r', 4)
+        .style('fill', (d, i) => groupColorScale(d.cluster))
+        .style('stroke', 'black')
+        .style('opacity', 0.7)
+        // .on('mouseover', function(d) {
+        //   _self.props.onSelectedInstance(d.idx);
+        // })
+        // .on('mouseout', function(d) {
+        //   _self.props.onUnselectedInstance();
+        // });
+
+      return (
+        <div>
+          {svg.toReact()}
+        </div>
+      );
   }
 
   render() {
@@ -62,14 +118,15 @@ class ControlView extends Component {
           value={this.state.diffMethod}
           onChange={({ option }) => 'DTW'}
         />
-        {/*** Select the difference setting ***/}
+        {/*** Plot the representations ***/}
         <div className={index.subTitle + ' ' + index.borderBottom}>Representation</div>
         <Select
           options={['PCA']}
           value={this.state.reprMethod}
           onChange={({ option }) => 'PCA'}
         />
-        <div className={styles.plot}></div>
+        {/* <div className={styles.plot}>{this.renderDimReductionPlot()}</div> */}
+        {this.renderDimReductionPlot()}
         {/*** Select clustering settings ***/}
         <div className={index.subTitle + ' ' + index.borderBottom}>Group by</div>
         <div className={index.subsubTitle}>Number of groups</div>

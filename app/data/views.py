@@ -91,39 +91,38 @@ class ClusterGroups(APIView):
 
     whole_dataset_df = open_dataset(data)
 
-    clusters = {}
-
-    # Grouping
+    # Group by clustering algorithm
     groups = []
-    columns = list(whole_dataset_df.columns)
-    print(columns)
-    columns.remove('idx')
-    # for group_idx in range(0, num_groups): # For now, just group by index
-    #     df_group = whole_dataset_df[ columns[ group_idx*group_size: (group_idx+1)*group_size ] ].sum(axis=1)
-    #     groups.append(df_group)
+    patient_ids = list(whole_dataset_df.columns)
+    patient_ids.remove('idx')
     
+    # Obtain representation (dimension reduction)
     df_for_clustering = whole_dataset_df.drop(['idx'], axis=1).T.values
-    print('shape before: ', df_for_clustering.shape)
     pca = PCA(n_components=2)
     df_for_clustering_after_pca = pca.fit_transform(df_for_clustering)
-    print('shape after: ', df_for_clustering_after_pca.shape)
     clustering_result = group_by_kmeans(to_time_series_dataset(df_for_clustering_after_pca), num_groups) # row: # of datapoints (=patients), col: # of timepoints
+    pd_patient_cluster = pd.DataFrame({'patient_id': patient_ids, 'cluster': clustering_result})
 
-    print(len(columns), len(clustering_result))
-    pd_patient_cluster = pd.DataFrame({'patient_id': columns, 'cluster': clustering_result})
+    print(df_for_clustering_after_pca)
+    print(clustering_result)
 
+    # Store patient information per group in a dataframe, then get the list of dataframes
     for group_idx in range(0, num_groups):
       patients_in_cluster = pd_patient_cluster[pd_patient_cluster.cluster==group_idx]['patient_id']
-      print('patients in cluster: ', patients_in_cluster)
       df_group = whole_dataset_df[patients_in_cluster].sum(axis=1)
       groups.append(df_group)
-      print(df_group.head())
-
 
     # Chunk by timepoints
-    for group_idx, df_group in enumerate(groups):
+    clusters = {}
+    for group_idx, df_group in enumerate(groups):  # Go over each group dataframe
         clusters[group_idx] = []
         chunk_list = chunk(df_group, t_num, t_size)
         clusters[group_idx] = chunk_list
 
-    return Response(json.dumps(clusters))
+    print(clusters)
+    # print(pd.DataFrame(clustering_result, columns=['cluster']))
+    # print(pd.DataFrame(df_for_clustering_after_pca, columns=['x', 'y']))
+    df_for_dim_reduction_plot = pd.concat([pd.DataFrame(df_for_clustering_after_pca, columns=['x', 'y']), pd.DataFrame(clustering_result, columns=['cluster'])], axis=1)  # Merge pca result and clustering result
+
+    return Response(json.dumps({'groupData': clusters, 'dimReductions': df_for_dim_reduction_plot.to_json(orient='records')}))
+    

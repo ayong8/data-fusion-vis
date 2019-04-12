@@ -32,12 +32,14 @@ class App extends Component {
       // Hyperparameters
       numData: 5000,
       numDataPerTime: 20,
-      numTimepoints: 250,
+      tNum: 250,
       numUsers: 300,
       numGroups: 5,
       groupSize: 60,
 
-      // For users
+      dimReductions: [],
+
+      // For patients
       selectedUsers: ['PUH-2018-080'],
       usersData: {},
 
@@ -53,7 +55,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { numTimepoints, numData, numUsers, numTime, numDataPerTime, numGroups, groupSize, selectedUsers } = this.state;
+    const { tNum, numData, numUsers, numTime, numDataPerTime, numGroups, groupSize, selectedUsers } = this.state;
 
     fetch('/data/loadUserNames')
       .then( (response) => {
@@ -71,7 +73,7 @@ class App extends Component {
         method: 'post',
         body: JSON.stringify({
           selectedUsers: selectedUsers,
-          tNum: numTimepoints,
+          tNum: tNum,
           tSize: numDataPerTime
         })
       }).then( (response) => {
@@ -90,7 +92,7 @@ class App extends Component {
         body: JSON.stringify({
           numGroups: numGroups,
           groupSize: groupSize,
-          tNum: numTimepoints,
+          tNum: tNum,
           tSize: numDataPerTime,
           clusteringOption: 'kmeans'
         })
@@ -98,16 +100,20 @@ class App extends Component {
             return response.json() 
         })   
         .then( (response) => {
-          const groupData = JSON.parse(response);
+          console.log(response);
+          const { groupData, dimReductions } = JSON.parse(response);
+          console.log(groupData);
+          console.log(dimReductions);
   
           this.setState({
-            groupData: groupData
+            groupData: groupData,
+            dimReductions: JSON.parse(dimReductions)
           });
         });
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { selectedUsers, numData, numUsers, numTimepoints, numDataPerTime, numGroups, groupSize } = this.state;
+    const { selectedUsers, numData, numUsers, tNum, numDataPerTime, numGroups, groupSize } = this.state;
     if (prevState.numDataPerTime !== this.state.numDataPerTime) {
 
       fetch('/data/loadUsers/', {
@@ -143,10 +149,11 @@ class App extends Component {
             return response.json() 
         })   
         .then( (response) => {
-          const groupData = JSON.parse(response);
+          const { groupData, dimReductions } = JSON.parse(response);
 
           this.setState({
-            groupData: groupData
+            groupData: groupData,
+            dimReductions: JSON.parse(dimReductions)
           });
         });
     }
@@ -173,6 +180,7 @@ class App extends Component {
           userNames={this.state.userNames}
           numGroups={this.state.numGroups}
           selectedUsers={this.state.selectedUsers}
+          dimReductions={this.state.dimReductions}
         />
         <MainView 
           diff={this.state.diff}
@@ -180,7 +188,7 @@ class App extends Component {
           groupData={this.state.groupData}
           selectedUsers={this.state.selectedUsers}
           usersData={this.state.usersData}
-          numTimepoints={this.state.numData / this.state.numDataPerTime}
+          tNum={this.state.numData / this.state.numDataPerTime}
           numDataPerTime={this.state.numDataPerTime}
           onChangeTimeGranularity={this.handleTimeGranularity}
         />

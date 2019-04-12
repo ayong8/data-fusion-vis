@@ -5,7 +5,8 @@ import _ from 'lodash';
 
 import styles from './styles.scss';
 import index from '../../index.css';
-import { Select} from 'grommet';
+import { Grommet, Select, Stack, Box, RangeSelector, Text } from 'grommet';
+import { grommet } from "grommet/themes";
 
 import Glyph from '../Glyph';
 
@@ -53,25 +54,40 @@ class MainView extends Component {
 
     this.xRectScale = '';
     this.yGroupScale = '';
+    this.yIndividualScale = '';
     this.diffScale = '';
 
     this.riskRatioScale = '';
 
     this.state = {
-      selectedRegion: []
+      selectedRegion: [0, 10]
     };
 
     this.handleChangeTimeGranularity = this.handleChangeTimeGranularity.bind(this);
+    this.handleSelectedTimeInterval = this.handleSelectedTimeInterval.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    console.log('shouldComponentUpdate: ', nextProps.numTimepoints, this.props.groupData[0].length, nextProps.groupData[0].length);
+    console.log('shouldComponentUpdate: ', nextProps.tNum, this.props.groupData[0].length, nextProps.groupData[0].length);
     const groupDataPropsChange = this.props.groupData !== nextProps.groupData;
     const groupDataPropsDetailedChange = this.props.groupData[0].length !== nextProps.groupData[0].length;
-    const numTimepointsGroupDataMatch = nextProps.numTimepoints === nextProps.groupData[0].length;
+    const tNumGroupDataMatch = nextProps.tNum === nextProps.groupData[0].length;
     const usersDataPropsChange = this.props.usersData !== nextProps.usersData; 
-    console.log(numTimepointsGroupDataMatch);   
-    return numTimepointsGroupDataMatch;
+    console.log(tNumGroupDataMatch);   
+    return tNumGroupDataMatch;
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    if (nextState.selectedRegion.length !== 0) {
+      d3.select('.rect_selected_region').style('fill', 'blue');
+    } else {
+      d3.select('.rect_selected_region').style('fill', 'none');
+    }
+    if (this.state.selectedRegion !== nextState.selectedRegion) {
+      d3.select('.rect_selected_region')
+        .attr('x', this.state.selectedRegion[0])
+        .attr('width', this.state.selectedRegion[1] - this.state.selectedRegion[0])
+    }
   }
 
   handleChangeTimeGranularity(e) {
@@ -79,11 +95,15 @@ class MainView extends Component {
     this.props.onChangeTimeGranularity(timeGranularity);
   }
 
+  handleSelectedTimeInterval(interval) {
+    this.setState({
+      selectedRegion: interval
+    });
+  }
+
   update() {
     const { selectedUser, diff, groupData, usersData,
-            numTimepoints, numDataPerTime } = this.props;
-
-    console.log('update: ', d3.range(numTimepoints));
+      tNum, numDataPerTime } = this.props;
 
     const groupSums = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.sum))),
           groupStds = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.std))),
@@ -105,7 +125,7 @@ class MainView extends Component {
     this.layout.rectHeight = this.layout.rectWidth * 3;
 
     this.xRectScale = d3.scaleBand()
-      .domain(d3.range(numTimepoints))
+      .domain(d3.range(tNum))
       .range([0, this.layout.userView.svg.width - 50]);
 
     this.yGroupScale = d3.scaleLinear()
@@ -140,14 +160,14 @@ class MainView extends Component {
   renderUserView() {
     const _self = this;
 
-    const { selectedUsers, usersData, numTimepoints } = this.props;
+    const { selectedUsers, usersData, tNum } = this.props;
 
     _self.svgUserView = new ReactFauxDOM.Element('svg');
     _self.svgUserView.setAttribute('width', this.layout.userView.svg.width);
     _self.svgUserView.setAttribute('height', this.layout.userView.svg.height);
 
     const xAxisSetting = d3.axisBottom(this.xRectScale)
-            .tickValues(d3.range(0, numTimepoints, 10))
+            .tickValues(d3.range(0, tNum, 10))
             .tickSizeInner(-this.layout.userView.svg.height)
             .tickSizeOuter(0);
 
@@ -179,19 +199,57 @@ class MainView extends Component {
             .attr('height', this.layout.rectHeight)
             .style('fill', (d) => this.riskRatioIndividualScale(d.sum))
             .style('stroke', 'black');
+
+      // Selection rectangle
+      gUsers.append('rect')
+            .attr('class', 'rect_selected_region')
+            .attr('x', 1)
+            .attr('y', this.yIndividualScale.range()[1])
+            .attr('width', 10)
+            .attr('height', this.yIndividualScale.range()[0] - this.yIndividualScale.range()[1])
+            .style('fill', 'black');
     });
+
+    // For rendering
+    const tickValuesForSelector = d3.range(0, this.props.tNum, 10),
+          valuesForSelector = d3.range(0, this.props.tNum, 10),
+          minValue = 0,
+          maxValue = this.props.tNum
 
     return (
       <div>
         <div>{selectedUsers[0]}</div>
         {_self.svgUserView.toReact()}
+        <Grommet theme={grommet}>
+          <Stack style={{ 'width': this.layout.userView.width }}>
+            <Box direction="row" justify="between">
+              {tickValuesForSelector.map(value => (
+                <Box key={value} pad="small" border={false}>
+                  <Text style={{ fontFamily: 'monospace', fontSize: '10px' }}>
+                    {value}
+                  </Text>
+                </Box>
+              ))}
+            </Box>
+            <RangeSelector
+              direction="horizontal"
+              invert={false}
+              min={minValue}
+              max={maxValue}
+              size="medium"
+              round="small"
+              values={this.state.selectedRegion}
+              onChange={this.handleSelectedTimeInterval}
+            />
+          </Stack>
+        </Grommet>
       </div>
     );
   }
 
   renderDiffView() {
     const { selectedUser, diff, groupData, usersData,
-            numTimepoints, numDataPerTime } = this.props;
+      tNum, numDataPerTime } = this.props;
 
     this.svgDiffView = new ReactFauxDOM.Element('svg');
     this.svgDiffView.setAttribute('width', this.layout.diffView.svg.width);
@@ -223,7 +281,7 @@ class MainView extends Component {
             .style('stroke', 'black');
 
     const xAxisSetting = d3.axisBottom(this.xRectScale)
-            .tickValues(d3.range(0, numTimepoints, 10))
+            .tickValues(d3.range(0, tNum, 10))
             .tickSizeInner(-this.layout.diffView.svg.height)
             .tickSizeOuter(0);
 
@@ -240,7 +298,7 @@ class MainView extends Component {
   }
 
   renderGroupView() {
-    const { numTimepoints, numDataPerTime } = this.props;
+    const { tNum, numDataPerTime } = this.props;
     const { groups, groupData } = this.props;
     const _self = this;
 
@@ -277,7 +335,7 @@ class MainView extends Component {
             .attr("height", this.layout.groupView.svg.height)
 
     const xAxisSetting = d3.axisBottom(this.xRectScale)
-            .tickValues(d3.range(0, numTimepoints, 10))
+            .tickValues(d3.range(0, tNum, 10))
             .tickSizeInner(-this.layout.groupView.svg.height)
             .tickSizeOuter(0);
 
@@ -344,6 +402,7 @@ class MainView extends Component {
     });
 
     function brushed() {
+        console.log('brush:', brush.extent());
         _self.xRectScale.domain(brush.empty() ? _self.xRectScale.domain() : brush.extent());
         // main.select('.area').attr('d', mainArea);
         // main.select('.x.axis').call(mainXAxis);
@@ -357,7 +416,7 @@ class MainView extends Component {
   }
 
   render() {
-    const { numTimepoints, numDataPerTime, groupData } = this.props;
+    const { tNum, numDataPerTime, groupData } = this.props;
     console.log('MainView: render():', groupData);
 
     this.update();
@@ -374,8 +433,7 @@ class MainView extends Component {
             onChange={this.handleChangeTimeGranularity}
           />
         </div>
-        
-        <div className={index.subTitle + ' ' + index.borderBottom}>User</div>
+        <div className={index.subTitle + ' ' + index.borderBottom}>Patient</div>
         <div className={styles.userView}>
           {this.renderUserView()}
         </div>
