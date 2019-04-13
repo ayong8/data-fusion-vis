@@ -28,9 +28,9 @@ def chunk(df, t_num, t_size):
   chunk_list = []
   for t_idx in range(0, t_num):
     chunk = df.loc[ t_idx*t_size : (t_idx+1)*t_size ]
-    chunk_sum = chunk.sum()
+    chunk_mean = chunk.mean()
     chunk_std = chunk.std()
-    chunk_list.append({ 'sum': chunk_sum, 'std': chunk_std })
+    chunk_list.append({ 'sum':chunk_mean, 'mean': chunk_mean, 'std': chunk_std, 'outlier_index': 1})
 
   return chunk_list
 

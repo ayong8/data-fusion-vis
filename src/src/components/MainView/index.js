@@ -105,13 +105,13 @@ class MainView extends Component {
     const { selectedUser, diff, groupData, usersData,
       tNum, numDataPerTime } = this.props;
 
-    const groupSums = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.sum))),
+    const groupMeans = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.mean))),
           groupStds = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.std))),
-          group1Sums = groupData[3].map((d) => d.sum);  // Assuming that group1 is the most similar to the user
+          group1Means = groupData[3].map((d) => d.mean);  // Assuming that group1 is the most similar to the user
 
-    const userSums = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.sum)));
-    const wholeData = [ ...groupSums, ...userSums ],
-          diffs = _.difference(userSums, group1Sums);
+    const userMeans = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.mean)));
+    const wholeData = [ ...groupMeans, ...userMeans ],
+          diffs = _.difference(userMeans, group1Means);
 
     if (numDataPerTime == 50) {
       this.layout.rectWidth = 5;
@@ -129,11 +129,11 @@ class MainView extends Component {
       .range([0, this.layout.userView.svg.width - 50]);
 
     this.yGroupScale = d3.scaleLinear()
-      .domain(d3.extent(groupSums))
+      .domain(d3.extent(groupMeans))
       .range([this.layout.groupView.svg.height - this.layout.groupView.paddingBottom - this.layout.rectHeight, 0]);
 
     this.yIndividualScale = d3.scaleLinear()
-      .domain(d3.extent(userSums))
+      .domain(d3.extent(userMeans))
       .range([this.layout.userView.svg.height - this.layout.rectHeight - this.layout.userView.paddingBottom, 0]);
 
     this.yDiffScale = d3.scaleLinear()
@@ -149,7 +149,7 @@ class MainView extends Component {
       .range(['blue', 'white', 'red']);
 
     this.riskRatioIndividualScale = d3.scaleLinear()
-      .domain(d3.extent(userSums)) // Spread all data within groups
+      .domain(d3.extent(userMeans)) // Spread all data within groups
       .range(['white', 'red']);
 
     this.riskRatioGroupScale = d3.scaleLinear()
@@ -194,13 +194,13 @@ class MainView extends Component {
             .enter().append('rect')
             .attr('class', 'user_rect')
             .attr('x', (d, i) => this.xRectScale(i))
-            .attr('y', (d, i) => this.yIndividualScale(d.sum))
+            .attr('y', (d, i) => this.yIndividualScale(d.mean))
             .attr('width', this.layout.rectWidth)
             .attr('height', this.layout.rectHeight)
-            .style('fill', (d) => this.riskRatioIndividualScale(d.sum))
+            .style('fill', (d) => this.riskRatioIndividualScale(d.mean))
             .style('stroke', 'black');
-
-      // Selection rectangle
+      
+            // Selection rectangle
       gUsers.append('rect')
             .attr('class', 'rect_selected_region')
             .attr('x', 1)
@@ -255,10 +255,10 @@ class MainView extends Component {
     this.svgDiffView.setAttribute('width', this.layout.diffView.svg.width);
     this.svgDiffView.setAttribute('height', this.layout.diffView.svg.height);
 
-    const groupSums = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.sum))),
-          userSums = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.sum))),
-          group1Sums = groupData[3].map((d) => d.sum),  // Assuming that group1 is the most similar to the user
-          diffs = _.difference(userSums, group1Sums);
+    const groupMeans = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.mean))),
+          userMeans = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.mean))),
+          group1Means = groupData[3].map((d) => d.mean),  // Assuming that group1 is the most similar to the user
+          diffs = _.difference(userMeans, group1Means);
 
     const gDiff = d3.select(this.svgDiffView)
             .append('g')
@@ -385,19 +385,19 @@ class MainView extends Component {
           // console.log(i, this.xRectScale(i) + this.layout.rectWidth/2);
           return this.xRectScale(i) + this.layout.rectWidth/2;
         })
-        .attr('y1', (d) => this.yGroupScale(d.sum) - this.stdScale(d.std))
+        .attr('y1', (d) => this.yGroupScale(d.mean) - this.stdScale(d.std))
         .attr('x2', (d, i) => this.xRectScale(i) + this.layout.rectWidth/2)
-        .attr('y2', (d) => this.yGroupScale(d.sum) + this.layout.rectHeight + this.stdScale(d.std))
+        .attr('y2', (d) => this.yGroupScale(d.mean) + this.layout.rectHeight + this.stdScale(d.std))
         .style('stroke', 'gray')
         .style('stroke-width', 2);
 
       const rects = gGroup.append('rect')
         .attr('class', 'group_rect')
         .attr('x', (d, i) => this.xRectScale(i))
-        .attr('y', (d) => this.yGroupScale(d.sum))
+        .attr('y', (d) => this.yGroupScale(d.mean))
         .attr('width', this.layout.rectWidth)
         .attr('height', this.layout.rectHeight)
-        .style('fill', (d) => this.riskRatioGroupScale(d.sum))
+        .style('fill', (d) => this.riskRatioGroupScale(d.mean))
         .style('stroke', 'black');
     });
 
