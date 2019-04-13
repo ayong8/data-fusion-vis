@@ -126,7 +126,7 @@ class MainView extends Component {
 
     this.xRectScale = d3.scaleBand()
       .domain(d3.range(tNum))
-      .range([0, this.layout.userView.svg.width - 50]);
+      .range([0, this.layout.userView.svg.width - 20]);
 
     this.yGroupScale = d3.scaleLinear()
       .domain(d3.extent(groupSums))
@@ -137,7 +137,7 @@ class MainView extends Component {
       .range([this.layout.userView.svg.height - this.layout.rectHeight - this.layout.userView.paddingBottom, 0]);
 
     this.yDiffScale = d3.scaleLinear()
-      .domain(d3.extent(diffs))
+      .domain([-100, 100])
       .range([this.layout.diffView.svg.height, 0]);
 
     this.stdScale = d3.scaleLinear()
@@ -174,7 +174,7 @@ class MainView extends Component {
     const gUsers = d3.select(this.svgUserView)
             .append('g')
             .attr('class', 'g_user_rects')
-            .attr('transform', 'translate(0,10)');
+            .attr('transform', 'translate(10,10)');
 
     const xAxis = gUsers.append('g')
             .call(xAxisSetting)
@@ -274,21 +274,28 @@ class MainView extends Component {
             .enter().append('rect')
             .attr('class', 'diff_rect')
             .attr('x', (d, i) => this.xRectScale(i))
-            .attr('y', (d, i) => this.layout.diffView.svg.height/2 - (this.layout.diffView.svg.height - this.yDiffScale(d)))
+            .attr('y', (d, i) => {
+              console.log(d);
+              if (d > 0)
+                return this.layout.diffView.svg.height/2 - (this.layout.diffView.svg.height - this.yDiffScale(d));
+              else
+                return this.yDiffScale(0);
+            })
             .attr('width', this.layout.rectWidth)
-            .attr('height', (d, i) => this.layout.diffView.svg.height/2 - this.yDiffScale(d))
+            .attr('height', (d, i) => {
+              return Math.abs(this.layout.diffView.svg.height/2 - this.yDiffScale(d));
+            })
             .style('fill', (d) => this.diffScale(d))
             .style('stroke', 'black');
 
     const xAxisSetting = d3.axisBottom(this.xRectScale)
             .tickValues(d3.range(0, tNum, 10))
-            .tickSizeInner(-this.layout.diffView.svg.height)
             .tickSizeOuter(0);
 
     const xAxis = gDiff.append('g')
             .call(xAxisSetting)
             .attr('class', 'g_diff_axis')
-            .attr('transform', 'translate(0,' + (this.layout.diffView.svg.height / 2) + ')');
+            .attr('transform', 'translate(0,' + (this.layout.diffView.svg.height / 4) + ')');
 
     return (
       <div>
