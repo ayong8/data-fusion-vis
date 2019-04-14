@@ -45,7 +45,8 @@ class MainView extends Component {
       },
       rectWidth: 5,
       rectHeight: 20,
-      stdBarMaxHeight: 20
+      stdBarMaxHeight: 20,
+      circleRadius: 2
     }
 
     this.svgUserView = '';
@@ -133,6 +134,7 @@ class MainView extends Component {
       this.layout.rectWidth = 2.5;
     }
     this.layout.rectHeight = this.layout.rectWidth * 3;
+    this.layout.circleRadius = this.layout.rectWidth/5;
 
     this.xRectScale = d3.scaleBand()
       .domain(d3.range(tNum))
