@@ -40,7 +40,7 @@ class App extends Component {
       dimReductions: [],
 
       // For patients
-      selectedUsers: ['PUH-2018-080'],
+      selectedPatients: ['PUH-2018-056'],
       usersData: {},
 
       // For diff
@@ -52,10 +52,11 @@ class App extends Component {
     };
 
     this.handleTimeGranularity = this.handleTimeGranularity.bind(this);
+    this.handleSelectPatients = this.handleSelectPatients.bind(this);
   }
 
   componentDidMount() {
-    const { tNum, numData, numUsers, numTime, numDataPerTime, numGroups, groupSize, selectedUsers } = this.state;
+    const { tNum, numData, numUsers, numTime, numDataPerTime, numGroups, groupSize, selectedPatients } = this.state;
 
     fetch('/data/loadUserNames')
       .then( (response) => {
@@ -72,7 +73,7 @@ class App extends Component {
     fetch('/data/loadUsers/', {
         method: 'post',
         body: JSON.stringify({
-          selectedUsers: selectedUsers,
+          selectedPatients: selectedPatients,
           tNum: tNum,
           tSize: numDataPerTime
         })
@@ -113,13 +114,13 @@ class App extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { selectedUsers, numData, numUsers, tNum, numDataPerTime, numGroups, groupSize } = this.state;
+    const { selectedPatients, numData, numUsers, tNum, numDataPerTime, numGroups, groupSize } = this.state;
     if (prevState.numDataPerTime !== this.state.numDataPerTime) {
 
       fetch('/data/loadUsers/', {
         method: 'post',
         body: JSON.stringify({
-          selectedUsers: selectedUsers,
+          selectedPatients: selectedPatients,
           tNum: numData / numDataPerTime,
           tSize: parseInt(numDataPerTime)
         })
@@ -165,6 +166,29 @@ class App extends Component {
     });
   }
 
+  handleSelectPatients(selectedPatients) {
+    console.log('whos selected: ', selectedPatients);
+
+    fetch('/data/loadUsers/', {
+      method: 'post',
+      body: JSON.stringify({
+        selectedPatients: selectedPatients,
+        tNum: tNum,
+        tSize: numDataPerTime
+      })
+    }).then( (response) => {
+        return response.json() 
+    })   
+    .then( (file) => {
+      const usersData = JSON.parse(file);
+
+      this.setState({
+        selectedPatients: selectedPatients,
+        usersData: usersData
+      });
+    });
+  }
+
   render() {
     if ((!this.state.groupData || this.state.groupData.length === 0) ||
         (!this.state.userNames || this.state.userNames.length === 0) ||
@@ -179,14 +203,16 @@ class App extends Component {
         <ControlView 
           userNames={this.state.userNames}
           numGroups={this.state.numGroups}
-          selectedUsers={this.state.selectedUsers}
+          selectedPatients={this.state.selectedPatients}
           dimReductions={this.state.dimReductions}
+          onSelectPatients={this.handleSelectPatients}
         />
         <MainView 
           diff={this.state.diff}
+          numGroups={this.state.numGroups}
           groups={this.state.groups}
           groupData={this.state.groupData}
-          selectedUsers={this.state.selectedUsers}
+          selectedPatients={this.state.selectedPatients}
           usersData={this.state.usersData}
           tNum={this.state.numData / this.state.numDataPerTime}
           numDataPerTime={this.state.numDataPerTime}

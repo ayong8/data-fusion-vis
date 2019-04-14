@@ -30,6 +30,13 @@ class ControlView extends Component {
       diffMethod: 'DTW',
       reprMethod: 'PCA'
     };
+
+    this.handleSelectPatients = this.handleSelectPatients.bind(this);
+  }
+
+  handleSelectPatients(e) {
+    const selectedPatients = e.value;
+    this.props.onSelectPatients(selectedPatients);
   }
 
   renderDimReductionPlot() {
@@ -100,15 +107,12 @@ class ControlView extends Component {
         <div className={index.subTitle + ' ' + index.borderBottom}>Patients</div>
         <Select
           multiple={true}
-          value={this.props.selectedUsers[0]}
+          value={this.props.selectedPatients}
           onSearch={(searchText) => {
             const regexp = new RegExp(searchText, 'i');
             // this.setState({ options: OPTIONS.filter(o => o.match(regexp)) });
           }}
-          // onChange={event => this.setState({
-          //   value: event.value,
-          //   options: OPTIONS,
-          // })}
+          onChange={this.handleSelectPatients}
           options={this.props.userNames}
         />
         {/*** Select the difference setting ***/}

@@ -60,11 +60,13 @@ class MainView extends Component {
     this.riskRatioScale = '';
 
     this.state = {
-      selectedRegion: [0, 10]
+      selectedRegion: [0, 10],
+      selectedGroup: 'Group 3'
     };
 
     this.handleChangeTimeGranularity = this.handleChangeTimeGranularity.bind(this);
     this.handleSelectedTimeInterval = this.handleSelectedTimeInterval.bind(this);
+    this.handleGroupSelection = this.handleGroupSelection.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -73,7 +75,6 @@ class MainView extends Component {
     const groupDataPropsDetailedChange = this.props.groupData[0].length !== nextProps.groupData[0].length;
     const tNumGroupDataMatch = nextProps.tNum === nextProps.groupData[0].length;
     const usersDataPropsChange = this.props.usersData !== nextProps.usersData; 
-    console.log(tNumGroupDataMatch);   
     return tNumGroupDataMatch;
   }
 
@@ -101,17 +102,26 @@ class MainView extends Component {
     });
   }
 
+  handleGroupSelection(e) {
+    const selectedGroup = e.value;
+    this.setState({
+      selectedGroup: selectedGroup
+    })
+  }
+
   update() {
+    const { selectedGroup } = this.state;
     const { selectedUser, diff, groupData, usersData,
       tNum, numDataPerTime } = this.props;
 
     const groupMeans = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.mean))),
           groupStds = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.std))),
-          group1Means = groupData[3].map((d) => d.mean);  // Assuming that group1 is the most similar to the user
+          selectedGroupIdx = parseInt(selectedGroup.replace('Group ', '')) - 1,
+          group1Means = groupData[selectedGroupIdx].map((d) => d.mean);  // Assuming that group1 is the most similar to the user
 
     const userMeans = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.mean)));
     const wholeData = [ ...groupMeans, ...userMeans ],
-          diffs = _.difference(userMeans, group1Means);
+          diffs = userMeans.map((d, i) => d - group1Means[i]);
 
     if (numDataPerTime == 50) {
       this.layout.rectWidth = 5;
@@ -137,15 +147,15 @@ class MainView extends Component {
       .range([this.layout.userView.svg.height - this.layout.rectHeight - this.layout.userView.paddingBottom, 0]);
 
     this.yDiffScale = d3.scaleLinear()
-      .domain([-100, 100])
-      .range([this.layout.diffView.svg.height, 0]);
+      .domain([0, 100])
+      .range([this.layout.diffView.svg.height/2, 0]);
 
     this.stdScale = d3.scaleLinear()
       .domain(d3.extent(groupStds))
       .range([4, this.layout.stdBarMaxHeight]);
 
     this.diffScale = d3.scaleLinear()
-      .domain([d3.min(diffs), 0, d3.max(diffs)])
+      .domain([-100, 0, 100])
       .range(['blue', 'white', 'red']);
 
     this.riskRatioIndividualScale = d3.scaleLinear()
@@ -160,7 +170,7 @@ class MainView extends Component {
   renderUserView() {
     const _self = this;
 
-    const { selectedUsers, usersData, tNum } = this.props;
+    const { selectedPatients, usersData, tNum } = this.props;
 
     _self.svgUserView = new ReactFauxDOM.Element('svg');
     _self.svgUserView.setAttribute('width', this.layout.userView.svg.width);
@@ -181,26 +191,53 @@ class MainView extends Component {
             .attr('class', 'g_user_axis')
             .attr('transform', 'translate(0,' + (this.layout.userView.svg.height - this.layout.userView.paddingBottom) + ')');
 
-    selectedUsers.forEach((user, idx) => {
+    // Selection rectangle
+    gUsers.append('rect')
+          .attr('class', 'rect_global_outlier_region')
+          .attr('x', this.xRectScale(10))
+          .attr('y', this.yIndividualScale.range()[1])
+          .attr('width', this.xRectScale(30) - this.xRectScale(10))
+          .attr('height', this.yIndividualScale.range()[0] - this.yIndividualScale.range()[1])
+          .style('fill', 'red')
+          .style('opacity', 0.3);
+
+    console.log('usersData: ', selectedPatients);
+
+    selectedPatients.forEach((user, idx) => {
       // User name legend
       // d3.select(this.svgUserView).append('text')
       //       .attr('x', 0)
       //       .attr('y', idx*25 + 30)
       //       .text(user);
 
+      console.log('usersData: ', usersData);
+      console.log('usersData: ', usersData[user]);
       // Rectangles
-      gUsers.selectAll('.user_rect')
+      // upperY coordinate for each rect = (this.yIndividualScale(d.mean) - this.layout.rectHeight/2);
+      const gGlyphs = gUsers.selectAll('.g_glyph')
             .data(usersData[user])
-            .enter().append('rect')
+            .enter().append('g')
+            .attr('class', 'g_glyph')
+            .attr('transform', (d, i) => 'translate(' + this.xRectScale(i) + ',' + (this.yIndividualScale(d.mean) - this.layout.rectHeight/2) + ')');
+      
+      gGlyphs.append('rect')
             .attr('class', 'user_rect')
-            .attr('x', (d, i) => this.xRectScale(i))
-            .attr('y', (d, i) => this.yIndividualScale(d.mean))
+            .attr('x', 0)
+            .attr('y', 0)
             .attr('width', this.layout.rectWidth)
             .attr('height', this.layout.rectHeight)
             .style('fill', (d) => this.riskRatioIndividualScale(d.mean))
             .style('stroke', 'black');
+
+      gGlyphs.filter((d) => d.outlierIndex !== 'undefined')
+            .append('circle')
+            .attr('class', 'user_outlier_circle')
+            .attr('cx', (d, i) => 3)
+            .attr('cy', (d) => this.yIndividualScale(d.mean) - (this.yIndividualScale(d.mean) - this.layout.rectHeight/2))
+            .attr('r', 2)
+            .style('fill', 'black');
       
-            // Selection rectangle
+      // Selection rectangle
       gUsers.append('rect')
             .attr('class', 'rect_selected_region')
             .attr('x', 1)
@@ -218,14 +255,14 @@ class MainView extends Component {
 
     return (
       <div>
-        <div>{selectedUsers[0]}</div>
+        <div>{selectedPatients[0]}</div>
         {_self.svgUserView.toReact()}
         <Grommet theme={grommet}>
           <Stack style={{ 'width': this.layout.userView.width }}>
             <Box direction="row" justify="between">
               {tickValuesForSelector.map(value => (
                 <Box key={value} pad="small" border={false}>
-                  <Text style={{ fontFamily: 'monospace', fontSize: '10px' }}>
+                  <Text style={{ fontSize: '10px' }}>
                     {value}
                   </Text>
                 </Box>
@@ -248,8 +285,9 @@ class MainView extends Component {
   }
 
   renderDiffView() {
+    const { selectedGroup } = this.state;
     const { selectedUser, diff, groupData, usersData,
-      tNum, numDataPerTime } = this.props;
+            tNum, numDataPerTime } = this.props;
 
     this.svgDiffView = new ReactFauxDOM.Element('svg');
     this.svgDiffView.setAttribute('width', this.layout.diffView.svg.width);
@@ -257,13 +295,15 @@ class MainView extends Component {
 
     const groupMeans = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.mean))),
           userMeans = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.mean))),
-          group1Means = groupData[3].map((d) => d.mean),  // Assuming that group1 is the most similar to the user
-          diffs = _.difference(userMeans, group1Means);
+          selectedGroupIdx = parseInt(selectedGroup.replace('Group ', '')) - 1,
+          group1Means = groupData[selectedGroupIdx].map((d) => d.mean),  // Assuming that group1 is the most similar to the user
+          diffs = userMeans.map((d, i) => d - group1Means[i]);
 
+    console.log(diffs);
     const gDiff = d3.select(this.svgDiffView)
             .append('g')
             .attr('class', 'g_diff')
-            .attr('transform', 'translate(0,70)');
+            .attr('transform', 'translate(0,0)');
 
     const gDiffRects = gDiff.append('g')
           .attr('class', 'g_diff_rects')
@@ -275,15 +315,22 @@ class MainView extends Component {
             .attr('class', 'diff_rect')
             .attr('x', (d, i) => this.xRectScale(i))
             .attr('y', (d, i) => {
-              console.log(d);
+              let y = 0;
               if (d > 0)
-                return this.layout.diffView.svg.height/2 - (this.layout.diffView.svg.height - this.yDiffScale(d));
+                y = this.yDiffScale(d);
               else
-                return this.yDiffScale(0);
+                y = this.yDiffScale(0);
+              return y;
             })
             .attr('width', this.layout.rectWidth)
             .attr('height', (d, i) => {
-              return Math.abs(this.layout.diffView.svg.height/2 - this.yDiffScale(d));
+              let height = 0;
+              if (d > 0)
+                height = this.layout.diffView.svg.height/2 - this.yDiffScale(d);
+              else
+                height = this.layout.diffView.svg.height/2 - this.yDiffScale(Math.abs(d));
+
+              return height;
             })
             .style('fill', (d) => this.diffScale(d))
             .style('stroke', 'black');
@@ -295,7 +342,7 @@ class MainView extends Component {
     const xAxis = gDiff.append('g')
             .call(xAxisSetting)
             .attr('class', 'g_diff_axis')
-            .attr('transform', 'translate(0,' + (this.layout.diffView.svg.height / 4) + ')');
+            .attr('transform', 'translate(0,' + (this.layout.diffView.svg.height / 2) + ')');
 
     return (
       <div>
@@ -423,10 +470,12 @@ class MainView extends Component {
   }
 
   render() {
-    const { tNum, numDataPerTime, groupData } = this.props;
+    const { tNum, numDataPerTime, numGroups, groupData } = this.props;
     console.log('MainView: render():', groupData);
 
     this.update();
+
+    const groupOptions = d3.range(numGroups).map((d) => 'Group ' + (d+1));
     
     return (
       <div className={styles.MainView}>
@@ -444,7 +493,14 @@ class MainView extends Component {
         <div className={styles.userView}>
           {this.renderUserView()}
         </div>
-        <div className={index.subTitle + ' ' + index.borderBottom}>Difference</div>
+        <div className={index.subTitle + ' ' + index.borderBottom} style={{'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'center'}}>
+          <div>Difference</div>
+          <Select
+            options={groupOptions}
+            value={this.state.selectedGroup}
+            onChange={this.handleGroupSelection}
+          />
+        </div>
         <div className={styles.diffView}>
           {this.renderDiffView()}
         </div>
