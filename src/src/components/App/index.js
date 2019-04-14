@@ -167,6 +167,7 @@ class App extends Component {
   }
 
   handleSelectPatients(selectedPatients) {
+    const { tNum, numDataPerTime } = this.state;
     console.log('whos selected: ', selectedPatients);
 
     fetch('/data/loadUsers/', {
