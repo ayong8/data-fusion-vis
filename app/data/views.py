@@ -30,7 +30,7 @@ def chunk(df, t_num, t_size):
     chunk = df.loc[ t_idx*t_size : (t_idx+1)*t_size ]
     chunk_mean = chunk.mean()
     chunk_std = chunk.std()
-    chunk_list.append({ 'sum':chunk_mean, 'mean': chunk_mean, 'std': chunk_std, 'outlier_index': 1})
+    chunk_list.append({ 'sum':chunk_mean, 'mean': chunk_mean, 'std': chunk_std, 'outlierIndex': 1})
 
   return chunk_list
 
@@ -62,7 +62,7 @@ class LoadUsers(APIView):
   
   def post(self, request, format=None):
     json_request = json.loads(request.body.decode(encoding='UTF-8'))
-    user_ids = json_request['selectedUsers']
+    user_ids = json_request['selectedPatients']
     t_num = json_request['tNum']
     t_size = json_request['tSize']
 
@@ -103,13 +103,10 @@ class ClusterGroups(APIView):
     clustering_result = group_by_kmeans(to_time_series_dataset(df_for_clustering_after_pca), num_groups) # row: # of datapoints (=patients), col: # of timepoints
     pd_patient_cluster = pd.DataFrame({'patient_id': patient_ids, 'cluster': clustering_result})
 
-    print(df_for_clustering_after_pca)
-    print(clustering_result)
-
     # Store patient information per group in a dataframe, then get the list of dataframes
     for group_idx in range(0, num_groups):
       patients_in_cluster = pd_patient_cluster[pd_patient_cluster.cluster==group_idx]['patient_id']
-      df_group = whole_dataset_df[patients_in_cluster].sum(axis=1)
+      df_group = whole_dataset_df[patients_in_cluster].sum(axis=1) / len(patients_in_cluster)  # Sum all patients data to get the mean
       groups.append(df_group)
 
     # Chunk by timepoints
