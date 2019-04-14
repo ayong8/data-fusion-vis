@@ -45,7 +45,8 @@ class MainView extends Component {
       },
       rectWidth: 5,
       rectHeight: 20,
-      stdBarMaxHeight: 20
+      stdBarMaxHeight: 20,
+      circleRadius: 2
     }
 
     this.svgUserView = '';
@@ -123,6 +124,7 @@ class MainView extends Component {
       this.layout.rectWidth = 2.5;
     }
     this.layout.rectHeight = this.layout.rectWidth * 3;
+    this.layout.circleRadius = this.layout.rectWidth/5;
 
     this.xRectScale = d3.scaleBand()
       .domain(d3.range(tNum))
@@ -189,7 +191,29 @@ class MainView extends Component {
       //       .text(user);
 
       // Rectangles
-      gUsers.selectAll('.user_rect')
+      var glyphs = gUsers.selectAll('.g_glyph')
+            .data(usersData[user])
+            .enter().append('g')
+            .attr('class', 'g_glyph')
+            
+      glyphs.append('rect')
+        .attr('class', 'user_rect')
+        .attr('x', (d, i) => this.xRectScale(i))
+        .attr('y', (d, i) => this.yIndividualScale(d.mean))
+        .attr('width', this.layout.rectWidth)
+        .attr('height', this.layout.rectHeight)
+        .style('fill', (d) => this.riskRatioIndividualScale(d.mean))
+        .style('stroke', 'black');
+      
+      glyphs.append('circle')
+        .attr('class', 'user_crc')
+        .attr('r', this.layout.circleRadius)
+        .attr('cx', (d, i) => this.layout.circleRadius + this.xRectScale(i) + d.outlier_index)
+        .attr('cy', (d, i) => this.yIndividualScale(d.mean) + (this.layout.rectHeight/2))
+        .style("fill", "blue");
+
+
+      /*gUsers.selectAll('.user_rect')
             .data(usersData[user])
             .enter().append('rect')
             .attr('class', 'user_rect')
@@ -198,7 +222,7 @@ class MainView extends Component {
             .attr('width', this.layout.rectWidth)
             .attr('height', this.layout.rectHeight)
             .style('fill', (d) => this.riskRatioIndividualScale(d.mean))
-            .style('stroke', 'black');
+            .style('stroke', 'black');*/
       
             // Selection rectangle
       gUsers.append('rect')
