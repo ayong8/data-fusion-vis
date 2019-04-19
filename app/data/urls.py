@@ -22,5 +22,10 @@ urlpatterns = [
         view=views.ClusterGroups.as_view(),
         name='clusterGroups'
     ),
+    url(
+        regex=r'^saxTransform/$',
+        view=views.SAXTransform.as_view(),
+        name='saxTransform'
+    )
     
 ]

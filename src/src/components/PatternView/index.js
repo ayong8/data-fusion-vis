@@ -52,16 +52,34 @@ class PatternView extends Component {
     const { selectedPattern } = this.props;
     const { patterns } = this.state;
 
+    console.log('kamil')
+
     if (prevProps.selectedPattern !== this.props.selectedPattern) {
-      const newPattern = {
-        source: 'selected',
-        rawPattern: selectedPattern,
-        discretePattern: ['a','b','b','a']
-      };
-  
-      this.setState(prevState => ({
-        patterns: [...prevState.patterns, newPattern]
-      }));
+      fetch('/data/saxTransform/', {
+        method: 'post',
+        body: JSON.stringify({
+          selectedPattern: this.props.selectedPattern,
+          performPaa: false
+        })
+      }).then( (response) => {
+            return response.json() 
+        })   
+        .then( (response) => {
+          console.log(response);
+          const { transformedString } = JSON.parse(response);
+          console.log(transformedString);
+          console.log(transformedString.split(''))
+          
+          const newPattern = {
+            source: 'selected',
+            rawPattern: selectedPattern,
+            discretePattern: transformedString.split('')
+          };
+            
+          this.setState(prevState => ({
+            patterns: [...prevState.patterns, newPattern]
+          }));
+        });
     }
   }
 

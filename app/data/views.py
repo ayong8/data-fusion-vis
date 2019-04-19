@@ -10,6 +10,12 @@ from tslearn.utils import to_time_series_dataset
 from tslearn.clustering import TimeSeriesKMeans
 from sklearn.decomposition import PCA
 
+import numpy as np
+from saxpy.znorm import znorm
+from saxpy.paa import paa
+from saxpy.sax import ts_to_string
+from saxpy.alphabet import cuts_for_asize
+
 import os
 import pandas as pd
 import json
@@ -44,6 +50,19 @@ def group_by_kmeans(df, num_groups):
   
   return cluster_membership_list
 
+def sax_transform(pattern, perform_paa, paa_length, alphabet_length):
+  #dat = np.array([-2, 0, 2, 0, -1])
+  dat = pattern
+  dat = znorm(dat)
+  
+  if perform_paa:
+    dat = paa(dat, paa_length)
+  
+  sax_string = ts_to_string(dat, cuts_for_asize(alphabet_length))
+  print(sax_string)
+  return sax_string
+
+
 class LoadFile(APIView):
   def get(self, request, format=None):
     entire_file_path = os.path.join(STATICFILES_DIRS[0], data)
@@ -57,6 +76,19 @@ class LoadUserNames(APIView):
     whole_dataset_df = pd.read_csv(open(entire_file_path, 'rU'))
 
     return Response(json.dumps(list(whole_dataset_df.columns)))
+
+class SAXTransform(APIView):
+  def get(self, request, format=None):
+    pass
+  
+  def post(self, request, format=None):
+    json_request = json.loads(request.body.decode(encoding='UTF-8'))
+    selected_pattern = json_request['selectedPattern']
+    perform_paa = json_request['performPaa']
+    
+    transformed = sax_transform(selected_pattern, perform_paa, 3, 5)
+
+    return Response(json.dumps({'transformedString': transformed}))
 
 class LoadUsers(APIView):
   def get(self, request, format=None):
