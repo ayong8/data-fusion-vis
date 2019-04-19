@@ -1,14 +1,14 @@
 .App {
-  width: 80%;
+  width: 90%;
   margin: 0 auto;
   margin-top: 15px;
 
   display: grid;
   grid-template-rows: 50px 900px;
-  grid-template-columns: 20% 80%;
+  grid-template-columns: 20% 60% 20%;
   grid-template-areas: 
-    't t'
-    'c m';
+    't t t'
+    'c m pv';
 
   color: #292929;
 }

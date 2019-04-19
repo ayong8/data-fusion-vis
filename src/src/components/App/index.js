@@ -9,6 +9,7 @@ import { Grommet } from 'grommet';
 
 import ControlView from '../ControlView';
 import MainView from '../MainView';
+import PatternView from '../PatternView';
 
 import data from '../../data/data1';
 
@@ -48,11 +49,14 @@ class App extends Component {
 
       // For groups
       groups: [],
-      groupData: []
+      groupData: [],
+
+      selectedPattern: []
     };
 
     this.handleTimeGranularity = this.handleTimeGranularity.bind(this);
     this.handleSelectPatients = this.handleSelectPatients.bind(this);
+    this.handleSelectPattern = this.handleSelectPattern.bind(this);
   }
 
   componentDidMount() {
@@ -70,6 +74,8 @@ class App extends Component {
         });
       });
 
+    console.log('herrrrrr: ', selectedPatients);
+
     fetch('/data/loadUsers/', {
         method: 'post',
         body: JSON.stringify({
@@ -82,7 +88,8 @@ class App extends Component {
       })   
       .then( (file) => {
         const usersData = JSON.parse(file);
-
+        console.log('usersData: ', usersData)
+        console.log('selectedPatients: ', selectedPatients)
         this.setState({
           usersData: usersData
         });
@@ -190,6 +197,12 @@ class App extends Component {
     });
   }
 
+  handleSelectPattern(selectedPattern) {
+    this.setState({
+      selectedPattern: selectedPattern
+    })
+  }
+
   render() {
     if ((!this.state.groupData || this.state.groupData.length === 0) ||
         (!this.state.userNames || this.state.userNames.length === 0) ||
@@ -218,6 +231,15 @@ class App extends Component {
           tNum={this.state.numData / this.state.numDataPerTime}
           numDataPerTime={this.state.numDataPerTime}
           onChangeTimeGranularity={this.handleTimeGranularity}
+          onSelectPattern={this.handleSelectPattern}
+        />
+        <PatternView
+          userNames={this.state.userNames}
+          numGroups={this.state.numGroups}
+          selectedPatients={this.state.selectedPatients}
+          dimReductions={this.state.dimReductions}
+          selectedPattern={this.state.selectedPattern}
+          onSelectPatients={this.handleSelectPatients}
         />
       </div>
     );

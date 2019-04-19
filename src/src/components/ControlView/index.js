@@ -5,10 +5,13 @@ import _ from 'lodash';
 
 import styles from './styles.scss';
 import index from '../../index.css';
+import gs from '../../config/_variables.scss';
 import { Grommet, Select, Box, CheckBox } from 'grommet';
 import { grommet } from "grommet/themes";
 
 import data from '../../data/data1';
+
+const groupColors = [ gs.groupColor1, gs.groupColor2, gs.groupColor3, gs.groupColor4, gs.groupColor5 ];
 
 class ControlView extends Component {
 	constructor(props) {
@@ -19,8 +22,8 @@ class ControlView extends Component {
         width: 250,
         height: 250,
         svg: {
-          width: 240,
-          height: 240
+          width: 260,
+          height: 260
         }
       }
     }
@@ -47,10 +50,11 @@ class ControlView extends Component {
     const svg = new ReactFauxDOM.Element('svg');
 
     svg.setAttribute('width', this.layout.dimReductionPlot.svg.width);
-    svg.setAttribute('height', this.layout.dimReductionPlot.svg.height)
+    svg.setAttribute('height', this.layout.dimReductionPlot.svg.height);
     svg.setAttribute('class', 'svg_dim_reduction_plot');
     svg.style.setProperty('background-color', 'whitesmoke');
     svg.style.setProperty('border', '1px solid lightgray');
+    svg.style.setProperty('margin-top', '10px');
 
     let xScale = d3.scaleLinear()
         .domain(d3.extent(dimReductions, (d) => d.x))
@@ -62,7 +66,7 @@ class ControlView extends Component {
 
     const groupColorScale = d3.scaleOrdinal()
         .domain(d3.range(numGroups))
-        .range(['red', 'orange', 'yellow', 'green', 'blue']);
+        .range(groupColors);
 
     let gCircles = d3.select(svg)
         .append('g')

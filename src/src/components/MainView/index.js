@@ -5,10 +5,13 @@ import _ from 'lodash';
 
 import styles from './styles.scss';
 import index from '../../index.css';
-import { Grommet, Select, Stack, Box, RangeSelector, Text } from 'grommet';
-import { grommet } from "grommet/themes";
+import gs from '../../config/_variables.scss';
+import { Grommet, Select, Stack, Box, RangeSelector, Text, Button } from 'grommet';
+import { grommet } from 'grommet/themes';
 
 import Glyph from '../Glyph';
+
+const groupColors = [ gs.groupColor1, gs.groupColor2, gs.groupColor3, gs.groupColor4, gs.groupColor5 ];
 
 class MainView extends Component {
 	constructor(props) {
@@ -41,11 +44,19 @@ class MainView extends Component {
         svg: {
           width: 900,
           height: 400
+        },
+        temporalView: {
+          width: 850,
+          height: 400
+        },
+        targetView: {
+          width: 50,
+          height: 400
         }
       },
       rectWidth: 5,
       rectHeight: 20,
-      stdBarMaxHeight: 20,
+      stdBarMaxHeight: 30,
       circleRadius: 2
     }
 
@@ -62,19 +73,20 @@ class MainView extends Component {
 
     this.state = {
       selectedRegion: [0, 10],
+      selectedUser: ['PUH-2018-056'],
       selectedGroup: 'Group 3'
     };
 
     this.handleChangeTimeGranularity = this.handleChangeTimeGranularity.bind(this);
     this.handleSelectedTimeInterval = this.handleSelectedTimeInterval.bind(this);
     this.handleGroupSelection = this.handleGroupSelection.bind(this);
+    this.handleSelectedPattern = this.handleSelectedPattern.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    console.log('shouldComponentUpdate: ', nextProps.tNum, this.props.groupData[0].length, nextProps.groupData[0].length);
     const groupDataPropsChange = this.props.groupData !== nextProps.groupData;
-    const groupDataPropsDetailedChange = this.props.groupData[0].length !== nextProps.groupData[0].length;
-    const tNumGroupDataMatch = nextProps.tNum === nextProps.groupData[0].length;
+    const groupDataPropsDetailedChange = this.props.groupData.groups[0].length !== nextProps.groupData.groups[0].length;
+    const tNumGroupDataMatch = nextProps.tNum === nextProps.groupData.groups[0].length;
     const usersDataPropsChange = this.props.usersData !== nextProps.usersData; 
     return tNumGroupDataMatch;
   }
@@ -87,8 +99,8 @@ class MainView extends Component {
     }
     if (this.state.selectedRegion !== nextState.selectedRegion) {
       d3.select('.rect_selected_region')
-        .attr('x', this.state.selectedRegion[0])
-        .attr('width', this.state.selectedRegion[1] - this.state.selectedRegion[0])
+        .attr('x', this.xRectScale(this.state.selectedRegion[0]))
+        .attr('width', this.xRectScale(this.state.selectedRegion[1] - this.state.selectedRegion[0]));
     }
   }
 
@@ -107,20 +119,33 @@ class MainView extends Component {
     const selectedGroup = e.value;
     this.setState({
       selectedGroup: selectedGroup
-    })
+    });
+  }
+
+  handleSelectedPattern() {
+    const { selectedUser, selectedRegion } = this.state;
+    const { usersData } = this.props;
+
+    const selectedUserData = usersData[selectedUser],
+          selectedPattern = selectedUserData.map((d) => d.mean).slice(selectedRegion[0], selectedRegion[1]);
+
+    this.props.onSelectPattern(selectedPattern);
   }
 
   update() {
     const { selectedGroup } = this.state;
     const { selectedUser, diff, groupData, usersData,
-      tNum, numDataPerTime } = this.props;
+            tNum, numDataPerTime } = this.props,
+          groupStats = groupData.stat,
+          groupObj = groupData.groups;
 
-    const groupMeans = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.mean))),
-          groupStds = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.std))),
+    const groupMeans = [].concat(...Object.values(groupObj).map((group) => group.map((d) => d.mean))),
+          groupStds = [].concat(...Object.values(groupObj).map((group) => group.map((d) => d.std))),
           selectedGroupIdx = parseInt(selectedGroup.replace('Group ', '')) - 1,
-          group1Means = groupData[selectedGroupIdx].map((d) => d.mean);  // Assuming that group1 is the most similar to the user
+          group1Means = groupObj[selectedGroupIdx].map((d) => d.mean);  // Assuming that group1 is the most similar to the user
 
-    const userMeans = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.mean)));
+    const userMeans = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.mean))),
+          userStds = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.std)));
     const wholeData = [ ...groupMeans, ...userMeans ],
           diffs = userMeans.map((d, i) => d - group1Means[i]);
 
@@ -138,11 +163,11 @@ class MainView extends Component {
 
     this.xRectScale = d3.scaleBand()
       .domain(d3.range(tNum))
-      .range([0, this.layout.userView.svg.width - 20]);
+      .range([0, this.layout.userView.svg.width - 50]);
 
     this.yGroupScale = d3.scaleLinear()
       .domain(d3.extent(groupMeans))
-      .range([this.layout.groupView.svg.height - this.layout.groupView.paddingBottom - this.layout.rectHeight, 0]);
+      .range([this.layout.groupView.temporalView.height - this.layout.groupView.paddingBottom - this.layout.rectHeight, 0]);
 
     this.yIndividualScale = d3.scaleLinear()
       .domain(d3.extent(userMeans))
@@ -154,6 +179,10 @@ class MainView extends Component {
 
     this.stdScale = d3.scaleLinear()
       .domain(d3.extent(groupStds))
+      .range([10, this.layout.stdBarMaxHeight]);
+
+    this.userStdScale = d3.scaleLinear()
+      .domain(d3.extent(userStds))
       .range([4, this.layout.stdBarMaxHeight]);
 
     this.diffScale = d3.scaleLinear()
@@ -167,6 +196,14 @@ class MainView extends Component {
     this.riskRatioGroupScale = d3.scaleLinear()
       .domain([d3.min(wholeData), (d3.min(wholeData)+d3.max(wholeData))/2, d3.max(wholeData)] )// Spread all data within groups
       .range(['blue', 'lightgray', 'red']);
+
+    this.targetRatio = d3.scaleLinear()
+      .domain([0, 1])
+      .range(['whitesmoke', 'red']);
+
+    this.groupSizeRatio = d3.scaleLinear()
+      .domain([0, 300])
+      .range([0, this.layout.groupView.height])
   }
 
   renderUserView() {
@@ -193,17 +230,23 @@ class MainView extends Component {
             .attr('class', 'g_user_axis')
             .attr('transform', 'translate(0,' + (this.layout.userView.svg.height - this.layout.userView.paddingBottom) + ')');
 
-    // Selection rectangle
+    // define the area
+    const area = d3.area()
+          .x((d, i) => this.xRectScale(i) + this.layout.rectWidth/2)
+          .y0((d) => this.yIndividualScale(d.mean) - this.userStdScale(d.std))
+          .y1((d) => this.yIndividualScale(d.mean) + this.layout.rectHeight + this.userStdScale(d.std));
+
+    // Outlier rectangle
     gUsers.append('rect')
           .attr('class', 'rect_global_outlier_region')
           .attr('x', this.xRectScale(10))
-          .attr('y', this.yIndividualScale.range()[1])
+          .attr('y', -5)
           .attr('width', this.xRectScale(30) - this.xRectScale(10))
-          .attr('height', this.yIndividualScale.range()[0] - this.yIndividualScale.range()[1])
+          .attr('height', this.layout.userView.svg.height - this.layout.userView.paddingBottom)
           .style('fill', 'red')
-          .style('opacity', 0.3);
-
-    console.log('usersData: ', selectedPatients);
+          .style('fill-opacity', 0.1)
+          .style('stroke', 'red')
+          .style('stroke-dasharray', '4,4');
 
     selectedPatients.forEach((user, idx) => {
       // User name legend
@@ -212,15 +255,38 @@ class MainView extends Component {
       //       .attr('y', idx*25 + 30)
       //       .text(user);
 
-      console.log('usersData: ', usersData);
-      console.log('usersData: ', usersData[user]);
       // Rectangles
       // upperY coordinate for each rect = (this.yIndividualScale(d.mean) - this.layout.rectHeight/2);
-      const gGlyphs = gUsers.selectAll('.g_glyph')
+      const gUser = gUsers.append('g')
+            .attr('class', 'g_user_' + user);
+
+      // add the area
+      gUser.append('path')
+          .data([usersData[user]])
+          .attr('class', 'std_area')
+          .attr('d', area)
+          .style('fill', 'lightgray')
+          .style('fill-opacity', 0.5)
+          .style('stroke', groupColors[idx])
+          .style('stroke-width', 2);
+
+      const gGlyphs = gUser.selectAll('.g_glyphs')
             .data(usersData[user])
             .enter().append('g')
-            .attr('class', 'g_glyph')
+            .attr('class', 'g_glyphs')
             .attr('transform', (d, i) => 'translate(' + this.xRectScale(i) + ',' + (this.yIndividualScale(d.mean) - this.layout.rectHeight/2) + ')');
+
+      // Selection rectangle
+      gUsers.append('rect')
+            .attr('class', 'rect_selected_region')
+            .attr('x', 1)
+            .attr('y', -5)
+            .attr('width', 10)
+            .attr('height', this.layout.userView.svg.height - this.layout.userView.paddingBottom)
+            .style('fill', 'blue')
+            .style('fill-opacity', 0.1)
+            .style('stroke', 'black')
+            .style('stroke-dasharray', '4,4');
       
       gGlyphs.append('rect')
             .attr('class', 'user_rect')
@@ -238,49 +304,54 @@ class MainView extends Component {
             .attr('cy', (d) => this.yIndividualScale(d.mean) - (this.yIndividualScale(d.mean) - this.layout.rectHeight/2))
             .attr('r', 2)
             .style('fill', 'black');
-      
-      // Selection rectangle
-      gUsers.append('rect')
-            .attr('class', 'rect_selected_region')
-            .attr('x', 1)
-            .attr('y', this.yIndividualScale.range()[1])
-            .attr('width', 10)
-            .attr('height', this.yIndividualScale.range()[0] - this.yIndividualScale.range()[1])
-            .style('fill', 'black');
     });
 
     // For rendering
-    const tickValuesForSelector = d3.range(0, this.props.tNum, 10),
-          valuesForSelector = d3.range(0, this.props.tNum, 10),
+    const tickValuesForSelector = d3.range(0, this.props.tNum+1, 10),
+          valuesForSelector = d3.range(0, this.props.tNum+1, 10),
           minValue = 0,
           maxValue = this.props.tNum
 
     return (
       <div>
-        <div>{selectedPatients[0]}</div>
+        <div style={{ 'display': 'flex' }}>
+            { selectedPatients.map((patientLabel, patientIdx) => {
+                return (<div className={styles.patientLabel} style={{ 'backgroundColor': groupColors[patientIdx] }}>{patientLabel}</div>);
+              }) 
+            }
+          </div>
         {_self.svgUserView.toReact()}
         <Grommet theme={grommet}>
-          <Stack style={{ 'width': this.layout.userView.width }}>
-            <Box direction="row" justify="between">
-              {tickValuesForSelector.map(value => (
-                <Box key={value} pad="small" border={false}>
-                  <Text style={{ fontSize: '10px' }}>
-                    {value}
-                  </Text>
-                </Box>
-              ))}
-            </Box>
-            <RangeSelector
-              direction="horizontal"
-              invert={false}
-              min={minValue}
-              max={maxValue}
-              size="medium"
-              round="small"
-              values={this.state.selectedRegion}
-              onChange={this.handleSelectedTimeInterval}
+          <Box direction='row' justify='between'>
+            <Stack style={{ 'width': this.layout.userView.width - 50 }}>
+              <Box direction='row' justify='between'>
+                {tickValuesForSelector.map(value => (
+                  <Box key={value} pad='small' border={false}>
+                    <Text style={{ fontSize: '10px' }}>
+                      {value}
+                    </Text>
+                  </Box>
+                ))}
+              </Box>
+  Y            <RangeSelector
+                direction='horizontal'
+                invert={false}
+                min={minValue}
+                max={maxValue}
+                size='medium'
+                round='small'
+                values={this.state.selectedRegion}
+                onChange={this.handleSelectedTimeInterval}
+              />
+            </Stack>
+            <Button
+              primary
+              color="#111111"
+              label="#111111"
+              onClick={this.handleSelectedPattern}
+              // {...props}
             />
-          </Stack>
+          </Box>
         </Grommet>
       </div>
     );
@@ -289,19 +360,21 @@ class MainView extends Component {
   renderDiffView() {
     const { selectedGroup } = this.state;
     const { selectedUser, diff, groupData, usersData,
-            tNum, numDataPerTime } = this.props;
+            tNum, numDataPerTime } = this.props,
+          groupStats = groupData.stat,
+          groupObj = groupData.groups;
 
     this.svgDiffView = new ReactFauxDOM.Element('svg');
     this.svgDiffView.setAttribute('width', this.layout.diffView.svg.width);
     this.svgDiffView.setAttribute('height', this.layout.diffView.svg.height);
 
-    const groupMeans = [].concat(...Object.values(groupData).map((group) => group.map((d) => d.mean))),
-          userMeans = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.mean))),
+    const selectedUserData = Object.values(usersData)[0], // Simply select the first patient in the array for now
+          groupMeans = [].concat(...Object.values(groupObj).map((group) => group.map((d) => d.mean))),
+          userMeans = [].concat(...selectedUserData.map((d) => d.mean)),
           selectedGroupIdx = parseInt(selectedGroup.replace('Group ', '')) - 1,
-          group1Means = groupData[selectedGroupIdx].map((d) => d.mean),  // Assuming that group1 is the most similar to the user
+          group1Means = groupObj[selectedGroupIdx].map((d) => d.mean),  // Assuming that group1 is the most similar to the user
           diffs = userMeans.map((d, i) => d - group1Means[i]);
 
-    console.log(diffs);
     const gDiff = d3.select(this.svgDiffView)
             .append('g')
             .attr('class', 'g_diff')
@@ -354,11 +427,14 @@ class MainView extends Component {
   }
 
   renderGroupView() {
+    const { selectedGroup } = this.state;
     const { tNum, numDataPerTime } = this.props;
-    const { groups, groupData } = this.props;
+    const { groups, groupData } = this.props,
+          groupStats = groupData.stat,
+          groupObj = groupData.groups;
     const _self = this;
 
-    console.log('MainView: renderGroupView', groupData);
+    console.log('MainView: renderGroupView', groupObj);
 
     this.svgGroupView = new ReactFauxDOM.Element('svg');
     this.svgGroupView.setAttribute('width', this.layout.groupView.svg.width);
@@ -366,7 +442,7 @@ class MainView extends Component {
 
     const brush = d3.brushX(this.xRectScale)
                 .extent([[0, 0], [800, 400]])
-                .on("start brush end", brushed);
+                .on('start brush end', brushed);
 
     // this.svgGroupView.append('defs')
     //     .append('clipPath')
@@ -382,70 +458,62 @@ class MainView extends Component {
           gGroupName = d3.select(this.svgGroupView)
             .append('g')
             .attr('class', 'g_group_rects')
-            .attr('transform', 'translate(0,0)');
+            .attr('transform', 'translate(0,0)'),
+          gTarget = d3.select(this.svgGroupView)
+            .append('g')
+            .attr('class', 'g_group_target')
+            .attr('transform', 'translate(' + this.layout.groupView.temporalView.width + ',0)');
     const gBrush = d3.select(this.svgGroupView)
             .classed('x brush', true)
             .call(brush)
-            .selectAll("rect")
-            .attr("y", -6)
-            .attr("height", this.layout.groupView.svg.height)
+            .selectAll('rect')
+            .attr('y', -6)
+            .attr('height', this.layout.groupView.temporalView.height)
 
     const xAxisSetting = d3.axisBottom(this.xRectScale)
             .tickValues(d3.range(0, tNum, 10))
-            .tickSizeInner(-this.layout.groupView.svg.height)
+            .tickSizeInner(-this.layout.groupView.temporalView.height)
             .tickSizeOuter(0);
 
     const xAxis = gGroups.append('g')
             .call(xAxisSetting)
             .attr('class', 'g_group_axis')
-            .attr('transform', 'translate(0,' + (this.layout.groupView.svg.height - this.layout.groupView.paddingBottom) + ')');
-
-    // const groupText1 = gGroupName.append('text')
-    //         .attr('x', 0)
-    //         .attr('y', 25)
-    //         .text('Group 1'),
-    //       groupText2 = gGroupName.append('text')
-    //         .attr('x', 0)
-    //         .attr('y', 75)
-    //         .text('Group 2'),
-    //       groupText3 = gGroupName.append('text')
-    //         .attr('x', 0)
-    //         .attr('y', 125)
-    //         .text('Group 3'),
-    //       groupText4 = gGroupName.append('text')
-    //         .attr('x', 0)
-    //         .attr('y', 175)
-    //         .text('Group 4'),
-    //       groupText5 = gGroupName.append('text')
-    //         .attr('x', 0)
-    //         .attr('y', 225)
-    //         .text('Group 5');
+            .attr('transform', 'translate(0,' + (this.layout.groupView.temporalView.height - this.layout.groupView.paddingBottom) + ')');
 
     gGroups.selectAll('.g_group').exit().remove();
 
-    Object.keys(groupData).forEach((groupIdx) => {
-      console.log('groupIdx: ', groupIdx);
+    Object.keys(groupObj).forEach((groupIdx) => {
       const gGroup = gGroups.append('g')
         .attr('class', 'g_group g_group_' + groupIdx)
         .selectAll('.group_rect')
-        .data(groupData[groupIdx])
+        .data(groupObj[groupIdx])
         .enter();
-      // console.log(this.xRectScale(0));
-      // console.log(this.xRectScale.domain());
-      // console.log(this.layout.rectWidth/2);
-      // console.log(this.xRectScale(0) + this.layout.rectWidth/2);
+      
+      // define the area
+      const area = d3.area()
+        .x((d, i) => this.xRectScale(i) + this.layout.rectWidth/2)
+        .y0((d) => this.yGroupScale(d.mean) - this.stdScale(d.std))
+        .y1((d) => this.yGroupScale(d.mean) + this.layout.rectHeight + this.stdScale(d.std));
+
+      // add the area
+      gGroup.append('path')
+        .data([groupObj[groupIdx]])
+        .attr('class', 'std_area')
+        .attr('d', area)
+        .style('fill', 'lightgray')
+        .style('fill-opacity', 0.5)
+        .style('stroke', groupColors[groupIdx])
+        // .style('stroke', parseInt(selectedGroup.replace('Group ', '')) == (parseInt(groupIdx) + 1) ? 'blue': groupColors[groupIdx])
+        .style('stroke-width', parseInt(selectedGroup.replace('Group ', '')) == (parseInt(groupIdx) + 1) ? 6 : 3);
 
       const bars = gGroup.append('line')
         .attr('class', 'std_bar')
-        .attr('x1', (d, i) => {
-          // console.log(i, this.xRectScale(i) + this.layout.rectWidth/2);
-          return this.xRectScale(i) + this.layout.rectWidth/2;
-        })
+        .attr('x1', (d, i) => this.xRectScale(i) + this.layout.rectWidth/2)
         .attr('y1', (d) => this.yGroupScale(d.mean) - this.stdScale(d.std))
         .attr('x2', (d, i) => this.xRectScale(i) + this.layout.rectWidth/2)
         .attr('y2', (d) => this.yGroupScale(d.mean) + this.layout.rectHeight + this.stdScale(d.std))
-        .style('stroke', 'gray')
-        .style('stroke-width', 2);
+        .style('stroke', 'whitesmoke')
+        .style('stroke-width', 1);
 
       const rects = gGroup.append('rect')
         .attr('class', 'group_rect')
@@ -456,6 +524,16 @@ class MainView extends Component {
         .style('fill', (d) => this.riskRatioGroupScale(d.mean))
         .style('stroke', 'black');
     });
+
+    gTarget.selectAll('.group_target_rect')
+        .data(groupStats)
+        .enter().append('rect')
+        .attr('class', 'group_target_rect')
+        .attr('x', 0)
+        .attr('y', (d, i) => i*80+2)
+        .attr('width', 20)
+        .attr('height', (d, i) => this.groupSizeRatio(d.count))
+        .style('fill', 'black');
 
     function brushed() {
         console.log('brush:', brush.extent());
@@ -472,7 +550,9 @@ class MainView extends Component {
   }
 
   render() {
-    const { tNum, numDataPerTime, numGroups, groupData } = this.props;
+    const { tNum, numDataPerTime, numGroups, groupData } = this.props,
+          groupsStat = groupData.stat,
+          groupObj = groupData.groups;
     console.log('MainView: render():', groupData);
 
     this.update();
@@ -508,8 +588,11 @@ class MainView extends Component {
         </div>
         <div className={index.subTitle + ' ' + index.borderBottom}>Groups</div>
         <div className={styles.groupView}>
-          <div>
-            Group 1&nbsp;&nbsp;&nbsp;Group 2&nbsp;&nbsp;&nbsp;Group 3&nbsp;&nbsp;&nbsp;Group 4&nbsp;&nbsp;&nbsp;Group 5&nbsp;&nbsp;&nbsp;
+          <div style={{ 'display': 'flex' }}>
+            { groupOptions.map((groupLabel, groupIdx) => {
+                return (<div className={styles.groupLabel} style={{ 'backgroundColor': groupColors[groupIdx] }}>{groupLabel}</div>);
+              }) 
+            }
           </div>
           {this.renderGroupView()}
         </div>

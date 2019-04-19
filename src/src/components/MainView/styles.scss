@@ -9,3 +9,13 @@
 .groupViewTitle {
   border-bottom: 1px solid lightgray;
 }
+
+.groupLabel,
+.patientLabel {
+  margin: 5px;
+  padding: 5px;
+  color: white;
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 0.8rem;
+}

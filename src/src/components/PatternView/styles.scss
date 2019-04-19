@@ -1,0 +1,19 @@
+.PatternView {
+  grid-area: pv;
+  border-left: 2px solid lightgray;
+  padding-left: 10px;
+}
+
+.patientDropdown {
+  height: 60px;
+}
+
+.plot {
+  height: 150px;
+  border: 1px solid lightgray;
+  background-color: whitesmoke;
+}
+
+.patterns {
+  background-color: whitesmoke;
+}
