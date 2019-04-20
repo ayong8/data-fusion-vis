@@ -10,6 +10,12 @@ from tslearn.utils import to_time_series_dataset
 from tslearn.clustering import TimeSeriesKMeans
 from sklearn.decomposition import PCA
 
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error
+
 import os
 import pandas as pd
 import json
@@ -131,4 +137,15 @@ class ClusterGroups(APIView):
     df_for_dim_reduction_plot = pd.concat([pd.DataFrame(df_for_clustering_after_pca, columns=['x', 'y']), pd.DataFrame(clustering_result, columns=['cluster'])], axis=1)  # Merge pca result and clustering result
 
     return Response(json.dumps({'groupData': {'stat': groups_for_target, 'groups': clusters}, 'dimReductions': df_for_dim_reduction_plot.to_json(orient='records')}))
-    
+  
+class Predict(APIView):
+  def get(self, request, format=None):
+    pass
+
+  def post(self, request, format=None):
+    # create and fit the LSTM network
+    model = Sequential()
+    model.add(LSTM(4, input_shape=(1, look_back)))
+    model.add(Dense(1))
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)

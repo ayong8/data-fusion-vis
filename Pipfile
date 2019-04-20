@@ -40,6 +40,8 @@ django-cors-headers = "*"
 pandas = "*"
 numpy = "*"
 tslearn = "*"
+keras = "*"
+tensorflow = "*"
 
 [requires]
 python_version = "3.7.2"

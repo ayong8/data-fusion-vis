@@ -132,6 +132,27 @@ class MainView extends Component {
     this.props.onSelectPattern(selectedPattern);
   }
 
+  handlePredict() {
+    // fetch('/data/loadUsers/', {
+    //   method: 'post',
+    //   body: JSON.stringify({
+    //     selectedPatients: selectedPatients,
+    //     tNum: tNum,
+    //     tSize: numDataPerTime
+    //   })
+    // }).then( (response) => {
+    //     return response.json() 
+    // })   
+    // .then( (file) => {
+    //   const usersData = JSON.parse(file);
+    //   console.log('usersData: ', usersData)
+    //   console.log('selectedPatients: ', selectedPatients)
+    //   this.setState({
+    //     usersData: usersData
+    //   });
+    // });
+  }
+
   update() {
     const { selectedGroup } = this.state;
     const { selectedUser, diff, groupData, usersData,
