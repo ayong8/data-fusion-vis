@@ -8,6 +8,8 @@ import index from '../../index.css';
 import gs from '../../config/_variables.scss';
 import { Grommet, Select, Box, CheckBox } from 'grommet';
 import { grommet } from "grommet/themes";
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
 
 import data from '../../data/data1';
 
@@ -25,8 +27,8 @@ class PatternView extends Component {
           width: 80,
           height: 50
         },
-        discretePattern: {
-          width: 80,
+        discretePatternSvg: {
+          width: 160,
           height: 30
         }
       }
@@ -86,47 +88,106 @@ class PatternView extends Component {
   renderPatterns() {
     const { patterns } = this.state;
     let svgs = [],
-        svg = '';
+        svgRawPattern = '',
+        svgDiscretePattern = '';
 
     console.log('patterns: ', patterns);
 
     patterns.forEach((pattern) => {
-      svg = new ReactFauxDOM.Element('svg');
+      const rawPatternLength = pattern.rawPattern.length,
+            discretePatternLength = pattern.discretePattern.length;
 
-      svg.setAttribute('width', this.layout.patternPlot.rawPatternSvg.width);
-      svg.setAttribute('height', this.layout.patternPlot.rawPatternSvg.height);
-      svg.style.setProperty('background-color', 'whitesmoke');
+      svgRawPattern = new ReactFauxDOM.Element('svg');
+
+      svgRawPattern.setAttribute('width', this.layout.patternPlot.rawPatternSvg.width);
+      svgRawPattern.setAttribute('height', this.layout.patternPlot.rawPatternSvg.height);
 
       const xRawPatternScale = d3.scaleLinear()
-          .domain([0, 4])
+          .domain([0, rawPatternLength])
           .range([0, this.layout.patternPlot.rawPatternSvg.width]);
 
       const yRawPatternScale = d3.scaleLinear()
           .domain([0, 100])
           .range([this.layout.patternPlot.rawPatternSvg.height, 0]);
 
-      const line = d3.line()
+      const rawLine = d3.line()
           .x((d, i) => {
             return xRawPatternScale(i)
           })
           .y((d) => yRawPatternScale(d));
 
       // path
-      const patternLine = d3.select(svg).append('path')
+      const rawPatternPath = d3.select(svgRawPattern).append('path')
           .datum(pattern.rawPattern)
           .attr('class', (d,i) => 'raw_pattern raw_pattern_' + i)
-          .attr('d', line)
+          .attr('d', rawLine)
           .style('fill', 'none')
-          .style('stroke', 'red')
+          .style('stroke', 'gray')
+          .style('stroke-width', 1);
+
+
+      svgDiscretePattern = new ReactFauxDOM.Element('svg');
+
+      svgDiscretePattern.setAttribute('width', this.layout.patternPlot.discretePatternSvg.width);
+      svgDiscretePattern.setAttribute('height', this.layout.patternPlot.discretePatternSvg.height);
+
+      const xDiscretePatternScale = d3.scaleLinear()
+          .domain([0, discretePatternLength])
+          .range([0, this.layout.patternPlot.discretePatternSvg.width]);
+
+      const yDiscretePatternScale = d3.scaleOrdinal()
+          .domain(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
+          .range([this.layout.patternPlot.discretePatternSvg.height, 0]);
+
+      const discreteLine = d3.line()
+          .x((d, i) => {
+            return xDiscretePatternScale(i)
+          })
+          .y((d) => yDiscretePatternScale(d));
+
+      // path
+      const discretepatternPath = d3.select(svgDiscretePattern).append('path')
+          .datum(pattern.discretePattern)
+          .attr('class', (d,i) => 'discrete_pattern discrete_pattern_' + i)
+          .attr('d', discreteLine)
+          .style('fill', 'none')
+          .style('stroke', 'black')
           .style('stroke-width', 2);
 
-      svgs.push(svg);
+      svgs.push({ 'svgRawPattern': svgRawPattern, 'svgDiscretePattern': svgDiscretePattern });
     });
+
+    const CustomTableCell = withStyles(theme => ({
+      head: {
+        padding: '4px 6px',
+        fontSize: '0.8rem',
+        height: '30px'
+      },
+      body: {
+        padding: '4px 6px'
+      },
+    }))(TableCell);
 
     return (
       <div className={styles.patterns}>
-        <div>patterns here</div>
-        {svgs.map((svg) => (<div>{svg.toReact()}</div>) )}
+        <Table>
+          <TableHead>
+            <TableRow>
+              <CustomTableCell>#</CustomTableCell>
+              <CustomTableCell>Raw</CustomTableCell>
+              <CustomTableCell>Discrete</CustomTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {svgs.map((d,i) => (
+              <TableRow key={i}>
+                <CustomTableCell>{i+1}</CustomTableCell>
+                <CustomTableCell>{d.svgRawPattern.toReact()}</CustomTableCell>
+                <CustomTableCell>{d.svgDiscretePattern.toReact()}</CustomTableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     );
   }

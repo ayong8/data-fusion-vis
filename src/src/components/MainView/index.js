@@ -74,13 +74,16 @@ class MainView extends Component {
     this.state = {
       selectedRegion: [0, 10],
       selectedUser: ['PUH-2018-056'],
-      selectedGroup: 'Group 3'
+      selectedGroup: 'Group 3',
+      mouseoveredGroup: ''
     };
 
     this.handleChangeTimeGranularity = this.handleChangeTimeGranularity.bind(this);
     this.handleSelectedTimeInterval = this.handleSelectedTimeInterval.bind(this);
     this.handleGroupSelection = this.handleGroupSelection.bind(this);
     this.handleSelectedPattern = this.handleSelectedPattern.bind(this);
+    this.handleMouseoveredGroup = this.handleMouseoveredGroup.bind(this);
+    this.handleMouseoutGroup = this.handleMouseoutGroup.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -93,7 +96,7 @@ class MainView extends Component {
 
   componentWillUpdate(nextProps, nextState) {
     if (nextState.selectedRegion.length !== 0) {
-      d3.select('.rect_selected_region').style('fill', 'blue');
+      d3.select('.rect_selected_region').style('fill', '#7d4cdb');
     } else {
       d3.select('.rect_selected_region').style('fill', 'none');
     }
@@ -101,6 +104,17 @@ class MainView extends Component {
       d3.select('.rect_selected_region')
         .attr('x', this.xRectScale(this.state.selectedRegion[0]))
         .attr('width', this.xRectScale(this.state.selectedRegion[1] - this.state.selectedRegion[0]));
+    }
+
+    if (this.state.mouseoveredGroup !== nextState.mouseoveredGroup) {
+      console.log('mouseovered');
+      d3.selectAll('g_group').style('opacity', 0.1);
+      d3.select('g_group_' + this.state.mouseoveredGroup)
+        .style('opacity', 1);
+    }
+
+    if (this.state.mouseoveredGroup === '') {
+      d3.selectAll('g_group').style('opacity', 1);
     }
   }
 
@@ -151,6 +165,20 @@ class MainView extends Component {
     //     usersData: usersData
     //   });
     // });
+  }
+
+  handleMouseoveredGroup(groupIdx) {
+    console.log('handle mouseovered');
+    this.setState({
+      mouseoveredGroup: groupIdx
+    });
+  }
+
+  handleMouseoutGroup(groupIdx) {
+    console.log('handle mouseout');
+    this.setState({
+      mouseoveredGroup: ''
+    });
   }
 
   update() {
@@ -289,7 +317,7 @@ class MainView extends Component {
           .style('fill', 'lightgray')
           .style('fill-opacity', 0.5)
           .style('stroke', groupColors[idx])
-          .style('stroke-width', 2);
+          .style('stroke-width', 3);
 
       const gGlyphs = gUser.selectAll('.g_glyphs')
             .data(usersData[user])
@@ -304,9 +332,9 @@ class MainView extends Component {
             .attr('y', -5)
             .attr('width', 10)
             .attr('height', this.layout.userView.svg.height - this.layout.userView.paddingBottom)
-            .style('fill', 'blue')
-            .style('fill-opacity', 0.1)
-            .style('stroke', 'black')
+            .style('fill', '#7d4cdb')
+            .style('fill-opacity', 0.2)
+            .style('stroke', '#7d4cdb')
             .style('stroke-dasharray', '4,4');
       
       gGlyphs.append('rect')
@@ -342,7 +370,7 @@ class MainView extends Component {
             }
           </div>
         {_self.svgUserView.toReact()}
-        <Grommet theme={grommet}>
+        <Grommet theme={grommet} style={{ 'width': this.layout.userView.width - 50 }}>
           <Box direction='row' justify='between'>
             <Stack style={{ 'width': this.layout.userView.width - 50 }}>
               <Box direction='row' justify='between'>
@@ -354,7 +382,7 @@ class MainView extends Component {
                   </Box>
                 ))}
               </Box>
-  Y            <RangeSelector
+              <RangeSelector
                 direction='horizontal'
                 invert={false}
                 min={minValue}
@@ -366,9 +394,10 @@ class MainView extends Component {
               />
             </Stack>
             <Button
+              className={styles.saveButton}
               primary
-              color="#111111"
-              label="#111111"
+              color='#111111'
+              label='Save'
               onClick={this.handleSelectedPattern}
               // {...props}
             />
@@ -377,6 +406,15 @@ class MainView extends Component {
       </div>
     );
   }
+
+  // background: blue;
+  // border: none;
+  // padding: 1px 5px;
+  // font-size: 0.8rem;
+  // height: 30px;
+  // border-radius: 10px;
+  // margin-top: 10px;
+  // margin-left: 5px;
 
   renderDiffView() {
     const { selectedGroup } = this.state;
@@ -461,9 +499,9 @@ class MainView extends Component {
     this.svgGroupView.setAttribute('width', this.layout.groupView.svg.width);
     this.svgGroupView.setAttribute('height', this.layout.groupView.svg.height);
 
-    const brush = d3.brushX(this.xRectScale)
-                .extent([[0, 0], [800, 400]])
-                .on('start brush end', brushed);
+    // const brush = d3.brushX(this.xRectScale)
+    //             .extent([[0, 0], [800, 400]])
+    //             .on('start brush end', brushed);
 
     // this.svgGroupView.append('defs')
     //     .append('clipPath')
@@ -484,12 +522,12 @@ class MainView extends Component {
             .append('g')
             .attr('class', 'g_group_target')
             .attr('transform', 'translate(' + this.layout.groupView.temporalView.width + ',0)');
-    const gBrush = d3.select(this.svgGroupView)
-            .classed('x brush', true)
-            .call(brush)
-            .selectAll('rect')
-            .attr('y', -6)
-            .attr('height', this.layout.groupView.temporalView.height)
+    // const gBrush = d3.select(this.svgGroupView)
+    //         .classed('x brush', true)
+    //         .call(brush)
+    //         .selectAll('rect')
+    //         .attr('y', -6)
+    //         .attr('height', this.layout.groupView.temporalView.height)
 
     const xAxisSetting = d3.axisBottom(this.xRectScale)
             .tickValues(d3.range(0, tNum, 10))
@@ -522,10 +560,12 @@ class MainView extends Component {
         .attr('class', 'std_area')
         .attr('d', area)
         .style('fill', 'lightgray')
-        .style('fill-opacity', 0.5)
+        .style('fill-opacity', 0.3)
         .style('stroke', groupColors[groupIdx])
         // .style('stroke', parseInt(selectedGroup.replace('Group ', '')) == (parseInt(groupIdx) + 1) ? 'blue': groupColors[groupIdx])
-        .style('stroke-width', parseInt(selectedGroup.replace('Group ', '')) == (parseInt(groupIdx) + 1) ? 6 : 3);
+        .style('stroke-width', parseInt(selectedGroup.replace('Group ', '')) == (parseInt(groupIdx) + 1) ? 6 : 4)
+        .on('mouseover', (d, i) => this.handleMouseoveredGroup(i))
+        .on('mouseout', (d, i) => this.handleMouseoutGroup(i));
 
       const bars = gGroup.append('line')
         .attr('class', 'std_bar')
@@ -556,12 +596,9 @@ class MainView extends Component {
         .attr('height', (d, i) => this.groupSizeRatio(d.count))
         .style('fill', 'black');
 
-    function brushed() {
-        console.log('brush:', brush.extent());
-        _self.xRectScale.domain(brush.empty() ? _self.xRectScale.domain() : brush.extent());
-        // main.select('.area').attr('d', mainArea);
-        // main.select('.x.axis').call(mainXAxis);
-    }
+    // function brushed() {
+    //     _self.xRectScale.domain(brush.empty() ? _self.xRectScale.domain() : brush.extent());
+    // }
 
     return (
       <div>
