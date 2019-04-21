@@ -36,6 +36,16 @@ def open_dataset(file):
 
   return whole_dataset_df
 
+def sax_transform(pattern, perform_paa, paa_length, alphabet_length):
+  dat = pattern
+  dat = znorm(dat)
+  
+  if perform_paa:
+    dat = paa(dat, paa_length)
+  
+  sax_string = ts_to_string(dat, cuts_for_asize(alphabet_length))
+  return sax_string
+
 # e.g., total 5000 timepoints => chunk every 100 (t_size), which results in 50 chunks (t_num)
 def chunk(df, t_num, t_size):
   chunk_list = []
@@ -43,7 +53,12 @@ def chunk(df, t_num, t_size):
     chunk = df.loc[ str(t_idx*t_size) : str((t_idx+1)*t_size) ]
     chunk_mean = chunk.mean()
     chunk_std = chunk.std()
-    chunk_list.append({ 'sum':chunk_mean, 'mean': chunk_mean, 'std': chunk_std, 'outlierIndex': 1})
+    chunk_sax = sax_transform(chunk, False, 3, 5)
+
+    chunk_list.append({'mean': chunk_mean, 'std': chunk_std, 'outlierIndex': 1, 'chunk_sax': chunk_sax})
+  
+  #means = np.array([chunk['mean'] for chunk in chunk_list])
+  #means_sax = sax_transform(means, False, 3,5)
 
   return chunk_list
 
@@ -54,19 +69,6 @@ def group_by_kmeans(df, num_groups):
   cluster_membership_list = kmeans.fit_predict(df)
   
   return cluster_membership_list
-
-def sax_transform(pattern, perform_paa, paa_length, alphabet_length):
-  #dat = np.array([-2, 0, 2, 0, -1])
-  dat = pattern
-  dat = znorm(dat)
-  
-  if perform_paa:
-    dat = paa(dat, paa_length)
-  
-  sax_string = ts_to_string(dat, cuts_for_asize(alphabet_length))
-  print(sax_string)
-  return sax_string
-
 
 class LoadFile(APIView):
   def get(self, request, format=None):
@@ -109,9 +111,17 @@ class LoadUsers(APIView):
     supp_ratio_df = whole_dataset_df.drop(['survive', 'follow'], axis=1)
 
     user_chunks_dict = {}
+    user = {}
     for user_id in user_ids:
       user_chunks = chunk(supp_ratio_df.loc[user_id, :], t_num, t_size)
-      user_chunks_dict[user_id] = user_chunks
+
+      user_values = np.array([chunk['mean'] for chunk in user_chunks])
+      user_sax = sax_transform(user_values, False, 3,5)
+
+      user['chunks'] = user_chunks
+      user['sax'] = user_sax
+
+      user_chunks_dict[user_id] = user
 
     return Response(json.dumps(user_chunks_dict))
 
@@ -160,14 +170,20 @@ class ClusterGroups(APIView):
 
     # Chunk by timepoints
     clusters = {}
+    clusters_sax = {}
     for group_idx, df_group in enumerate(groups):  # Go over each group dataframe
         clusters[group_idx] = []
         chunk_list = chunk(df_group, t_num, t_size)  # df_group = (row = # of timepoints, column = 1 (sum))
         clusters[group_idx] = chunk_list
 
+        group_values = np.array([chunk['mean'] for chunk in chunk_list])
+        group_sax = sax_transform(group_values, False, 3,5)
+
+        clusters_sax[group_idx] = group_sax
+
     df_for_dim_reduction_plot = pd.concat([pd.DataFrame(df_for_clustering_after_pca, columns=['x', 'y']), pd.DataFrame(clustering_result, columns=['cluster'])], axis=1)  # Merge pca result and clustering result
 
-    return Response(json.dumps({'groupData': {'stat': groups_for_target, 'groups': clusters}, 'dimReductions': df_for_dim_reduction_plot.to_json(orient='records')}))
+    return Response(json.dumps({'groupData': {'stat': groups_for_target, 'groups': clusters, 'groupsSax': clusters_sax}, 'dimReductions': df_for_dim_reduction_plot.to_json(orient='records')}))
   
 class Predict(APIView):
   def get(self, request, format=None):
