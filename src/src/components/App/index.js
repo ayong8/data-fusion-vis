@@ -51,7 +51,8 @@ class App extends Component {
       groups: [],
       groupData: [],
 
-      selectedPattern: []
+      selectedPattern: [],
+      selectedPatternSax: []
     };
 
     this.handleTimeGranularity = this.handleTimeGranularity.bind(this);
@@ -159,6 +160,7 @@ class App extends Component {
         .then( (response) => {
           const { groupData, dimReductions } = JSON.parse(response);
 
+
           this.setState({
             groupData: groupData,
             dimReductions: JSON.parse(dimReductions)
@@ -197,9 +199,10 @@ class App extends Component {
     });
   }
 
-  handleSelectPattern(selectedPattern) {
+  handleSelectPattern(selected) {
     this.setState({
-      selectedPattern: selectedPattern
+      selectedPattern: selected.selectedPattern,
+      selectedPatternSax: selected.selectedPatternSax
     })
   }
 
@@ -239,6 +242,8 @@ class App extends Component {
           selectedPatients={this.state.selectedPatients}
           dimReductions={this.state.dimReductions}
           selectedPattern={this.state.selectedPattern}
+          groupData={this.state.groupData}
+          selectedPatternSax={this.state.selectedPatternSax}
           onSelectPatients={this.handleSelectPatients}
         />
       </div>

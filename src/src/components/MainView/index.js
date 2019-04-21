@@ -141,9 +141,10 @@ class MainView extends Component {
     const { usersData } = this.props;
 
     const selectedUserData = usersData[selectedUser],
-          selectedPattern = selectedUserData.map((d) => d.mean).slice(selectedRegion[0], selectedRegion[1]);
+          selectedPattern = selectedUserData.chunks.map((d) => d.mean).slice(selectedRegion[0], selectedRegion[1]),
+          selectedPatternSax = selectedUserData.sax.split('').slice(selectedRegion[0], selectedRegion[1]);
 
-    this.props.onSelectPattern(selectedPattern);
+    this.props.onSelectPattern({'selectedPattern': selectedPattern, 'selectedPatternSax':selectedPatternSax});
   }
 
   handlePredict() {
@@ -193,8 +194,8 @@ class MainView extends Component {
           selectedGroupIdx = parseInt(selectedGroup.replace('Group ', '')) - 1,
           group1Means = groupObj[selectedGroupIdx].map((d) => d.mean);  // Assuming that group1 is the most similar to the user
 
-    const userMeans = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.mean))),
-          userStds = [].concat(...Object.values(usersData).map((user) => user.map((d) => d.std)));
+    const userMeans = [].concat(...Object.values(usersData).map((user) => user.chunks.map((d) => d.mean))),
+          userStds = [].concat(...Object.values(usersData).map((user) => user.chunks.map((d) => d.std)));
     const wholeData = [ ...groupMeans, ...userMeans ],
           diffs = userMeans.map((d, i) => d - group1Means[i]);
 
@@ -311,7 +312,7 @@ class MainView extends Component {
 
       // add the area
       gUser.append('path')
-          .data([usersData[user]])
+          .data([usersData[user].chunks])
           .attr('class', 'std_area')
           .attr('d', area)
           .style('fill', 'lightgray')
@@ -320,7 +321,7 @@ class MainView extends Component {
           .style('stroke-width', 3);
 
       const gGlyphs = gUser.selectAll('.g_glyphs')
-            .data(usersData[user])
+            .data(usersData[user].chunks)
             .enter().append('g')
             .attr('class', 'g_glyphs')
             .attr('transform', (d, i) => 'translate(' + this.xRectScale(i) + ',' + (this.yIndividualScale(d.mean) - this.layout.rectHeight/2) + ')');
@@ -429,7 +430,7 @@ class MainView extends Component {
 
     const selectedUserData = Object.values(usersData)[0], // Simply select the first patient in the array for now
           groupMeans = [].concat(...Object.values(groupObj).map((group) => group.map((d) => d.mean))),
-          userMeans = [].concat(...selectedUserData.map((d) => d.mean)),
+          userMeans = [].concat(...selectedUserData.chunks.map((d) => d.mean)),
           selectedGroupIdx = parseInt(selectedGroup.replace('Group ', '')) - 1,
           group1Means = groupObj[selectedGroupIdx].map((d) => d.mean),  // Assuming that group1 is the most similar to the user
           diffs = userMeans.map((d, i) => d - group1Means[i]);
