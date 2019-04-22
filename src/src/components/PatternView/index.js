@@ -57,15 +57,15 @@ class PatternView extends Component {
       var matchedPatterns = []
 
       var re = new RegExp(selectedPatternSax.join(''),"g")
-      console.log(re)
-      var match = ''
+      //console.log(re)
+      var match = null
       Object.values(groupData.groupsSax).forEach((sax,i)=> {
         while ((match = re.exec(sax)) != null) {
           var matchedPattern = {}
 
           matchedPattern['groupIndex'] = i
           matchedPattern['index'] = match.index
-          console.log(matchedPattern);
+          //console.log(matchedPattern);
           matchedPatterns = [...matchedPatterns,matchedPattern]
         }
       })

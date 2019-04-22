@@ -28,6 +28,9 @@ import json
 data = './data/right_hemi_small_simple.csv'
 label_data = './data/patient_label.csv'
 
+global_mean = 0
+global_std = 0
+
 # (Row: patients) x (column: 5000 timepoints + 2 target labels ('survive', 'follow')) - 'follow' (follow commands?)
 def open_dataset(file):
   file_path = os.path.join(STATICFILES_DIRS[0], file)
@@ -38,8 +41,9 @@ def open_dataset(file):
 
 def sax_transform(pattern, perform_paa, paa_length, alphabet_length):
   dat = pattern
-  dat = znorm(dat)
-  
+  #dat = znorm(dat)
+  dat = (dat - global_mean) / global_std
+
   if perform_paa:
     dat = paa(dat, paa_length)
   
@@ -53,12 +57,12 @@ def chunk(df, t_num, t_size):
     chunk = df.loc[ str(t_idx*t_size) : str((t_idx+1)*t_size) ]
     chunk_mean = chunk.mean()
     chunk_std = chunk.std()
-    chunk_sax = sax_transform(chunk, False, 3, 5)
+    chunk_sax = sax_transform(chunk, False, 3, 10)
 
     chunk_list.append({'mean': chunk_mean, 'std': chunk_std, 'outlierIndex': 1, 'chunk_sax': chunk_sax})
   
   #means = np.array([chunk['mean'] for chunk in chunk_list])
-  #means_sax = sax_transform(means, False, 3,5)
+  #means_sax = sax_transform(means, False, 3,10)
 
   return chunk_list
 
@@ -93,7 +97,7 @@ class SAXTransform(APIView):
     selected_pattern = json_request['selectedPattern']
     perform_paa = json_request['performPaa']
     
-    transformed = sax_transform(selected_pattern, perform_paa, 3, 5)
+    transformed = sax_transform(selected_pattern, perform_paa, 3, 10)
 
     return Response(json.dumps({'transformedString': transformed}))
 
@@ -110,13 +114,17 @@ class LoadUsers(APIView):
     whole_dataset_df = open_dataset(data)
     supp_ratio_df = whole_dataset_df.drop(['survive', 'follow'], axis=1)
 
+    global global_mean, global_std
+    global_mean = supp_ratio_df.stack().mean()
+    global_std =  supp_ratio_df.stack().std()
+
     user_chunks_dict = {}
     user = {}
     for user_id in user_ids:
       user_chunks = chunk(supp_ratio_df.loc[user_id, :], t_num, t_size)
 
       user_values = np.array([chunk['mean'] for chunk in user_chunks])
-      user_sax = sax_transform(user_values, False, 3,5)
+      user_sax = sax_transform(user_values, False, 3,10)
 
       user['chunks'] = user_chunks
       user['sax'] = user_sax
@@ -162,7 +170,7 @@ class ClusterGroups(APIView):
       group_stat = {}
       group_stat['group'] = group_idx
       group_stat['count'] = len(patients_in_cluster)
-      print('ddddd: ', target_df.loc[patients_in_cluster, 'survive'].value_counts(normalize=True))
+      #print('ddddd: ', target_df.loc[patients_in_cluster, 'survive'].value_counts(normalize=True))
       group_stat['survive'] = target_df.loc[patients_in_cluster, 'survive'].value_counts(normalize=True)[0] # Yes
       group_stat['follow'] = target_df.loc[patients_in_cluster, 'follow'].value_counts(normalize=True)[0]
       groups_for_target.append(group_stat)
@@ -177,7 +185,7 @@ class ClusterGroups(APIView):
         clusters[group_idx] = chunk_list
 
         group_values = np.array([chunk['mean'] for chunk in chunk_list])
-        group_sax = sax_transform(group_values, False, 3,5)
+        group_sax = sax_transform(group_values, False, 3,10)
 
         clusters_sax[group_idx] = group_sax
 
