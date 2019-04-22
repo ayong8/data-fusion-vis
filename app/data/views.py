@@ -85,8 +85,9 @@ class LoadUserNames(APIView):
   def get(self, request, format=None):
     entire_file_path = os.path.join(STATICFILES_DIRS[0], data)
     whole_dataset_df = pd.read_csv(open(entire_file_path, 'rU'))
+    whole_dataset_df.set_index('idx', inplace=True)
 
-    return Response(json.dumps(list(whole_dataset_df.columns)))
+    return Response(json.dumps(list(whole_dataset_df.index)))
 
 class SAXTransform(APIView):
   def get(self, request, format=None):
