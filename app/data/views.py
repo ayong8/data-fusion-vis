@@ -20,6 +20,8 @@ from saxpy.znorm import znorm
 from saxpy.paa import paa
 from saxpy.sax import ts_to_string
 from saxpy.alphabet import cuts_for_asize
+from saxpy.hotsax import find_discords_hotsax
+from numpy import genfromtxt
 
 import os
 import pandas as pd
@@ -48,7 +50,19 @@ def sax_transform(pattern, perform_paa, paa_length, alphabet_length):
     dat = paa(dat, paa_length)
   
   sax_string = ts_to_string(dat, cuts_for_asize(alphabet_length))
+  
   return sax_string
+
+def find_discords(sax_pattern, threshold):
+  sax_chars = list(sax_pattern)
+  discord_list = []
+  for index in range(len(sax_chars)):
+    if(index + 1 < len(sax_chars)):
+      char_diff = abs(ord(sax_chars[index]) - ord(sax_chars[index+1]))
+      if char_diff > threshold:
+        discord_list.append(index)
+  
+  return discord_list
 
 # e.g., total 5000 timepoints => chunk every 100 (t_size), which results in 50 chunks (t_num)
 def chunk(df, t_num, t_size):
@@ -85,9 +99,8 @@ class LoadUserNames(APIView):
   def get(self, request, format=None):
     entire_file_path = os.path.join(STATICFILES_DIRS[0], data)
     whole_dataset_df = pd.read_csv(open(entire_file_path, 'rU'))
-    whole_dataset_df.set_index('idx', inplace=True)
 
-    return Response(json.dumps(list(whole_dataset_df.index)))
+    return Response(json.dumps(list(whole_dataset_df.columns)))
 
 class SAXTransform(APIView):
   def get(self, request, format=None):
@@ -129,6 +142,7 @@ class LoadUsers(APIView):
 
       user['chunks'] = user_chunks
       user['sax'] = user_sax
+      user['discord'] = find_discords(user_sax, 5)
 
       user_chunks_dict[user_id] = user
 
@@ -180,6 +194,7 @@ class ClusterGroups(APIView):
     # Chunk by timepoints
     clusters = {}
     clusters_sax = {}
+    group_discords = {}
     for group_idx, df_group in enumerate(groups):  # Go over each group dataframe
         clusters[group_idx] = []
         chunk_list = chunk(df_group, t_num, t_size)  # df_group = (row = # of timepoints, column = 1 (sum))
@@ -189,10 +204,11 @@ class ClusterGroups(APIView):
         group_sax = sax_transform(group_values, False, 3,10)
 
         clusters_sax[group_idx] = group_sax
+        group_discords[group_idx] = find_discords(group_sax, 1)
 
     df_for_dim_reduction_plot = pd.concat([pd.DataFrame(df_for_clustering_after_pca, columns=['x', 'y']), pd.DataFrame(clustering_result, columns=['cluster'])], axis=1)  # Merge pca result and clustering result
 
-    return Response(json.dumps({'groupData': {'stat': groups_for_target, 'groups': clusters, 'groupsSax': clusters_sax}, 'dimReductions': df_for_dim_reduction_plot.to_json(orient='records')}))
+    return Response(json.dumps({'groupData': {'stat': groups_for_target, 'groups': clusters, 'groupsSax': clusters_sax, 'groupDiscords':group_discords}, 'dimReductions': df_for_dim_reduction_plot.to_json(orient='records')}))
   
 class Predict(APIView):
   def get(self, request, format=None):
@@ -204,4 +220,4 @@ class Predict(APIView):
     model.add(LSTM(4, input_shape=(1, look_back)))
     model.add(Dense(1))
     model.compile(loss='mean_squared_error', optimizer='adam')
-    model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
+    model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2) 
