@@ -56,11 +56,18 @@ def sax_transform(pattern, perform_paa, paa_length, alphabet_length):
 def find_discords(sax_pattern, threshold):
   sax_chars = list(sax_pattern)
   discord_list = []
+  
   for index in range(len(sax_chars)):
-    if(index + 1 < len(sax_chars)):
-      char_diff = abs(ord(sax_chars[index]) - ord(sax_chars[index+1]))
+    last_index = index + 10
+
+    if(last_index < len(sax_chars)):
+      char_window = sax_chars[index:last_index]
+      min_char = min(char_window)
+      max_char = max(char_window)
+
+      char_diff = abs(ord(max_char) - ord(min_char))
       if char_diff > threshold:
-        discord_list.append(index)
+        discord_list.append((index, last_index))
   
   return discord_list
 
@@ -140,7 +147,7 @@ class LoadUsers(APIView):
       user_chunks = chunk(supp_ratio_df.loc[user_id, :], t_num, t_size)
 
       user_values = np.array([chunk['mean'] for chunk in user_chunks])
-      user_sax = sax_transform(user_values, False, 3,10)
+      user_sax = sax_transform(user_values, False, 3,20)
 
       user['chunks'] = user_chunks
       user['sax'] = user_sax
@@ -212,10 +219,10 @@ class ClusterGroups(APIView):
         clusters[group_idx] = chunk_list
 
         group_values = np.array([chunk['mean'] for chunk in chunk_list])
-        group_sax = sax_transform(group_values, False, 3,10)
+        group_sax = sax_transform(group_values, False, 3,20)
 
         clusters_sax[group_idx] = group_sax
-        group_discords[group_idx] = find_discords(group_sax, 1)
+        group_discords[group_idx] = find_discords(group_sax, 2)
 
     df_for_dim_reduction_plot = pd.concat([pd.DataFrame(df_for_clustering_after_pca, columns=['x', 'y']), pd.DataFrame(clustering_result, columns=['cluster'])], axis=1)  # Merge pca result and clustering result
 
