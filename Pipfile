@@ -43,6 +43,7 @@ tslearn = "*"
 keras = "*"
 tensorflow = "*"
 saxpy = "*"
+pyclustering = "*"
 
 [requires]
 python_version = "3.7.2"

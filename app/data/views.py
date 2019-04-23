@@ -85,6 +85,8 @@ def chunk(df, t_num, t_size):
 def group_by_kmeans(df, num_groups):
   kmeans = TimeSeriesKMeans(n_clusters=num_groups, max_iter=5, metric='dtw')
   cluster_membership_list = kmeans.fit_predict(df)
+  centroids = kmeans.cluster_centers_
+  print('centroids: ', centroids)
   
   return cluster_membership_list
 
@@ -165,7 +167,7 @@ class ClusterGroups(APIView):
     target_df = whole_dataset_df[['survive', 'follow']]
 
     # Group by clustering algorithm
-    groups = []
+    groups_before_sorting = []
     groups_for_target = []
     patient_ids = list(whole_dataset_df.index)
     
@@ -173,6 +175,7 @@ class ClusterGroups(APIView):
     df_for_clustering = supp_ratio_df.values
     pca = PCA(n_components=2)
     df_for_clustering_after_pca = pca.fit_transform(df_for_clustering)
+    print('df_for_clustering_after_pca: ', df_for_clustering_after_pca)
     clustering_result = group_by_kmeans(to_time_series_dataset(df_for_clustering_after_pca), num_groups) # row: # of datapoints (=patients), col: # of timepoints
     pd_patient_cluster = pd.DataFrame({'patient_id': patient_ids, 'cluster': clustering_result})
 
@@ -185,11 +188,19 @@ class ClusterGroups(APIView):
       group_stat = {}
       group_stat['group'] = group_idx
       group_stat['count'] = len(patients_in_cluster)
-      #print('ddddd: ', target_df.loc[patients_in_cluster, 'survive'].value_counts(normalize=True))
-      group_stat['survive'] = target_df.loc[patients_in_cluster, 'survive'].value_counts(normalize=True)[0] # Yes
-      group_stat['follow'] = target_df.loc[patients_in_cluster, 'follow'].value_counts(normalize=True)[0]
+      print('ddddd: ', target_df.loc[patients_in_cluster, 'survive'].value_counts(normalize=True).tolist())
+      print('eeeee: ', target_df.loc[patients_in_cluster, 'follow'].value_counts(normalize=True).tolist())
+      group_stat['survive'] = 1- target_df.loc[patients_in_cluster, 'survive'].value_counts(normalize=True).tolist()[0] # Proportion who survived
+      group_stat['follow'] = 1- target_df.loc[patients_in_cluster, 'follow'].value_counts(normalize=True).tolist()[0]
       groups_for_target.append(group_stat)
-      groups.append(df_group)
+      groups_before_sorting.append(df_group)
+
+    # Order group by survival rate
+    groups_for_target.sort(key = lambda i: (i['survive']))
+    groups = []
+    group_rankings = [ group['group'] for group in groups_for_target ] # idx is ranking
+    for idx, ranking in enumerate(group_rankings):
+      groups.append(groups_before_sorting[ranking])
 
     # Chunk by timepoints
     clusters = {}
