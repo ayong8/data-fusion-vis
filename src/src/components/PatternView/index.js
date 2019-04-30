@@ -6,10 +6,11 @@ import _ from 'lodash';
 import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss';
-import { Grommet, Select, Box, CheckBox } from 'grommet';
+import { Grommet, Select, Box, CheckBox, Form, FormField, Button } from 'grommet';
 import { grommet } from "grommet/themes";
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
+import "antd/dist/antd.css";
 
 import data from '../../data/data1';
 
@@ -28,19 +29,15 @@ class PatternView extends Component {
           height: 50
         },
         discretePatternSvg: {
-          width: 160,
+          width: 130,
           height: 30
         }
       }
     }
 
     this.state = {
+      userDefinedPattern: '',
       patterns: [
-        {
-          source: 'user_defined',
-          rawPattern: [1,80,80,1],
-          discretePattern: ['a','b','b','a']
-        },
         {
           source: 'user_defined',
           rawPattern: [1,80,80,1],
@@ -48,6 +45,9 @@ class PatternView extends Component {
         }
       ]
     };
+
+    this.handleSubmitUserDefinedPattern = this.handleSubmitUserDefinedPattern.bind(this);
+    this.handleChangeUserDefinedPattern = this.handleChangeUserDefinedPattern.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -58,7 +58,7 @@ class PatternView extends Component {
       
       var matchedPatterns = []
 
-      var re = new RegExp(selectedPatternSax.join(''),"g")
+      var re = new RegExp(selectedPatternSax, "g")
       //console.log(re)
       var match = null
       Object.values(groupData.groupsSax).forEach((sax,i)=> {
@@ -109,6 +109,22 @@ class PatternView extends Component {
       //     }));
       //   });
     }
+  }
+
+  handleSubmitUserDefinedPattern(userDefinedPattern) {
+    this.setState(prevState => ({
+      patterns: [...prevState.patterns, {
+        source: 'user_defined',
+        rawPattern: [1,70,50,20,30,1],
+        discretePattern: ['a','g','f','b','c','a']
+      }]
+    }));
+  }
+
+  handleChangeUserDefinedPattern(e) {
+    this.setState({
+      userDefinedPattern: e.target.value
+    });
   }
 
   renderPatterns() {
@@ -180,7 +196,7 @@ class PatternView extends Component {
           .style('stroke', 'black')
           .style('stroke-width', 2);
 
-      svgs.push({ 'svgRawPattern': svgRawPattern, 'svgDiscretePattern': svgDiscretePattern });
+      svgs.push({ 'source': pattern.source, 'svgRawPattern': svgRawPattern, 'svgDiscretePattern': svgDiscretePattern });
     });
 
     const CustomTableCell = withStyles(theme => ({
@@ -200,6 +216,7 @@ class PatternView extends Component {
           <TableHead>
             <TableRow>
               <CustomTableCell>#</CustomTableCell>
+              <CustomTableCell>Type</CustomTableCell>
               <CustomTableCell>Raw</CustomTableCell>
               <CustomTableCell>Discrete</CustomTableCell>
             </TableRow>
@@ -208,6 +225,7 @@ class PatternView extends Component {
             {svgs.map((d,i) => (
               <TableRow key={i}>
                 <CustomTableCell>{i+1}</CustomTableCell>
+                <CustomTableCell>{d.source.replace('_', ' ')}</CustomTableCell>
                 <CustomTableCell>{d.svgRawPattern.toReact()}</CustomTableCell>
                 <CustomTableCell>{d.svgDiscretePattern.toReact()}</CustomTableCell>
               </TableRow>
@@ -221,6 +239,33 @@ class PatternView extends Component {
   render() {
     const { selectedPattern } = this.props;
 
+    const props = {
+      action: '//jsonplaceholder.typicode.com/posts/',
+      onChange({ file, fileList }) {
+        if (file.status !== 'uploading') {
+          console.log(file, fileList);
+        }
+      },
+      defaultFileList: [{
+        uid: '1',
+        name: 'xxx.png',
+        status: 'done',
+        response: 'Server Error 500', // custom error message to show
+        url: 'http://www.baidu.com/xxx.png',
+      }, {
+        uid: '2',
+        name: 'yyy.png',
+        status: 'done',
+        url: 'http://www.baidu.com/yyy.png',
+      }, {
+        uid: '3',
+        name: 'zzz.png',
+        status: 'error',
+        response: 'Server Error 500', // custom error message to show
+        url: 'http://www.baidu.com/zzz.png',
+      }],
+    };
+
     console.log('selectedPattern: ', selectedPattern);
 
     return (
@@ -229,7 +274,10 @@ class PatternView extends Component {
         {/*** Data ***/}
         <div>
           <div className={index.subTitle + ' ' + index.borderBottom}>User-defined pattern</div>
-          <div>{'right_hemis_simple.csv'}</div>
+          <Form onSubmit={this.handleSubmitUserDefinedPattern}>
+            <FormField name="userDefinedPattern" value={this.state.userDefinedPattern} onChange={this.handleChangeUserDefinedPattern} />
+            <Button className={styles.submitButton} type="submit" primary label="Submit" />
+          </Form>
         </div>
         {/*** Select patterns ***/}
         <div className={index.subTitle + ' ' + index.borderBottom}>Patterns</div>

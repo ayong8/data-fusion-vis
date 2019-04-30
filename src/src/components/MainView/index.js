@@ -20,19 +20,19 @@ class MainView extends Component {
     this.layout = {
       userView: {
         width: 900,
-        height: 140,
+        height: 180,
         paddingBottom: 20,
         svg: {
           width: 900,
-          height: 140
+          height: 180
         }
       },
       diffView: {
         width: 900,
-        height: 140,
+        height: 100,
         svg: {
           width: 900,
-          height: 140
+          height: 100
         }
       },
       groupView: {
@@ -58,7 +58,7 @@ class MainView extends Component {
       rectHeight: 20,
       stdBarMaxHeight: 30,
       circleRadius: 2,
-      outlierBarHeight: 10
+      outlierBarHeight: 5
     }
 
     this.svgUserView = '';
@@ -143,9 +143,12 @@ class MainView extends Component {
     const { usersData } = this.props;
 
     const selectedUserData = usersData[selectedUser],
-          selectedPattern = selectedUserData.map((d) => d.mean).slice(selectedRegion[0], selectedRegion[1]);
+          selectedPattern = selectedUserData.chunks.map((d) => d.mean).slice(selectedRegion[0], selectedRegion[1]),
+          selectedPatternSax = selectedUserData.sax.slice(selectedRegion[0], selectedRegion[1]);
 
-    this.props.onSelectPattern(selectedPattern);
+    console.log('sssss: ', selectedPatternSax, selectedPattern);
+
+    this.props.onSelectPattern({selectedPattern: selectedPattern, selectedPatternSax: selectedPatternSax});
   }
 
   handlePredict() {
@@ -185,7 +188,7 @@ class MainView extends Component {
 
   update() {
     const { selectedGroup } = this.state;
-    const { selectedUser, diff, groupData, usersData,
+    const { selectedPatients, diff, groupData, usersData,
             tNum, numDataPerTime } = this.props,
           groupStats = groupData.stat,
           groupObj = groupData.groups;
@@ -222,7 +225,7 @@ class MainView extends Component {
 
     this.yIndividualScale = d3.scaleLinear()
       .domain(d3.extent(userMeans))
-      .range([this.layout.userView.svg.height - this.layout.rectHeight - this.layout.userView.paddingBottom, 0]);
+      .range([this.layout.userView.svg.height - this.layout.rectHeight - this.layout.groupView.paddingBottom - (selectedPatients.length * this.layout.outlierBarHeight), 0]);
 
     this.yDiffScale = d3.scaleLinear()
       .domain([0, 100])
@@ -280,12 +283,12 @@ class MainView extends Component {
           gUserOutliers = d3.select(this.svgUserView)
             .append('g')
             .attr('class', 'g_user_rects')
-            .attr('transform', 'translate(10,' + 10 + ')')
+            .attr('transform', 'translate(10,' + (this.layout.userView.svg.height - this.layout.rectHeight - this.layout.userView.paddingBottom) + ')')
 
     const xAxis = gUsers.append('g')
             .call(xAxisSetting)
             .attr('class', 'g_user_axis')
-            .attr('transform', 'translate(0,' + (this.layout.userView.svg.height - this.layout.userView.paddingBottom) + ')');
+            .attr('transform', 'translate(0,' + (this.layout.userView.svg.height - this.layout.userView.paddingBottom ) + ')');
 
     // define the area
     const area = d3.area()
@@ -319,11 +322,11 @@ class MainView extends Component {
 
       // add the area
       gUser.append('path')
-          .data([usersData[user]])
+          .data([usersData[user].chunks])
           .attr('class', 'std_area')
           .attr('d', area)
           .style('fill', 'lightgray')
-          .style('fill-opacity', 0.5)
+          .style('fill-opacity', 0.3)
           .style('stroke', groupColors[idx])
           .style('stroke-width', 3);
 
@@ -354,13 +357,13 @@ class MainView extends Component {
             .style('fill', (d) => this.riskRatioIndividualScale(d.mean))
             .style('stroke', 'black');
 
-      gGlyphs.filter((d) => d.outlierIndex !== 'undefined')
-            .append('circle')
-            .attr('class', 'user_outlier_circle')
-            .attr('cx', (d, i) => 3)
-            .attr('cy', (d) => this.yIndividualScale(d.mean) - (this.yIndividualScale(d.mean) - this.layout.rectHeight/2))
-            .attr('r', 2)
-            .style('fill', 'black');
+      // gGlyphs.filter((d) => d.outlierIndex !== 'undefined')
+      //       .append('circle')
+      //       .attr('class', 'user_outlier_circle')
+      //       .attr('cx', (d, i) => 3)
+      //       .attr('cy', (d) => this.yIndividualScale(d.mean) - (this.yIndividualScale(d.mean) - this.layout.rectHeight/2))
+      //       .attr('r', 2)
+      //       .style('fill', 'black');
 
       gUserOutliers.append('g')
           .attr('class', 'g_user_outlier')
@@ -369,11 +372,12 @@ class MainView extends Component {
           .data(usersData[user].discord)
           .enter().append('rect')
           .attr('class', 'user_outlier_rect')
-          .attr('x', (d) => this.xRectScale(d))
+          .attr('x', (d) => this.xRectScale(d[0]))
           .attr('y', 0)
-          .attr('width', (d) => this.xRectScale(1))
-          .attr('height', this.layout.userView.svg.height - this.layout.userView.paddingBottom)
-          .style('fill', groupColors[user]);
+          .attr('width', (d) => this.xRectScale(d[1]))
+          .attr('height', this.layout.outlierBarHeight)
+          .style('fill', groupColors[idx])
+          .style('stroke', 'black');
     });
 
     // For rendering
@@ -627,6 +631,20 @@ class MainView extends Component {
         .attr('height', this.layout.rectHeight)
         .style('fill', (d) => this.riskRatioGroupScale(d.mean))
         .style('stroke', 'black');
+
+      // gGroupOutliers.append('g')
+      //   .attr('class', 'g_group_outlier')
+      //   .attr('transform', 'translate(0,' + (idx * this.layout.outlierBarHeight) + ')')
+      //   .selectAll('.user_outlier_rect')
+      //   .data(groupObj[groupIdx].discord)
+      //   .enter().append('rect')
+      //   .attr('class', 'user_outlier_rect')
+      //   .attr('x', (d) => this.xRectScale(d[0]))
+      //   .attr('y', 0)
+      //   .attr('width', (d) => this.xRectScale(d[1]))
+      //   .attr('height', this.layout.outlierBarHeight)
+      //   .style('fill', groupColors[idx])
+      //   .style('stroke', 'black');
     });
 
     const gTargetSegments = gTarget.selectAll('.g_target_segment')

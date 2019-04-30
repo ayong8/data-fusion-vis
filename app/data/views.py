@@ -58,7 +58,7 @@ def find_discords(sax_pattern, threshold):
   discord_list = []
   
   for index in range(len(sax_chars)):
-    last_index = index + 10
+    last_index = index + 5
 
     if(last_index < len(sax_chars)):
       char_window = sax_chars[index:last_index]
@@ -109,7 +109,7 @@ class LoadUserNames(APIView):
     entire_file_path = os.path.join(STATICFILES_DIRS[0], data)
     whole_dataset_df = pd.read_csv(open(entire_file_path, 'rU'))
 
-    return Response(json.dumps(list(whole_dataset_df.columns)))
+    return Response(json.dumps(list(whole_dataset_df['idx'])))
 
 class SAXTransform(APIView):
   def get(self, request, format=None):
@@ -142,13 +142,13 @@ class LoadUsers(APIView):
     global_std =  supp_ratio_df.stack().std()
 
     user_chunks_dict = {}
-    user = {}
     for user_id in user_ids:
       user_chunks = chunk(supp_ratio_df.loc[user_id, :], t_num, t_size)
 
       user_values = np.array([chunk['mean'] for chunk in user_chunks])
       user_sax = sax_transform(user_values, False, 3,20)
 
+      user = {}
       user['chunks'] = user_chunks
       user['sax'] = user_sax
       user['discord'] = find_discords(user_sax, 5)
@@ -195,8 +195,6 @@ class ClusterGroups(APIView):
       group_stat = {}
       group_stat['group'] = group_idx
       group_stat['count'] = len(patients_in_cluster)
-      print('ddddd: ', target_df.loc[patients_in_cluster, 'survive'].value_counts(normalize=True).tolist())
-      print('eeeee: ', target_df.loc[patients_in_cluster, 'follow'].value_counts(normalize=True).tolist())
       group_stat['survive'] = 1- target_df.loc[patients_in_cluster, 'survive'].value_counts(normalize=True).tolist()[0] # Proportion who survived
       group_stat['follow'] = 1- target_df.loc[patients_in_cluster, 'follow'].value_counts(normalize=True).tolist()[0]
       groups_for_target.append(group_stat)
