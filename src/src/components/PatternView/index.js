@@ -271,14 +271,6 @@ class PatternView extends Component {
     return (
       <div className={styles.PatternView}>
         <div className={index.title}>Pattern View</div>
-        {/*** Data ***/}
-        <div>
-          <div className={index.subTitle + ' ' + index.borderBottom}>User-defined pattern</div>
-          <Form onSubmit={this.handleSubmitUserDefinedPattern}>
-            <FormField name="userDefinedPattern" value={this.state.userDefinedPattern} onChange={this.handleChangeUserDefinedPattern} />
-            <Button className={styles.submitButton} type="submit" primary label="Submit" />
-          </Form>
-        </div>
         {/*** Select patterns ***/}
         <div className={index.subTitle + ' ' + index.borderBottom}>Patterns</div>
         {this.renderPatterns()}

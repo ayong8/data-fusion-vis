@@ -6,8 +6,10 @@ import _ from 'lodash';
 import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss';
-import { Grommet, Select, Box, CheckBox } from 'grommet';
+import { Grommet, Select, Box, CheckBox, Form, Button } from 'grommet';
 import { grommet } from "grommet/themes";
+
+import MotifView from '../MotifView';
 
 import data from '../../data/data1';
 
@@ -106,6 +108,15 @@ class ControlView extends Component {
         <div>
           <div className={index.subTitle + ' ' + index.borderBottom}>Data</div>
           <div>{'right_hemis_simple.csv'}</div>
+        </div>
+        {/*** Data ***/}
+        <div>
+          <div className={index.subTitle + ' ' + index.borderBottom}>User-defined pattern</div>
+          <Form onSubmit={this.handleSubmitUserDefinedPattern}>
+            {/* <FormField name="userDefinedPattern" value={this.state.userDefinedPattern} onChange={this.handleChangeUserDefinedPattern} /> */}
+            <Button className={styles.submitButton} type="submit" primary label="Submit" />
+          </Form>
+          <MotifView id={1} />
         </div>
         {/*** Select patients ***/}
         <div className={index.subTitle + ' ' + index.borderBottom}>Patients</div>
