@@ -1,0 +1,152 @@
+[
+  {
+    "idx": 1,
+    "patient_idx": "puh-1",
+    "start_idx": 10,
+    "raw_subseq": "7,3,6,2,69,10",
+    "discrete_subseq": "7,3,6,2,69,10",
+    "cluster": 4,
+    "dim1": 74,
+    "dim2": 68
+  },
+  {
+    "idx": 2,
+    "patient_idx": "puh-2",
+    "start_idx": 30,
+    "raw_subseq": "7,3,6,2,69,11",
+    "discrete_subseq": "7,3,6,2,69,11",
+    "cluster": 7,
+    "dim1": 92,
+    "dim2": 71
+  },
+  {
+    "idx": 3,
+    "patient_idx": "puh-3",
+    "start_idx": 600,
+    "raw_subseq": "7,3,6,2,69,12",
+    "discrete_subseq": "7,3,6,2,69,12",
+    "cluster": 32,
+    "dim1": 55,
+    "dim2": 92
+  },
+  {
+    "idx": 4,
+    "patient_idx": "puh-4",
+    "start_idx": 300,
+    "raw_subseq": "7,3,6,2,69,13",
+    "discrete_subseq": "7,3,6,2,69,13",
+    "cluster": 1,
+    "dim1": 48,
+    "dim2": 13
+  },
+  {
+    "idx": 5,
+    "patient_idx": "puh-5",
+    "start_idx": 385,
+    "raw_subseq": "7,3,6,2,69,14",
+    "discrete_subseq": "7,3,6,2,69,14",
+    "cluster": 7,
+    "dim1": 34,
+    "dim2": 81
+  },
+  {
+    "idx": 6,
+    "patient_idx": "puh-6",
+    "start_idx": 183,
+    "raw_subseq": "7,3,6,2,69,15",
+    "discrete_subseq": "7,3,6,2,69,15",
+    "cluster": 4,
+    "dim1": 46,
+    "dim2": 12
+  },
+  {
+    "idx": 7,
+    "patient_idx": "puh-7",
+    "start_idx": 204,
+    "raw_subseq": "7,3,6,2,69,16",
+    "discrete_subseq": "7,3,6,2,69,16",
+    "cluster": 2,
+    "dim1": 42,
+    "dim2": 61
+  },
+  {
+    "idx": 8,
+    "patient_idx": "puh-8",
+    "start_idx": 1092,
+    "raw_subseq": "7,3,6,2,69,17",
+    "discrete_subseq": "7,3,6,2,69,17",
+    "cluster": 10,
+    "dim1": 66,
+    "dim2": 7
+  },
+  {
+    "idx": 9,
+    "patient_idx": "puh-9",
+    "start_idx": 9,
+    "raw_subseq": "7,3,6,2,69,18",
+    "discrete_subseq": "7,3,6,2,69,18",
+    "cluster": 20,
+    "dim1": 40,
+    "dim2": 87
+  },
+  {
+    "idx": 10,
+    "patient_idx": "puh-10",
+    "start_idx": 109,
+    "raw_subseq": "7,3,6,2,69,19",
+    "discrete_subseq": "7,3,6,2,69,19",
+    "cluster": 18,
+    "dim1": 27,
+    "dim2": 16
+  },
+  {
+    "idx": 11,
+    "patient_idx": "puh-11",
+    "start_idx": 486,
+    "raw_subseq": "7,3,6,2,69,20",
+    "discrete_subseq": "7,3,6,2,69,20",
+    "cluster": 16,
+    "dim1": 62,
+    "dim2": 77
+  },
+  {
+    "idx": 12,
+    "patient_idx": "puh-12",
+    "start_idx": 372,
+    "raw_subseq": "7,3,6,2,69,21",
+    "discrete_subseq": "7,3,6,2,69,21",
+    "cluster": 20,
+    "dim1": 84,
+    "dim2": 39
+  },
+  {
+    "idx": 13,
+    "patient_idx": "puh-13",
+    "start_idx": 49,
+    "raw_subseq": "7,3,6,2,69,22",
+    "discrete_subseq": "7,3,6,2,69,22",
+    "cluster": 9,
+    "dim1": 9,
+    "dim2": 86
+  },
+  {
+    "idx": 14,
+    "patient_idx": "puh-14",
+    "start_idx": 693,
+    "raw_subseq": "7,3,6,2,69,23",
+    "discrete_subseq": "7,3,6,2,69,23",
+    "cluster": 7,
+    "dim1": 70,
+    "dim2": 33
+  },
+  {
+    "idx": 15,
+    "patient_idx": "puh-15",
+    "start_idx": 2856,
+    "raw_subseq": "7,3,6,2,69,24",
+    "discrete_subseq": "7,3,6,2,69,24",
+    "cluster": 15,
+    "dim1": 60,
+    "dim2": 30
+  }
+]

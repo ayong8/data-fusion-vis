@@ -18,6 +18,11 @@ urlpatterns = [
         name='loadUsers'
     ),
     url(
+        regex=r'^loadSomeUsers/$',
+        view=views.LoadSomeUsers.as_view(),
+        name='loadSomeUsers'
+    ),
+    url(
         regex=r'^clusterGroups/$',
         view=views.ClusterGroups.as_view(),
         name='clusterGroups'

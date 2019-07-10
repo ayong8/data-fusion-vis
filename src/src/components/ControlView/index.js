@@ -6,7 +6,7 @@ import _ from 'lodash';
 import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss';
-import { Grommet, Select, Box, CheckBox, Form, Button } from 'grommet';
+import { Grommet, Select, Box, CheckBox, Form, Button, TextInput, FormField } from 'grommet';
 import { grommet } from "grommet/themes";
 
 import MotifView from '../MotifView';
@@ -112,11 +112,39 @@ class ControlView extends Component {
         {/*** Data ***/}
         <div>
           <div className={index.subTitle + ' ' + index.borderBottom}>User-defined pattern</div>
-          <Form onSubmit={this.handleSubmitUserDefinedPattern}>
-            {/* <FormField name="userDefinedPattern" value={this.state.userDefinedPattern} onChange={this.handleChangeUserDefinedPattern} /> */}
-            <Button className={styles.submitButton} type="submit" primary label="Submit" />
-          </Form>
-          <MotifView id={1} />
+          <div style={{ display: 'flex' }}>
+            <div style={{ width: '60%', padding: '10px', marginTop: '80px'}}>
+              <Form onSubmit={this.handleSubmitUserDefinedPattern}>
+                {/* <FormField label=''> */}
+                  <TextInput
+                    placeholder="type here"
+                    size='small'
+                    value={this.state.userDefinedPattern}
+                    onChange={this.handleChangeUserDefinedPattern}
+                  />
+                {/* </FormField> */}
+                <Button 
+                  className={styles.searchButton} 
+                  style={{ marginTop: '10px' }}
+                  size='xsmall'
+                  type="submit" 
+                  primary label="Search" />
+                <Button 
+                  className={styles.saveButton} 
+                  style={{ marginTop: '10px' }}
+                  size='xsmall'
+                  type="submit" 
+                  primary label="Save" />
+              </Form>
+            </div>
+            <MotifView 
+              id={1}
+              source={'user_defined'}
+              rawSubseq={[0, 50, 30, 20, 0]}
+              discreteSubseq={[1,5,7,4,2]}
+              mode={'input'}
+            />
+          </div>
         </div>
         {/*** Select patients ***/}
         <div className={index.subTitle + ' ' + index.borderBottom}>Patients</div>

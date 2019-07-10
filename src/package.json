@@ -20,6 +20,7 @@
     "css-loader": "1.0.0",
     "d3": "^5.9.1",
     "d3-brush": "^1.0.6",
+    "d3-tooltip": "^0.0.1",
     "dotenv": "6.0.0",
     "dotenv-expand": "4.2.0",
     "dynamic-time-warping": "^1.0.0",

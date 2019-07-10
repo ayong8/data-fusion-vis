@@ -1,0 +1,38 @@
+.MainView {
+  grid-area: m;
+  padding: 10px;
+  width: 95%;
+}
+
+.userViewTitle,
+.diffViewTitle,
+.groupViewTitle {
+  border-bottom: 1px solid lightgray;
+}
+
+.groupLabel,
+.patientLabel {
+  margin: 5px;
+  padding: 5px;
+  color: darkslategrey;
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 0.8rem;
+}
+
+.saveButton {
+  background: #7d4cdb;
+  border: none;
+  padding: 1px 5px;
+  font-size: 0.8rem;
+  height: 30px;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-left: 5px;
+}
+
+.mostSimilarGroupText {
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: right;
+}

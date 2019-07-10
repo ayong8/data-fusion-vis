@@ -12,9 +12,11 @@ import MainView from '../MainView';
 import PatternView from '../PatternView';
 
 import data from '../../data/data1';
+import subseqsInfo from '../../data/subseqs_info';
+import motifs from '../../data/motifs';
 
 class App extends Component {
-	constructor(props) {
+  constructor(props) {
     super(props);
 
     this.layout = {
@@ -24,11 +26,14 @@ class App extends Component {
         width: 300,
         height: 300
       }
-    }
+    };
 
     this.state = {
       // For initial load
       userNames: [],
+
+      subseqsInfo: subseqsInfo,
+      motifs: motifs,
 
       // Hyperparameters
       numData: 5000,
@@ -42,7 +47,29 @@ class App extends Component {
 
       // For patients
       selectedPatients: ['PUH-2018-056'],
+      somePatients: [
+        'PUH-2018-080',
+        'PUH-2018-078',
+        'PUH-2018-076',
+        'PUH-2018-073',
+        'PUH-2018-072',
+        'PUH-2018-070',
+        'PUH-2018-067',
+        'PUH-2018-065',
+        'PUH-2018-056',
+        'PUH-2018-054',
+        'PUH-2018-052',
+        'PUH-2018-051',
+        'PUH-2018-046',
+        'PUH-2018-045',
+        'PUH-2018-042',
+        'PUH-2018-041',
+        'PUH-2018-039',
+        'PUH-2018-038',
+        'PUH-2018-027'
+      ],
       usersData: {},
+      somePatientsData: {},
 
       // For diff
       diff: [],
@@ -61,13 +88,24 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const { tNum, numData, numUsers, numTime, numDataPerTime, numGroups, groupSize, selectedPatients } = this.state;
+    const {
+      tNum,
+      numData,
+      numUsers,
+      numTime,
+      numDataPerTime,
+      numGroups,
+      groupSize,
+      selectedPatients,
+      somePatients,
+      somePatientsData
+    } = this.state;
 
     fetch('/data/loadUserNames')
-      .then( (response) => {
-          return response.json() 
-      })   
-      .then( (file) => {
+      .then(response => {
+        return response.json();
+      })
+      .then(file => {
         const userNames = JSON.parse(file);
 
         this.setState({
@@ -78,53 +116,80 @@ class App extends Component {
     console.log('herrrrrr: ', selectedPatients);
 
     fetch('/data/loadUsers/', {
-        method: 'post',
-        body: JSON.stringify({
-          selectedPatients: selectedPatients,
-          tNum: tNum,
-          tSize: numDataPerTime
-        })
-      }).then( (response) => {
-          return response.json() 
-      })   
-      .then( (file) => {
+      method: 'post',
+      body: JSON.stringify({
+        selectedPatients: selectedPatients,
+        tNum: tNum,
+        tSize: numDataPerTime
+      })
+    })
+      .then(response => {
+        return response.json();
+      })
+      .then(file => {
         const usersData = JSON.parse(file);
-        console.log('usersData: ', usersData)
-        console.log('selectedPatients: ', selectedPatients)
+        console.log('usersData: ', usersData);
+        console.log('selectedPatients: ', selectedPatients);
         this.setState({
           usersData: usersData
         });
       });
 
-    fetch('/data/clusterGroups/', {
-        method: 'post',
-        body: JSON.stringify({
-          numGroups: numGroups,
-          groupSize: groupSize,
-          tNum: tNum,
-          tSize: numDataPerTime,
-          clusteringOption: 'kmeans'
-        })
-      }).then( (response) => {
-            return response.json() 
-        })   
-        .then( (response) => {
-          console.log(response);
-          const { groupData, dimReductions } = JSON.parse(response);
-          console.log(groupData);
-          console.log(dimReductions);
-  
-          this.setState({
-            groupData: groupData,
-            dimReductions: JSON.parse(dimReductions)
-          });
+    fetch('/data/loadSomeUsers/', {
+      method: 'post',
+      body: JSON.stringify({
+        somePatients: somePatients,
+        tNum: tNum,
+        tSize: numDataPerTime
+      })
+    })
+      .then(response => {
+        return response.json();
+      })
+      .then(file => {
+        const somePatientsData = JSON.parse(file);
+        this.setState({
+          somePatientsData: somePatientsData
         });
+      });
+
+    fetch('/data/clusterGroups/', {
+      method: 'post',
+      body: JSON.stringify({
+        numGroups: numGroups,
+        groupSize: groupSize,
+        tNum: tNum,
+        tSize: numDataPerTime,
+        clusteringOption: 'kmeans'
+      })
+    })
+      .then(response => {
+        return response.json();
+      })
+      .then(response => {
+        console.log(response);
+        const { groupData, dimReductions } = JSON.parse(response);
+        console.log(groupData);
+        console.log(dimReductions);
+
+        this.setState({
+          groupData: groupData,
+          dimReductions: JSON.parse(dimReductions)
+        });
+      });
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { selectedPatients, numData, numUsers, tNum, numDataPerTime, numGroups, groupSize } = this.state;
+    const {
+      selectedPatients,
+      numData,
+      numUsers,
+      tNum,
+      numDataPerTime,
+      numGroups,
+      groupSize
+    } = this.state;
     if (prevState.numDataPerTime !== this.state.numDataPerTime) {
-
       fetch('/data/loadUsers/', {
         method: 'post',
         body: JSON.stringify({
@@ -132,17 +197,17 @@ class App extends Component {
           tNum: numData / numDataPerTime,
           tSize: parseInt(numDataPerTime)
         })
-      }).then( (response) => {
-          return response.json() 
-      })   
-      .then( (file) => {
-        const usersData = JSON.parse(file);
+      })
+        .then(response => {
+          return response.json();
+        })
+        .then(file => {
+          const usersData = JSON.parse(file);
 
-        this.setState({
-          usersData: usersData
+          this.setState({
+            usersData: usersData
+          });
         });
-      });
-
     }
     if (prevState.numDataPerTime !== this.state.numDataPerTime) {
       fetch('/data/clusterGroups/', {
@@ -154,12 +219,12 @@ class App extends Component {
           tSize: parseInt(numDataPerTime),
           clusteringOption: 'kmeans'
         })
-      }).then( (response) => {
-            return response.json() 
-        })   
-        .then( (response) => {
+      })
+        .then(response => {
+          return response.json();
+        })
+        .then(response => {
           const { groupData, dimReductions } = JSON.parse(response);
-
 
           this.setState({
             groupData: groupData,
@@ -186,55 +251,62 @@ class App extends Component {
         tNum: tNum,
         tSize: numDataPerTime
       })
-    }).then( (response) => {
-        return response.json() 
-    })   
-    .then( (file) => {
-      const usersData = JSON.parse(file);
+    })
+      .then(response => {
+        return response.json();
+      })
+      .then(file => {
+        const usersData = JSON.parse(file);
 
-      this.setState({
-        selectedPatients: selectedPatients,
-        usersData: usersData
+        this.setState({
+          selectedPatients: selectedPatients,
+          usersData: usersData
+        });
       });
-    });
   }
 
   handleSelectPattern(selected) {
     this.setState({
       selectedPattern: selected.selectedPattern,
       selectedPatternSax: selected.selectedPatternSax
-    })
+    });
   }
 
   render() {
-    if ((!this.state.groupData || this.state.groupData.length === 0) ||
-        (!this.state.userNames || this.state.userNames.length === 0) ||
-        (!this.state.usersData || this.state.usersData.length === 0)
+    if (
+      !this.state.groupData ||
+      this.state.groupData.length === 0 ||
+      (!this.state.userNames || this.state.userNames.length === 0) ||
+      (!this.state.usersData || this.state.usersData.length === 0)
     ) {
-      return <div />
+      return <div />;
     }
 
     return (
       <div className={styles.App}>
         <div className={styles.title}>EEG Fusion</div>
-        <ControlView 
+        <ControlView
           userNames={this.state.userNames}
           numGroups={this.state.numGroups}
           selectedPatients={this.state.selectedPatients}
           dimReductions={this.state.dimReductions}
           onSelectPatients={this.handleSelectPatients}
         />
-        <MainView 
+        <MainView
           diff={this.state.diff}
           numGroups={this.state.numGroups}
           groups={this.state.groups}
           groupData={this.state.groupData}
           selectedPatients={this.state.selectedPatients}
           usersData={this.state.usersData}
+          somePatients={this.state.somePatients}
+          somePatientsData={this.state.somePatientsData}
           tNum={this.state.numData / this.state.numDataPerTime}
           numDataPerTime={this.state.numDataPerTime}
           onChangeTimeGranularity={this.handleTimeGranularity}
           onSelectPattern={this.handleSelectPattern}
+          motifs={this.state.motifs}
+          subseqsInfo={this.state.subseqsInfo}
         />
         <PatternView
           userNames={this.state.userNames}

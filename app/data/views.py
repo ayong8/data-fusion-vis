@@ -124,6 +124,39 @@ class SAXTransform(APIView):
 
     return Response(json.dumps({'transformedString': transformed}))
 
+class LoadSomeUsers(APIView):
+  def get(self, request, format=None):
+    pass
+  
+  def post(self, request, format=None):
+    json_request = json.loads(request.body.decode(encoding='UTF-8'))
+    user_ids = json_request['somePatients']
+    t_num = json_request['tNum']
+    t_size = json_request['tSize']
+
+    whole_dataset_df = open_dataset(data)
+    supp_ratio_df = whole_dataset_df.drop(['survive', 'follow'], axis=1)
+
+    global global_mean, global_std
+    global_mean = supp_ratio_df.stack().mean()
+    global_std =  supp_ratio_df.stack().std()
+
+    user_chunks_dict = {}
+    for user_id in user_ids:
+      user_chunks = chunk(supp_ratio_df.loc[user_id, :], t_num, t_size)
+
+      user_values = np.array([chunk['mean'] for chunk in user_chunks])
+      user_sax = sax_transform(user_values, False, 3,20)
+
+      user = {}
+      user['chunks'] = user_chunks
+      user['sax'] = user_sax
+      user['discord'] = find_discords(user_sax, 5)
+
+      user_chunks_dict[user_id] = user
+
+    return Response(json.dumps(user_chunks_dict))
+
 class LoadUsers(APIView):
   def get(self, request, format=None):
     pass
@@ -156,6 +189,13 @@ class LoadUsers(APIView):
       user_chunks_dict[user_id] = user
 
     return Response(json.dumps(user_chunks_dict))
+
+# class LoadSubseqInfor(APIView):
+#   def get(self, request, format=None):
+#     entire_file_path = os.path.join(STATICFILES_DIRS[0], data)
+#     whole_dataset_df = pd.read_csv(open('df_subseq_metadata.csv', 'rU'))
+
+#     return Response(whole_dataset_df.to_json(orient='index'))
 
 class ClusterGroups(APIView):
   def get(self, request, format=None):

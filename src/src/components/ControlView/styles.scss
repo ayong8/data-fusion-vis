@@ -13,3 +13,13 @@
   border: 1px solid lightgray;
   background-color: whitesmoke;
 }
+
+.saveButton,
+.searchButton {
+  padding: 1px 5px;
+  font-size: 0.8rem;
+  height: 30px;
+  border-radius: 10px;
+  margin-top: 10px;
+  margin-left: 5px;
+}
