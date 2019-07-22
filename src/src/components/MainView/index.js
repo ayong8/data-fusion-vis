@@ -1163,6 +1163,9 @@ class MainView extends Component {
       tNum,
       numDataPerTime,
       motifs,
+      motifsInfo,
+      subseqs,
+      subseqsRaw,
       subseqsInfo
     } = this.props;
 
@@ -1183,7 +1186,10 @@ class MainView extends Component {
                 numDataPerTime={numDataPerTime}
                 usersData={usersData}
                 motifs={motifs}
+                motifsInfo={motifsInfo}
                 subseqsInfo={subseqsInfo}
+                subseqs={subseqs}
+                subseqsRaw={subseqsRaw}
               />
             </Box>
           </Tab>

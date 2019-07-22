@@ -11,9 +11,11 @@ import ControlView from '../ControlView';
 import MainView from '../MainView';
 import PatternView from '../PatternView';
 
-import data from '../../data/data1';
+import subseqs from '../../data/subseqs';
+import subseqsRaw from '../../data/subseqs_raw';
 import subseqsInfo from '../../data/subseqs_info';
 import motifs from '../../data/motifs';
+import motifsInfo from '../../data/motifs_info';
 
 class App extends Component {
   constructor(props) {
@@ -32,8 +34,11 @@ class App extends Component {
       // For initial load
       userNames: [],
 
+      subseqs: subseqs,
+      subseqsRaw: subseqsRaw,
       subseqsInfo: subseqsInfo,
       motifs: motifs,
+      motifsInfo: motifsInfo,
 
       // Hyperparameters
       numData: 5000,
@@ -306,6 +311,9 @@ class App extends Component {
           onChangeTimeGranularity={this.handleTimeGranularity}
           onSelectPattern={this.handleSelectPattern}
           motifs={this.state.motifs}
+          motifsInfo={this.state.motifsInfo}
+          subseqs={this.state.subseqs}
+          subseqsRaw={this.state.subseqsRaw}
           subseqsInfo={this.state.subseqsInfo}
         />
         <PatternView

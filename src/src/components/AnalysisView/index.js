@@ -24,7 +24,6 @@ import {
 import { grommet } from 'grommet/themes';
 
 import MotifView from '../MotifView';
-import subseqs from '../../data/subseqs.json';
 
 import DynamicTimeWarping from 'dynamic-time-warping';
 
@@ -74,19 +73,21 @@ class AnalysisView extends Component {
       subseqPlot: {
         width: 250,
         height: 250,
+        padding: 10,
         svg: {
           width: 260,
           height: 260
         }
       },
-      motifList: {
+      subseqView: {
         width: 150,
         height: 50,
+        paddingTop: 10,
         paddingBottom: 10,
-        paddingLeft: 15,
+        paddingLeft: 25,
         svg: {
           width: 130,
-          height: 35
+          height: 40
         }
       },
       rectWidth: 5,
@@ -254,63 +255,41 @@ class AnalysisView extends Component {
     console.log('ddd');
   }
 
-  renderMotif(motif, motifIdx, mode) {
-    const svgMotifView = new ReactFauxDOM.Element('svg');
-    svgMotifView.setAttribute('width', this.layout.motifList.svg.width);
-    svgMotifView.setAttribute('height', this.layout.motifList.svg.height);
-    svgMotifView.style.setProperty('background-color', 'white');
+  renderSubseq(subseq, subseqInfo, subseqIdx, mode) {
+    const svgSubseqView = new ReactFauxDOM.Element('svg');
+    svgSubseqView.setAttribute('width', this.layout.subseqView.svg.width);
+    svgSubseqView.setAttribute('height', this.layout.subseqView.svg.height);
 
-    // const rawSubseq = motif.raw_subseq,
-    //   discreteSubseq = motif.discrete_subseq,
-    //   rawSubseqLength = rawSubseq.length,
-    //   discreteSubseqLength = discreteSubseq.length,
-    //   rawSubseqRange = 100,
-    //   discreteSubseqRange = 10;
+    const subseqValues = Object.values(_.omit(subseq, 'idx')),
+      subseqLength = 100,
+      subseqRange = 100;
 
-    console.log('motif: ', motif);
+    const ySubseqDomain =
+      mode === 'renderRawSubseq' ? [0, 100] : d3.extent(subseqValues);
 
-    const motifValues = Object.values(_.omit(motif, 'idx')),
-      motifLength = 100,
-      motifRange = 100;
-
-    // const xRawMotifScale = d3
-    //   .scaleLinear()
-    //   .domain([0, 5])
-    //   .range([
-    //     0,
-    //     this.layout.motifList.svg.width - this.layout.motifList.paddingLeft
-    //   ]);
-
-    // const yRawMotifScale = d3
-    //   .scaleLinear()
-    //   .domain([0, rawSubseqRange])
-    //   .range([
-    //     this.layout.motifList.svg.height - this.layout.motifList.paddingBottom,
-    //     0
-    //   ]);
-
-    const xDiscreteMotifScale = d3
+    const xSubseqIdxScale = d3
       .scaleLinear()
-      .domain([0, motifLength])
+      .domain([0, subseqLength])
       .range([
         0,
-        this.layout.motifList.svg.width - this.layout.motifList.paddingLeft
+        this.layout.subseqView.svg.width - this.layout.subseqView.paddingLeft
       ]);
 
-    const yDiscreteMotifScale = d3
+    const ySubseqScale = d3
       .scaleLinear()
-      .domain(d3.extent(motifValues))
+      .domain(ySubseqDomain)
       .range([
-        this.layout.motifList.svg.height - this.layout.motifList.paddingBottom,
-        0
+        this.layout.subseqView.svg.height -
+          this.layout.subseqView.paddingBottom,
+        this.layout.subseqView.paddingTop
       ]);
 
-    const gMotifChart = d3
-      .select(svgMotifView)
+    const gSubseqChart = d3
+      .select(svgSubseqView)
       .append('g')
       .attr(
         'transform',
-        'translate(' + this.layout.motifList.paddingLeft + ',' + '0)'
+        'translate(' + this.layout.subseqView.paddingLeft + ',' + 0 + ')'
       );
 
     // const rawLine = d3
@@ -318,123 +297,120 @@ class AnalysisView extends Component {
     //   .x((d, i) => xRawMotifScale(i))
     //   .y(d => yRawMotifScale(d));
 
-    console.log('xDiscreteMotifScale: ', xDiscreteMotifScale.domain());
-    console.log('xDiscreteMotifScale: ', xDiscreteMotifScale.range());
-    console.log('yDiscreteMotifScale: ', yDiscreteMotifScale.domain());
-    console.log('yDiscreteMotifScale: ', yDiscreteMotifScale.range());
-
-    const discreteLine = d3
+    const subseqLine = d3
       .line()
-      .x((d, i) => xDiscreteMotifScale(i))
-      .y(d => yDiscreteMotifScale(d));
-
-    // // path
-    // const rawMotifPath = gMotifChart
-    //   .append('path')
-    //   .datum(rawSubseq)
-    //   .attr('class', (d, i) => 'raw_motif raw_motif_' + i)
-    //   .attr('d', rawLine)
-    //   .style('fill', 'none')
-    //   .style('stroke', 'red')
-    //   .style('stroke-width', 1);
+      .x((d, i) => xSubseqIdxScale(i))
+      .y(d => ySubseqScale(d));
 
     // path
-    const discreteMotifPath = gMotifChart
+    const subseqPath = gSubseqChart
       .append('path')
-      .datum(motifValues)
-      .attr('class', (d, i) => 'discrete_motif discrete_motif_' + i)
-      .attr('d', discreteLine)
+      .datum(subseqValues)
+      .attr('class', (d, i) => 'subseq subseq_' + i)
+      .attr('d', subseqLine)
       .style('fill', 'none')
-      .style('stroke', 'red')
+      .style('stroke', mode === 'renderMotif' ? 'blue' : 'white')
       .style('stroke-width', 2);
 
     const xAxisSetting = d3
-      .axisBottom(xDiscreteMotifScale)
-      .tickValues(d3.range(0, motifLength, 20))
-      .tickSize(0);
-
-    const xAxis = d3
-      .select(svgMotifView)
-      .append('g')
-      .call(xAxisSetting)
-      .attr('class', 'g_motif_x_axis')
-      .attr(
-        'transform',
-        'translate(' +
-          this.layout.motifList.paddingLeft +
-          ',' +
-          (this.layout.motifList.svg.height -
-            this.layout.motifList.paddingBottom) +
-          ')'
-      );
-
-    const yAxisSetting = d3
-        .axisLeft(yDiscreteMotifScale)
-        .tickValues(yDiscreteMotifScale.domain())
+        .axisBottom(xSubseqIdxScale)
+        .tickValues(d3.range(0, subseqLength, 20))
         .tickSize(0),
-      yAxis = d3
-        .select(svgMotifView)
+      xAxis = d3
+        .select(svgSubseqView)
         .append('g')
-        .call(yAxisSetting)
-        .attr('class', 'g_motif_y_axis')
+        .call(xAxisSetting)
+        .attr('class', 'g_subseq_x_axis')
         .attr(
           'transform',
-          'translate(' + (this.layout.motifList.paddingLeft + 5) + ',0)'
+          'translate(' +
+            this.layout.subseqView.paddingLeft +
+            ',' +
+            (this.layout.subseqView.svg.height -
+              this.layout.subseqView.paddingBottom) +
+            ')'
         );
 
-    if (mode == 0) {
+    const yAxisSetting = d3
+        .axisLeft(ySubseqScale)
+        .tickValues(ySubseqScale.domain())
+        .tickSize(0),
+      yAxis = d3
+        .select(svgSubseqView)
+        .append('g')
+        .call(yAxisSetting)
+        .attr('class', 'g_subseq_y_axis')
+        .attr(
+          'transform',
+          'translate(' + this.layout.subseqView.paddingLeft + ',' + 0 + ')'
+        );
+
+    if (mode == 'renderMotif')
       return (
-        <div style={{ display: 'flex' }}>
-          <div style={{ marginRight: '5px' }}>{motifIdx}</div>
-          {svgMotifView.toReact()}
+        <div
+          style={{
+            display: 'flex',
+            marginBottom: '10px',
+            lineHeight: 3,
+            fontSize: '0.8rem',
+            color: 'dimgray'
+          }}
+        >
+          <div style={{ marginRight: '10px', fontWeight: 500 }}>
+            {subseqIdx}
+          </div>
+          <div style={{ marginRight: '10px' }}>{subseqInfo.patient_idx}</div>
+          <div style={{ marginRight: '10px' }}>{subseqInfo.segment_label}</div>
+          {svgSubseqView.toReact()}
         </div>
       );
-    }
-    if (mode === 1) {
-      console.log(svgMotifView.toReact());
-      return svgMotifView.toReact();
-    }
+    else
+      return (
+        <div>
+          {svgSubseqView.toReact()}
+          <div>dropdown</div>
+        </div>
+      );
   }
 
   renderSubseqPlot() {
-    const { subseqsInfo, motifs } = this.props;
-    console.log('subseqs info:', subseqsInfo);
-    console.log('motifs info:', motifs);
+    const { subseqsInfo, subseqs, subseqsRaw, motifs, motifsInfo } = this.props;
 
-    const motifsIdx = motifs.map(d => d.idx);
+    const motifsIdx = motifs.map(d => d.idx),
+      numMotifs = motifs.length;
 
     // Temporarily assign subseqs as motifs
     const dimReductions = subseqsInfo.map(d => ({ x: d.x, y: d.y }));
-    console.log('dimReductions: ', dimReductions);
 
     const svg = new ReactFauxDOM.Element('svg');
 
     svg.setAttribute('width', this.layout.subseqPlot.svg.width);
     svg.setAttribute('height', this.layout.subseqPlot.svg.height);
     svg.setAttribute('class', 'svg_dim_reduction_plot');
-    svg.style.setProperty('background-color', 'whitesmoke');
-    svg.style.setProperty('border', '1px solid lightgray');
+    svg.style.setProperty('background-color', '#f9f9f9');
+    svg.style.setProperty('border', '2px solid lightgray');
     svg.style.setProperty('margin-top', '10px');
 
     let xScale = d3
       .scaleLinear()
       .domain(d3.extent(dimReductions, d => d.x))
-      .range([5, this.layout.subseqPlot.svg.width]);
+      .range([
+        this.layout.subseqPlot.padding,
+        this.layout.subseqPlot.svg.width - this.layout.subseqPlot.padding
+      ]);
 
     let yScale = d3
       .scaleLinear()
       .domain(d3.extent(dimReductions, d => d.y))
-      .range([this.layout.subseqPlot.svg.height, 5]);
+      .range([
+        this.layout.subseqPlot.svg.height - this.layout.subseqPlot.padding,
+        this.layout.subseqPlot.padding
+      ]);
 
     const clusterColorScale = d3
       .scaleLinear()
-      .domain([0, 12, 24])
-      .range(['red', 'green', 'blue']);
-
-    // const groupColorScale = d3
-    //   .scaleOrdinal()
-    //   .domain(d3.range(numGroups))
-    //   .range(groupColors);
+      .domain([0, 6, 12, 18, 24])
+      .range(['red', 'yellow', 'skyblue', 'mediumpurple']);
 
     let gCircles = d3
       .select(svg)
@@ -449,23 +425,39 @@ class AnalysisView extends Component {
       .attr('class', (d, i) => 'circle_patient circle_patient_' + i)
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y))
-      .attr('r', 2)
+      .attr('r', 3.5)
       .style('fill', (d, i) => clusterColorScale(d.cluster))
       .style('fill-opacity', 0.3)
       .style('opacity', 0.7)
       .style('stroke', d => {
         const isMotif = motifsIdx.filter(e => e === d.idx);
-        return isMotif.length === 0 ? 'none' : 'black';
+        return isMotif.length === 0
+          ? d3.rgb(clusterColorScale(d.cluster)).darker()
+          : 'black';
       })
       .style('stroke-width', d => {
         const isMotif = motifsIdx.filter(e => e === d.idx);
-        return isMotif.length === 0 ? 'none' : '2px';
+        return isMotif.length === 0 ? '1px' : '2px';
       })
       .on('mouseover', (d, i) => {
-        console.log('sss: ', subseqs, subseqs[i]);
-        const svgSubseqPlot = this.renderMotif(subseqs[i], i, 1);
-        console.log(ReactDOMServer.renderToStaticMarkup(svgSubseqPlot));
-        console.log(ReactHtmlParser(svgSubseqPlot));
+        const svgSubseqPlot = this.renderSubseq(
+          subseqs[i],
+          NaN,
+          i,
+          'renderSubseq'
+        );
+        const svgRawSubseqPlot = this.renderSubseq(
+          subseqsRaw[i],
+          NaN,
+          i,
+          'renderRawSubseq'
+        );
+        const svgRawSubseqPlotWithExtentScaling = this.renderSubseq(
+          subseqsRaw[i],
+          NaN,
+          i,
+          'renderRawSubseqWithExtentScaling'
+        );
         tooltip.html(
           '<div>Id: ' +
             d.idx +
@@ -481,6 +473,14 @@ class AnalysisView extends Component {
             '</div>' +
             '<div>' +
             ReactDOMServer.renderToStaticMarkup(svgSubseqPlot) +
+            '</div>' +
+            '<div>' +
+            ReactDOMServer.renderToStaticMarkup(svgRawSubseqPlot) +
+            '</div>' +
+            '<div>' +
+            ReactDOMServer.renderToStaticMarkup(
+              svgRawSubseqPlotWithExtentScaling
+            ) +
             '</div>'
         );
         tooltip.show();
@@ -495,7 +495,22 @@ class AnalysisView extends Component {
         <div style={{ display: 'flex' }}>
           {svg.toReact()}
           <div style={{ margin: '10px', overflowY: 'scroll', height: '500px' }}>
-            {motifs.map((d, i) => this.renderMotif(d, i, 0))}
+            <div style={{ display: 'flex' }}>
+              <div>{'No'}</div>
+              <div>{'Imp'}</div>
+              <div>{'Rare'}</div>
+              <div>{'Trend'}</div>
+            </div>
+            {d3
+              .range(numMotifs)
+              .map(idx =>
+                this.renderSubseq(
+                  motifs[idx],
+                  motifsInfo[idx],
+                  idx,
+                  'renderMotif'
+                )
+              )}
           </div>
         </div>
       </div>
@@ -514,9 +529,6 @@ class AnalysisView extends Component {
     } = this.props;
 
     this.update();
-
-    console.log('usersDataaa: ', usersData);
-    console.log('somePatients: ', somePatientsData);
 
     _self.svgPreprocessingView = new ReactFauxDOM.Element('svg');
     _self.svgPreprocessingView.setAttribute(
