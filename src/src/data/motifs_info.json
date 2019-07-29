@@ -1,127 +1,102 @@
 [
   {
-    "cluster_label": 0,
-    "patient_idx": 415,
-    "segment_label": 0.49
+    "rareness": 415,
+    "importance": 0.49
   },
   {
-    "cluster_label": 1,
-    "patient_idx": 427,
-    "segment_label": 0.52
+    "rareness": 427,
+    "importance": 0.52
   },
   {
-    "cluster_label": 2,
-    "patient_idx": 316,
-    "segment_label": 0.25
+    "rareness": 316,
+    "importance": 0.25
   },
   {
-    "cluster_label": 3,
-    "patient_idx": 426,
-    "segment_label": 0.5
+    "rareness": 426,
+    "importance": 0.5
   },
   {
-    "cluster_label": 4,
-    "patient_idx": 426,
-    "segment_label": 0.5
+    "rareness": 426,
+    "importance": 0.5
   },
   {
-    "cluster_label": 5,
-    "patient_idx": 410,
-    "segment_label": 0.55
+    "rareness": 410,
+    "importance": 0.55
   },
   {
-    "cluster_label": 6,
-    "patient_idx": 404,
-    "segment_label": 0.62
+    "rareness": 404,
+    "importance": 0.62
   },
   {
-    "cluster_label": 7,
-    "patient_idx": 411,
-    "segment_label": 0.55
+    "rareness": 411,
+    "importance": 0.55
   },
   {
-    "cluster_label": 8,
-    "patient_idx": 406,
-    "segment_label": 0.62
+    "rareness": 406,
+    "importance": 0.62
   },
   {
-    "cluster_label": 9,
-    "patient_idx": 427,
-    "segment_label": 0.48
+    "rareness": 427,
+    "importance": 0.48
   },
   {
-    "cluster_label": 10,
-    "patient_idx": 414,
-    "segment_label": 0.58
+    "rareness": 414,
+    "importance": 0.58
   },
   {
-    "cluster_label": 11,
-    "patient_idx": 427,
-    "segment_label": 0.45
+    "rareness": 427,
+    "importance": 0.45
   },
   {
-    "cluster_label": 12,
-    "patient_idx": 389,
-    "segment_label": 0.65
+    "rareness": 389,
+    "importance": 0.65
   },
   {
-    "cluster_label": 13,
-    "patient_idx": 412,
-    "segment_label": 0.61
+    "rareness": 412,
+    "importance": 0.61
   },
   {
-    "cluster_label": 14,
-    "patient_idx": 427,
-    "segment_label": 0.54
+    "rareness": 427,
+    "importance": 0.54
   },
   {
-    "cluster_label": 15,
-    "patient_idx": 411,
-    "segment_label": 0.59
+    "rareness": 411,
+    "importance": 0.59
   },
   {
-    "cluster_label": 16,
-    "patient_idx": 425,
-    "segment_label": 0.45
+    "rareness": 425,
+    "importance": 0.45
   },
   {
-    "cluster_label": 17,
-    "patient_idx": 416,
-    "segment_label": 0.51
+    "rareness": 416,
+    "importance": 0.51
   },
   {
-    "cluster_label": 18,
-    "patient_idx": 412,
-    "segment_label": 0.62
+    "rareness": 412,
+    "importance": 0.62
   },
   {
-    "cluster_label": 19,
-    "patient_idx": 424,
-    "segment_label": 0.51
+    "rareness": 424,
+    "importance": 0.51
   },
   {
-    "cluster_label": 20,
-    "patient_idx": 405,
-    "segment_label": 0.62
+    "rareness": 405,
+    "importance": 0.62
   },
   {
-    "cluster_label": 21,
-    "patient_idx": 427,
-    "segment_label": 0.5
+    "rareness": 427,
+    "importance": 0.5
   },
   {
-    "cluster_label": 22,
-    "patient_idx": 427,
-    "segment_label": 0.53
+    "rareness": 427,
+    "importance": 0.53
   },
   {
-    "cluster_label": 23,
-    "patient_idx": 428,
-    "segment_label": 0.53
+    "rareness": 428,
+    "importance": 0.53
   },
   {
-    "cluster_label": 24,
-    "patient_idx": 406,
-    "segment_label": 0.64
+    "rareness": 406,
+    "importance": 0.64
   }
 ]

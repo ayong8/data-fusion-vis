@@ -19,7 +19,9 @@ import {
   Button,
   Tabs,
   Tab,
-  Grid
+  Grid,
+  DataTable,
+  Meter
 } from 'grommet';
 import { grommet } from 'grommet/themes';
 
@@ -359,18 +361,122 @@ class AnalysisView extends Component {
           <div style={{ marginRight: '10px', fontWeight: 500 }}>
             {subseqIdx}
           </div>
-          <div style={{ marginRight: '10px' }}>{subseqInfo.patient_idx}</div>
-          <div style={{ marginRight: '10px' }}>{subseqInfo.segment_label}</div>
+          <div style={{ marginRight: '10px' }}>{subseqInfo.rareness}</div>
+          <div style={{ marginRight: '10px' }}>{subseqInfo.importance}</div>
           {svgSubseqView.toReact()}
         </div>
       );
-    else
-      return (
-        <div>
-          {svgSubseqView.toReact()}
-          <div>dropdown</div>
-        </div>
+    else return svgSubseqView.toReact();
+  }
+
+  renderMotif(motif) {
+    const svgMotifView = new ReactFauxDOM.Element('svg');
+    svgMotifView.setAttribute('width', this.layout.subseqView.svg.width);
+    svgMotifView.setAttribute('height', this.layout.subseqView.svg.height);
+
+    const motifValues = Object.values(_.omit(motif, 'idx')),
+      motifLength = 100,
+      motifRange = 100;
+
+    const yMotifDomain = d3.extent(motifValues);
+
+    const xMotifIdxScale = d3
+      .scaleLinear()
+      .domain([0, motifLength])
+      .range([
+        0,
+        this.layout.subseqView.svg.width - this.layout.subseqView.paddingLeft
+      ]);
+
+    const yMotifScale = d3
+      .scaleLinear()
+      .domain(yMotifDomain)
+      .range([
+        this.layout.subseqView.svg.height -
+          this.layout.subseqView.paddingBottom,
+        this.layout.subseqView.paddingTop
+      ]);
+
+    const gMotifChart = d3
+      .select(svgMotifView)
+      .append('g')
+      .attr(
+        'transform',
+        'translate(' + this.layout.subseqView.paddingLeft + ',' + 0 + ')'
       );
+
+    // const rawLine = d3
+    //   .line()
+    //   .x((d, i) => xRawMotifScale(i))
+    //   .y(d => yRawMotifScale(d));
+
+    const motifLine = d3
+      .line()
+      .x((d, i) => xMotifIdxScale(i))
+      .y(d => yMotifScale(d));
+
+    // path
+    const motifPath = gMotifChart
+      .append('path')
+      .datum(motifValues)
+      .attr('class', (d, i) => 'motif motif_' + i)
+      .attr('d', motifLine)
+      .style('fill', 'none')
+      .style('stroke', 'blue')
+      .style('stroke-width', 2);
+
+    const xAxisSetting = d3
+        .axisBottom(xMotifIdxScale)
+        .tickValues(d3.range(0, motifLength, 20))
+        .tickSize(0),
+      xAxis = d3
+        .select(svgMotifView)
+        .append('g')
+        .call(xAxisSetting)
+        .attr('class', 'g_motif_x_axis')
+        .attr(
+          'transform',
+          'translate(' +
+            this.layout.subseqView.paddingLeft +
+            ',' +
+            (this.layout.subseqView.svg.height -
+              this.layout.subseqView.paddingBottom) +
+            ')'
+        );
+
+    const yAxisSetting = d3
+        .axisLeft(yMotifScale)
+        .tickValues(yMotifScale.domain())
+        .tickSize(0),
+      yAxis = d3
+        .select(svgMotifView)
+        .append('g')
+        .call(yAxisSetting)
+        .attr('class', 'g_motif_y_axis')
+        .attr(
+          'transform',
+          'translate(' + this.layout.subseqView.paddingLeft + ',' + 0 + ')'
+        );
+
+    return (
+      // <div
+      //   style={{
+      //     display: 'flex',
+      //     marginBottom: '10px',
+      //     lineHeight: 3,
+      //     fontSize: '0.8rem',
+      //     color: 'dimgray'
+      //   }}
+      // >
+      //   <div style={{ marginRight: '10px', fontWeight: 500 }}>
+      //     {motifIdx}
+      //   </div>
+      //   <div style={{ marginRight: '10px' }}>{motifInfo.rareness}</div>
+      //   <div style={{ marginRight: '10px' }}>{motifInfo.importance}</div>
+      //   {svgMotifView.toReact()}
+      // </div>
+      <div>{svgMotifView.toReact()}</div>
+    );
   }
 
   renderSubseqPlot() {
@@ -489,13 +595,22 @@ class AnalysisView extends Component {
         tooltip.hide();
       });
 
+    const dataForMotifTable = d3.range(numMotifs).map(idx => ({
+      motifIdx: idx,
+      importance: motifsInfo[idx].importance,
+      rareness: motifsInfo[idx].rareness,
+      motif: motifs[idx]
+    }));
+
+    console.log('dataForMotifTable: ', dataForMotifTable);
+
     return (
       <div>
         <div className={index.subTitle}>Subsequences</div>
         <div style={{ display: 'flex' }}>
           {svg.toReact()}
           <div style={{ margin: '10px', overflowY: 'scroll', height: '500px' }}>
-            <div style={{ display: 'flex' }}>
+            {/* <div style={{ display: 'flex' }}>
               <div>{'No'}</div>
               <div>{'Imp'}</div>
               <div>{'Rare'}</div>
@@ -510,7 +625,39 @@ class AnalysisView extends Component {
                   idx,
                   'renderMotif'
                 )
-              )}
+              )} */}
+            <DataTable
+              columns={[
+                {
+                  property: 'motifIdx',
+                  header: 'No',
+                  primary: true
+                },
+                {
+                  property: 'importance',
+                  header: 'Imp',
+                  render: d => (
+                    <Box pad={{ vertical: 'xsmall' }}>
+                      <Meter
+                        values={[{ value: d.importance * 100 }]}
+                        thickness="small"
+                        size="small"
+                      />
+                    </Box>
+                  )
+                },
+                {
+                  property: 'rareness',
+                  header: 'Rare'
+                },
+                {
+                  property: 'motifPlot',
+                  header: 'Motif',
+                  render: ({ motif }) => this.renderMotif(motif)
+                }
+              ]}
+              data={dataForMotifTable}
+            />
           </div>
         </div>
       </div>
@@ -718,6 +865,8 @@ class AnalysisView extends Component {
   }
 
   render() {
+    const { motifs } = this.props;
+
     return (
       <div className={styles.AnalysisView}>
         <div className={index.subTitle + ' ' + index.borderBottom}>
@@ -725,7 +874,19 @@ class AnalysisView extends Component {
         </div>
         <div className={styles.userView}>
           <div style={{ display: 'flex' }}>
-            {this.renderSubseqPlot()}
+            <div>
+              {this.renderSubseqPlot()}
+              {/*** Select patients ***/}
+              <div className={index.subTitle + ' ' + index.borderBottom}>
+                Select a cluster
+              </div>
+              <Select
+                multiple={true}
+                value={this.props.selectedCluster}
+                onChange={this.handleSelectPatients}
+                options={motifs}
+              />
+            </div>
             <div>{this.renderPreprocessingView()}</div>
           </div>
           <div className={index.subTitle + ' ' + index.borderBottom}>
