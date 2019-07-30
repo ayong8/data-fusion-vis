@@ -26,7 +26,6 @@ import {
 import { grommet } from 'grommet/themes';
 
 import MotifView from '../MotifView';
-
 import DynamicTimeWarping from 'dynamic-time-warping';
 
 const tooltip = d3tooltip(d3);
@@ -99,6 +98,7 @@ class AnalysisView extends Component {
       outlierBarHeight: 5
     };
 
+    this.numMotifs = 0;
     this.svgPreprocessingView = '';
     this.svgDiffView = '';
     this.svgGroupView = '';
@@ -109,6 +109,8 @@ class AnalysisView extends Component {
     this.ySequenceViewScale = '';
     this.yPatientScale = '';
     this.diffScale = '';
+    this.clusterColorScale = '';
+    this.labelColorScale = '';
 
     this.riskRatioScale = '';
 
@@ -116,6 +118,8 @@ class AnalysisView extends Component {
       selectedRegion: [0, 10],
       selectedUser: ['PUH-2018-056'],
       selectedGroup: 'Group 3',
+      selectedClusterIdx: 'all',
+      selectedSubseqPlotColorOption: 'Cluster',
       mouseoveredGroup: '',
       outputMotifs: [
         {
@@ -150,6 +154,11 @@ class AnalysisView extends Component {
         }
       ]
     };
+
+    this.handleSelectCluster = this.handleSelectCluster.bind(this);
+    this.handleSelectSubseqPlotColorOption = this.handleSelectSubseqPlotColorOption.bind(
+      this
+    );
   }
 
   componentWillUpdate(nextProps, nextState) {
@@ -187,6 +196,46 @@ class AnalysisView extends Component {
           .style('stroke', 'blue')
           .style('stroke-width', 2)
           .classed('neighbor', true);
+      }
+    }
+
+    if (this.state.selectedClusterIdx !== nextState.selectedClusterIdx) {
+      const selectedClusterIdx = nextState.selectedClusterIdx;
+
+      if (selectedClusterIdx === 'All')
+        d3.selectAll('.circle_subseq').style('opacity', 1);
+      else {
+        d3.selectAll('.circle_subseq').style('opacity', 0);
+        d3.selectAll('.circle_subseq_in_cluster_' + selectedClusterIdx).style(
+          'opacity',
+          1
+        );
+      }
+    }
+
+    if (
+      this.state.selectedSubseqPlotColorOption !==
+      nextState.selectedSubseqPlotColorOption
+    ) {
+      const selectedOption = nextState.selectedSubseqPlotColorOption;
+      if (selectedOption === 'Label') {
+        d3.selectAll('.circle_subseq_in_label_0')
+          .style('fill', this.labelColorScale(0))
+          .style('stroke', d3.rgb(this.labelColorScale(0)).darker())
+          .style('stroke-width', 0.5);
+        d3.selectAll('.circle_subseq_in_label_1')
+          .style('fill', this.labelColorScale(1))
+          .style('stroke', d3.rgb(this.labelColorScale(1)).darker())
+          .style('stroke-width', 0.5);
+      } else if (selectedOption === 'Cluster') {
+        d3.range(this.numMotifs).forEach(clusterIdx => {
+          d3.selectAll('.circle_subseq_in_cluster_' + clusterIdx)
+            .style('fill', this.clusterColorScale(clusterIdx))
+            .style(
+              'stroke',
+              d3.rgb(this.clusterColorScale(clusterIdx)).darker()
+            );
+        });
       }
     }
   }
@@ -253,8 +302,16 @@ class AnalysisView extends Component {
           this.layout.sequenceView.paddingBottom,
         0
       ]);
+  }
 
-    console.log('ddd');
+  handleSelectCluster(e) {
+    this.setState({ selectedClusterIdx: e.option });
+  }
+
+  handleSelectSubseqPlotColorOption(e) {
+    this.setState({
+      selectedSubseqPlotColorOption: e.option
+    });
   }
 
   renderSubseq(subseq, subseqInfo, subseqIdx, mode) {
@@ -482,8 +539,8 @@ class AnalysisView extends Component {
   renderSubseqPlot() {
     const { subseqsInfo, subseqs, subseqsRaw, motifs, motifsInfo } = this.props;
 
-    const motifsIdx = motifs.map(d => d.idx),
-      numMotifs = motifs.length;
+    const motifsIdx = motifs.map(d => d.idx);
+    this.numMotifs = motifs.length;
 
     // Temporarily assign subseqs as motifs
     const dimReductions = subseqsInfo.map(d => ({ x: d.x, y: d.y }));
@@ -513,10 +570,15 @@ class AnalysisView extends Component {
         this.layout.subseqPlot.padding
       ]);
 
-    const clusterColorScale = d3
+    this.clusterColorScale = d3
       .scaleLinear()
       .domain([0, 6, 12, 18, 24])
       .range(['red', 'yellow', 'skyblue', 'mediumpurple']);
+
+    this.labelColorScale = d3
+      .scaleOrdinal()
+      .domain([0, 1])
+      .range(['crimson', 'darkblue']);
 
     let gCircles = d3
       .select(svg)
@@ -524,21 +586,30 @@ class AnalysisView extends Component {
       .attr('transform', 'translate(0,0)');
 
     const circles = gCircles
-      .selectAll('.circle_patient')
+      .selectAll('.circle_subseq')
       .data(subseqsInfo)
       .enter()
       .append('circle')
-      .attr('class', (d, i) => 'circle_patient circle_patient_' + i)
+      .attr(
+        'class',
+        (d, i) =>
+          'circle_subseq circle_subseq_' +
+          i +
+          ' circle_subseq_in_cluster_' +
+          d.cluster +
+          ' circle_subseq_in_label_' +
+          d.label
+      )
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y))
       .attr('r', 3.5)
-      .style('fill', (d, i) => clusterColorScale(d.cluster))
-      .style('fill-opacity', 0.3)
-      .style('opacity', 0.7)
+      .style('fill', (d, i) => this.clusterColorScale(d.cluster))
+      // .style('fill-opacity', 0.3)
+      .style('opacity', 0.5)
       .style('stroke', d => {
         const isMotif = motifsIdx.filter(e => e === d.idx);
         return isMotif.length === 0
-          ? d3.rgb(clusterColorScale(d.cluster)).darker()
+          ? d3.rgb(this.clusterColorScale(d.cluster)).darker()
           : 'black';
       })
       .style('stroke-width', d => {
@@ -595,7 +666,10 @@ class AnalysisView extends Component {
         tooltip.hide();
       });
 
-    const dataForMotifTable = d3.range(numMotifs).map(idx => ({
+    const motifIdxList = d3.range(this.numMotifs),
+      clusterSelectionOptions = ['All', ...motifIdxList],
+      subseqPlotColorOptions = ['Cluster', 'Label'];
+    const dataForMotifTable = motifIdxList.map(idx => ({
       motifIdx: idx,
       importance: motifsInfo[idx].importance,
       rareness: motifsInfo[idx].rareness,
@@ -608,7 +682,26 @@ class AnalysisView extends Component {
       <div>
         <div className={index.subTitle}>Subsequences</div>
         <div style={{ display: 'flex' }}>
-          {svg.toReact()}
+          <div>
+            {svg.toReact()}
+            {/*** Select patients ***/}
+            <div style={{ margin: '15px 0 5px 0' }}>Select a cluster</div>
+            <Select
+              multiple={true}
+              value={this.state.selectedClusterIdx}
+              onChange={this.handleSelectCluster}
+              options={clusterSelectionOptions}
+              size={'xsmall'}
+            />
+            <div style={{ margin: '15px 0 5px 0' }}>Color subsequences by</div>
+            <Select
+              multiple={true}
+              value={this.state.selectedSubseqPlotColorOption}
+              onChange={this.handleSelectSubseqPlotColorOption}
+              options={subseqPlotColorOptions}
+              size={'xsmall'}
+            />
+          </div>
           <div style={{ margin: '10px', overflowY: 'scroll', height: '500px' }}>
             {/* <div style={{ display: 'flex' }}>
               <div>{'No'}</div>
@@ -639,8 +732,11 @@ class AnalysisView extends Component {
                   render: d => (
                     <Box pad={{ vertical: 'xsmall' }}>
                       <Meter
-                        values={[{ value: d.importance * 100 }]}
-                        thickness="small"
+                        values={[
+                          { value: d.importance * 100, color: 'mediumpurple' }
+                        ]}
+                        thickness="xsmall"
+                        color="purple"
                         size="small"
                       />
                     </Box>
@@ -657,6 +753,7 @@ class AnalysisView extends Component {
                 }
               ]}
               data={dataForMotifTable}
+              sortable="true"
             />
           </div>
         </div>
@@ -783,45 +880,8 @@ class AnalysisView extends Component {
     return (
       <div>
         <div className={index.subTitle}>Sequences</div>
-        {_self.svgPreprocessingView.toReact()}
-        <Grommet
-          theme={grommet}
-          style={{ width: this.layout.sequenceView.width - 50 }}
-        >
-          <Box direction="row" justify="between">
-            <Stack style={{ width: this.layout.sequenceView.width - 50 }}>
-              <Box direction="row" justify="between">
-                {tickValuesForSelector.map(value => (
-                  <Box key={value} pad="small" border={false}>
-                    <Text style={{ fontSize: '10px' }}>{value}</Text>
-                  </Box>
-                ))}
-              </Box>
-              <RangeSelector
-                direction="horizontal"
-                invert={false}
-                min={minValue}
-                max={maxValue}
-                size="medium"
-                round="small"
-                values={this.state.selectedRegion}
-                onChange={this.handleSelectedTimeInterval}
-              />
-            </Stack>
-            <Button
-              className={styles.saveButton}
-              primary
-              color="#111111"
-              label="Save"
-              onClick={this.handleSelectedPattern}
-              // {...props}
-            />
-          </Box>
-        </Grommet>
-        <div>
-          <div>Starting point: </div>
-          <div>Ending point: </div>
-          <div>Select the patients by: </div>
+        <div style={{ width: '100%', overflowX: 'scroll' }}>
+          {_self.svgPreprocessingView.toReact()}
         </div>
       </div>
     );
@@ -874,20 +934,8 @@ class AnalysisView extends Component {
         </div>
         <div className={styles.userView}>
           <div style={{ display: 'flex' }}>
-            <div>
-              {this.renderSubseqPlot()}
-              {/*** Select patients ***/}
-              <div className={index.subTitle + ' ' + index.borderBottom}>
-                Select a cluster
-              </div>
-              <Select
-                multiple={true}
-                value={this.props.selectedCluster}
-                onChange={this.handleSelectPatients}
-                options={motifs}
-              />
-            </div>
-            <div>{this.renderPreprocessingView()}</div>
+            <div style={{ width: '55%' }}>{this.renderSubseqPlot()}</div>
+            <div style={{ width: '45%' }}>{this.renderPreprocessingView()}</div>
           </div>
           <div className={index.subTitle + ' ' + index.borderBottom}>
             Input Motifs
