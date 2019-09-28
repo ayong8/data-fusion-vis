@@ -1162,11 +1162,10 @@ class MainView extends Component {
       somePatientsData,
       tNum,
       numDataPerTime,
+      segments,
+      segmentsMetadata,
       motifs,
-      motifsInfo,
-      subseqs,
-      subseqsRaw,
-      subseqsInfo
+      motifsMetadata
     } = this.props;
 
     return (
@@ -1179,17 +1178,15 @@ class MainView extends Component {
             <Box pad="medium">
               <AnalysisView
                 selectedPatients={selectedPatients}
-                usersData={usersData}
                 somePatients={somePatients}
                 somePatientsData={somePatientsData}
                 tNum={tNum}
                 numDataPerTime={numDataPerTime}
                 usersData={usersData}
+                segments={segments}
+                segmentsMetadata={segmentsMetadata}
                 motifs={motifs}
-                motifsInfo={motifsInfo}
-                subseqsInfo={subseqsInfo}
-                subseqs={subseqs}
-                subseqsRaw={subseqsRaw}
+                motifsMetadata={motifsMetadata}
               />
             </Box>
           </Tab>

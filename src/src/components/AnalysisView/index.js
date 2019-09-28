@@ -9,6 +9,25 @@ import d3tooltip from 'd3-tooltip';
 import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss';
+
+import subseqsSupRatioRaw from '../../data/data_new/subseqs_sup_ratio_raw_segment25_stride5';
+import subseqsAEEGRaw from '../../data/data_new/subseqs_aeeg_raw_segment25_stride5';
+import subseqsAEEGNorm from '../../data/data_new/subseqs_aeeg_normalized_segment25_stride5';
+import subseqsInfoSupRatioRaw from '../../data/data_new/subseqs_metadata_sup_ratio_raw_segment25_stride5';
+import subseqsInfoAEEGRaw from '../../data/data_new/subseqs_metadata_aeeg_raw_segment25_stride5';
+import subseqsInfoAEEGNorm from '../../data/data_new/subseqs_metadata_aeeg_normalized_segment25_stride5';
+import motifsSupRatioRaw from '../../data/data_new/df_motifs_sup_ratio_raw_segment25_stride5';
+import motifsAEEGRaw from '../../data/data_new/df_motifs_aeeg_raw_segment25_stride5';
+import motifsAEEGNorm from '../../data/data_new/df_motifs_aeeg_normalized_segment25_stride5';
+import motifsInfoSupRatioRaw from '../../data/data_new/df_motifs_metadata_sup_ratio_raw_segment25_stride5';
+import motifsInfoAEEGRaw from '../../data/data_new/df_motifs_metadata_aeeg_raw_segment25_stride5';
+import motifsInfoAEEGNorm from '../../data/data_new/df_motifs_metadata_aeeg_normalized_segment25_stride5';
+
+import subseqsSupRatioNorm from '../../data/data_new/subseqs_sup_ratio_normalized_segment100_stride20';
+import subseqsInfoSupRatioNorm from '../../data/data_new/subseqs_metadata_sup_ratio_normalized_segment100_stride20';
+import motifsSupRatioNorm from '../../data/data_new/df_motifs_sup_ratio_normalized_segment100_stride20';
+import motifsInfoSupRatioNorm from '../../data/data_new/df_motifs_metadata_sup_ratio_normalized_segment100_stride20';
+
 import {
   Grommet,
   Select,
@@ -115,9 +134,15 @@ class AnalysisView extends Component {
     this.riskRatioScale = '';
 
     this.state = {
+      subseqsData: subseqsSupRatioNorm,
+      subseqsInfoData: subseqsInfoSupRatioNorm,
+      motifsData: motifsSupRatioNorm,
+      motifsInfoData: motifsInfoSupRatioNorm,
       selectedRegion: [0, 10],
       selectedUser: ['PUH-2018-056'],
       selectedGroup: 'Group 3',
+      selectedSignalType: 'sup_ratio',
+      selectedNormalizationOption: 'normalized',
       selectedClusterIdx: 'all',
       selectedSubseqPlotColorOption: 'Cluster',
       mouseoveredGroup: '',
@@ -155,6 +180,10 @@ class AnalysisView extends Component {
       ]
     };
 
+    this.handleSelectSignalType = this.handleSelectSignalType.bind(this);
+    this.handleSelectNormalizationOption = this.handleSelectNormalizationOption.bind(
+      this
+    );
     this.handleSelectCluster = this.handleSelectCluster.bind(this);
     this.handleSelectSubseqPlotColorOption = this.handleSelectSubseqPlotColorOption.bind(
       this
@@ -227,6 +256,13 @@ class AnalysisView extends Component {
           .style('fill', this.labelColorScale(1))
           .style('stroke', d3.rgb(this.labelColorScale(1)).darker())
           .style('stroke-width', 0.5);
+        d3.selectAll(
+          '.circle_subseq_in_expert_label_1.circle_subseq_in_label_0'
+        )
+          .style('fill', 'black')
+          .style('stroke', 'black')
+          .style('stroke-width', 0.5)
+          .style('opacity', 1);
       } else if (selectedOption === 'Cluster') {
         d3.range(this.numMotifs).forEach(clusterIdx => {
           d3.selectAll('.circle_subseq_in_cluster_' + clusterIdx)
@@ -302,6 +338,108 @@ class AnalysisView extends Component {
           this.layout.sequenceView.paddingBottom,
         0
       ]);
+  }
+
+  handleSelectSignalType(e) {
+    const { selectedNormalizationOption } = this.state;
+    const selectedSignalType = e.option;
+    var subseqsData = '';
+    var subseqsInfoData = '';
+    var motifsData = '';
+    var motifsInfoData = '';
+
+    if (
+      selectedSignalType === 'sup_ratio' &&
+      selectedNormalizationOption === 'raw'
+    ) {
+      subseqsData = subseqsSupRatioRaw;
+      subseqsInfoData = subseqsInfoSupRatioRaw;
+      motifsData = motifsSupRatioRaw;
+      motifsInfoData = motifsInfoSupRatioRaw;
+    } else if (
+      selectedSignalType === 'sup_ratio' &&
+      selectedNormalizationOption === 'normalized'
+    ) {
+      subseqsData = subseqsSupRatioNorm;
+      subseqsInfoData = subseqsInfoSupRatioNorm;
+      motifsData = motifsSupRatioNorm;
+      motifsInfoData = motifsInfoSupRatioNorm;
+    } else if (
+      selectedSignalType === 'aeeg' &&
+      selectedNormalizationOption === 'raw'
+    ) {
+      subseqsData = subseqsAEEGRaw;
+      subseqsInfoData = subseqsInfoAEEGRaw;
+      motifsData = motifsAEEGRaw;
+      motifsInfoData = motifsInfoAEEGRaw;
+    } else if (
+      selectedSignalType === 'aeeg' &&
+      selectedNormalizationOption === 'normalized'
+    ) {
+      subseqsData = subseqsAEEGNorm;
+      subseqsInfoData = subseqsInfoAEEGNorm;
+      motifsData = motifsAEEGNorm;
+      motifsInfoData = motifsInfoAEEGNorm;
+    }
+
+    this.setState({
+      subseqsData: subseqsData,
+      subseqsInfoData: subseqsInfoData,
+      motifsData: motifsData,
+      motifsInfoData: motifsInfoData,
+      selectedSignalType: selectedSignalType
+    });
+  }
+
+  handleSelectNormalizationOption(e) {
+    const { selectedSignalType } = this.state;
+    const selectedNormalizationOption = e.option;
+    var subseqsData = '';
+    var subseqsInfoData = '';
+    var motifsData = '';
+    var motifsInfoData = '';
+
+    if (
+      selectedSignalType === 'sup_ratio' &&
+      selectedNormalizationOption === 'raw'
+    ) {
+      subseqsData = subseqsSupRatioRaw;
+      subseqsInfoData = subseqsInfoSupRatioRaw;
+      motifsData = motifsSupRatioRaw;
+      motifsInfoData = motifsInfoSupRatioRaw;
+    } else if (
+      selectedSignalType === 'sup_ratio' &&
+      selectedNormalizationOption === 'normalized'
+    ) {
+      subseqsData = subseqsSupRatioNorm;
+      subseqsInfoData = subseqsInfoSupRatioNorm;
+      motifsData = motifsSupRatioNorm;
+      motifsInfoData = motifsInfoSupRatioNorm;
+    } else if (
+      selectedSignalType === 'aeeg' &&
+      selectedNormalizationOption === 'raw'
+    ) {
+      subseqsData = subseqsAEEGRaw;
+      subseqsInfoData = subseqsInfoAEEGRaw;
+      motifsData = motifsAEEGRaw;
+      motifsInfoData = motifsInfoAEEGRaw;
+    } else if (
+      selectedSignalType === 'aeeg' &&
+      selectedNormalizationOption === 'normalized'
+    ) {
+      subseqsData = subseqsAEEGNorm;
+      subseqsInfoData = subseqsInfoAEEGNorm;
+      motifsData = motifsAEEGNorm;
+      motifsInfoData = motifsInfoAEEGNorm;
+    }
+
+    this.setState({
+      subseqsData: subseqsData,
+      subseqsInfoData: subseqsInfoData,
+      motifsData: motifsData,
+      motifsInfoData: motifsInfoData,
+      selectedNormalizationOption: selectedNormalizationOption
+    });
   }
 
   handleSelectCluster(e) {
@@ -537,13 +675,24 @@ class AnalysisView extends Component {
   }
 
   renderSubseqPlot() {
-    const { subseqsInfo, subseqs, subseqsRaw, motifs, motifsInfo } = this.props;
+    const {
+      segments,
+      segmentsMetadata,
+      motifs,
+      motifsMetadata,
+      selectedSignalType,
+      selectedNormalizationOption
+    } = this.props;
+    //const { subseqsInfo, subseqs, subseqsRaw, motifs, motifsInfo } = this.props;
 
     const motifsIdx = motifs.map(d => d.idx);
     this.numMotifs = motifs.length;
 
+    console.log('subseqsData: ', segments);
+    console.log('subseqsInfoData: ', segmentsMetadata);
+
     // Temporarily assign subseqs as motifs
-    const dimReductions = subseqsInfo.map(d => ({ x: d.x, y: d.y }));
+    const dimReductions = segmentsMetadata.map(d => ({ x: d.x, y: d.y }));
 
     const svg = new ReactFauxDOM.Element('svg');
 
@@ -575,6 +724,7 @@ class AnalysisView extends Component {
       .domain([0, 6, 12, 18, 24])
       .range(['red', 'yellow', 'skyblue', 'mediumpurple']);
 
+    // 10: expert_label = 1, label = 0 ...
     this.labelColorScale = d3
       .scaleOrdinal()
       .domain([0, 1])
@@ -587,7 +737,7 @@ class AnalysisView extends Component {
 
     const circles = gCircles
       .selectAll('.circle_subseq')
-      .data(subseqsInfo)
+      .data(segmentsMetadata)
       .enter()
       .append('circle')
       .attr(
@@ -597,8 +747,14 @@ class AnalysisView extends Component {
           i +
           ' circle_subseq_in_cluster_' +
           d.cluster +
+          ' circle_subseq_in_offset_cluster_' +
+          d.offset_cluster +
+          ' circle_subseq_in_change_point_cluster_' +
+          d.change_point_cluster +
           ' circle_subseq_in_label_' +
-          d.label
+          d.label +
+          ' circle_subseq_in_expert_label_' +
+          d.expert_label
       )
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y))
@@ -618,23 +774,23 @@ class AnalysisView extends Component {
       })
       .on('mouseover', (d, i) => {
         const svgSubseqPlot = this.renderSubseq(
-          subseqs[i],
+          segments[i],
           NaN,
           i,
           'renderSubseq'
         );
-        const svgRawSubseqPlot = this.renderSubseq(
-          subseqsRaw[i],
-          NaN,
-          i,
-          'renderRawSubseq'
-        );
-        const svgRawSubseqPlotWithExtentScaling = this.renderSubseq(
-          subseqsRaw[i],
-          NaN,
-          i,
-          'renderRawSubseqWithExtentScaling'
-        );
+        // const svgRawSubseqPlot = this.renderSubseq(
+        //   subseqsRaw[i],
+        //   NaN,
+        //   i,
+        //   'renderRawSubseq'
+        // );
+        // const svgRawSubseqPlotWithExtentScaling = this.renderSubseq(
+        //   subseqsRaw[i],
+        //   NaN,
+        //   i,
+        //   'renderRawSubseqWithExtentScaling'
+        // );
         tooltip.html(
           '<div>Id: ' +
             d.idx +
@@ -648,17 +804,26 @@ class AnalysisView extends Component {
             '<div>Cluster: ' +
             d.cluster +
             '</div>' +
+            '<div>Offset cluster: ' +
+            d.offset_cluster +
+            '</div>' +
+            '<div>Change point cluster: ' +
+            d.change_point_cluster +
+            '</div>' +
+            '<div>Expert label: ' +
+            d.expert_label +
+            '</div>' +
             '<div>' +
             ReactDOMServer.renderToStaticMarkup(svgSubseqPlot) +
             '</div>' +
-            '<div>' +
-            ReactDOMServer.renderToStaticMarkup(svgRawSubseqPlot) +
-            '</div>' +
-            '<div>' +
-            ReactDOMServer.renderToStaticMarkup(
-              svgRawSubseqPlotWithExtentScaling
-            ) +
-            '</div>'
+            '<div>'
+          // ReactDOMServer.renderToStaticMarkup(svgRawSubseqPlot) +
+          // '</div>' +
+          // '<div>' +
+          // ReactDOMServer.renderToStaticMarkup(
+          //   svgRawSubseqPlotWithExtentScaling
+          // ) +
+          // '</div>'
         );
         tooltip.show();
       })
@@ -667,12 +832,15 @@ class AnalysisView extends Component {
       });
 
     const motifIdxList = d3.range(this.numMotifs),
+      signalOptions = ['sup_ratio', 'aeeg'],
+      normalizationOptions = ['raw', 'normalized'],
       clusterSelectionOptions = ['All', ...motifIdxList],
-      subseqPlotColorOptions = ['Cluster', 'Label'];
+      subseqPlotColorOptions = ['Cluster', 'Label'],
+      expertLabelStrokeOptions = ['Yes', 'No'];
     const dataForMotifTable = motifIdxList.map(idx => ({
       motifIdx: idx,
-      importance: motifsInfo[idx].importance,
-      rareness: motifsInfo[idx].rareness,
+      importance: motifsMetadata[idx].importance,
+      rareness: motifsMetadata[idx].rareness,
       motif: motifs[idx]
     }));
 
@@ -681,8 +849,25 @@ class AnalysisView extends Component {
     return (
       <div>
         <div className={index.subTitle}>Subsequences</div>
+
         <div style={{ display: 'flex' }}>
           <div>
+            <div style={{ margin: '15px 0 5px 0' }}>Signal type</div>
+            <Select
+              multiple={true}
+              value={this.state.selectedSignalType}
+              onChange={this.handleSelectSignalType}
+              options={signalOptions}
+              size={'xsmall'}
+            />
+            <div style={{ margin: '15px 0 5px 0' }}>Normalized</div>
+            <Select
+              multiple={true}
+              value={this.state.selectedNormalizationOption}
+              onChange={this.handleSelectNormalizationOption}
+              options={normalizationOptions}
+              size={'xsmall'}
+            />
             {svg.toReact()}
             {/*** Select patients ***/}
             <div style={{ margin: '15px 0 5px 0' }}>Select a cluster</div>

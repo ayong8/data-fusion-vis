@@ -13,6 +13,11 @@ urlpatterns = [
         name='userNames'
     ),
     url(
+        regex=r'^loadMotifsAndSegmentsFile/$',
+        view=views.LoadMotifsAndSegmentsFile.as_view(),
+        name='loadMotifsAndSegmentsFile'
+    ),
+    url(
         regex=r'^loadUsers/$',
         view=views.LoadUsers.as_view(),
         name='loadUsers'

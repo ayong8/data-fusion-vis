@@ -10,9 +10,9 @@ from tslearn.utils import to_time_series_dataset
 from tslearn.clustering import TimeSeriesKMeans
 from sklearn.decomposition import PCA
 
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
+# from keras.models import Sequential
+# from keras.layers import Dense
+# from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import numpy as np
@@ -23,12 +23,18 @@ from saxpy.alphabet import cuts_for_asize
 from saxpy.hotsax import find_discords_hotsax
 from numpy import genfromtxt
 
-import os
+import os, random
 import pandas as pd
 import json
 
+random.seed(42)
+
 data = './data/right_hemi_small_simple.csv'
 label_data = './data/patient_label.csv'
+motifs_file_name = './data/df_diff_motifs_from_clusters_25_no_run_0_from_segments_10000.csv'
+motifs_metadata_file_name = './data/diff_motifs_metadata_from_clusters_25_no_run_0_from_segments_10000.csv'
+segments_file_name = './data/segments_10000.csv'
+segments_metadata_file_name = './data/segments_metadata_10000.csv'
 
 global_mean = 0
 global_std = 0
@@ -93,7 +99,6 @@ def group_by_kmeans(df, num_groups):
   kmeans = TimeSeriesKMeans(n_clusters=num_groups, max_iter=5, metric='dtw')
   cluster_membership_list = kmeans.fit_predict(df)
   centroids = kmeans.cluster_centers_
-  print('centroids: ', centroids)
   
   return cluster_membership_list
 
@@ -103,6 +108,45 @@ class LoadFile(APIView):
     whole_dataset_df = pd.read_csv(open(entire_file_path, 'rU')).set_index('idx')
 
     return Response(whole_dataset_df.to_json(orient='index'))
+
+class LoadMotifsAndSegmentsFile(APIView):
+  def get(self, request, format=None):
+    motifs_file = os.path.join(STATICFILES_DIRS[0], motifs_file_name)
+    motifs_metadata_file = os.path.join(STATICFILES_DIRS[0], motifs_metadata_file_name)
+    segments_file = os.path.join(STATICFILES_DIRS[0], segments_file_name)
+    segments_metadata_file = os.path.join(STATICFILES_DIRS[0], segments_metadata_file_name)
+
+    df_motifs = pd.read_csv(open(motifs_file, 'rU')).set_index('idx')
+    df_motifs_metadata = pd.read_csv(open(motifs_metadata_file, 'rU'))
+    df_segments = pd.read_csv(open(segments_file, 'rU')).set_index('idx')
+    df_segments_metadata = pd.read_csv(open(segments_metadata_file, 'rU')).set_index('idx')
+
+    # Clean up the motifs metadata file since it's originally an aggregated dataframe and columns are not clean
+    df_motifs_metadata.columns = ['cluster', 'offset_cluster', 'change_point_cluster', 'critical', 'importance', 'num_segments', 'rareness']
+    df_motifs_metadata['idx'] = range(df_motifs_metadata.shape[0])
+    df_motifs_metadata = df_motifs_metadata.iloc[2:]
+
+    # Whatever number of segments being loaded from file, just select 1000 to visualize
+    num_segments = df_segments.shape[0]
+    num_segments_selected = 1000
+    random_idx = random.sample(range(num_segments), num_segments_selected)
+    df_segments_sampled = df_segments.iloc[random_idx]
+    df_segments_metadata_sampled = df_segments_metadata.iloc[random_idx]
+    print(df_segments_sampled.head())
+
+    print('motifs dimension: ', df_motifs.shape)
+    print('motifs metadata dimension: ', df_motifs_metadata.shape)
+    print('segments dimension: ', df_segments_sampled.shape)
+    print('segments metadata dimension: ', df_segments_metadata_sampled.shape)
+
+    motifs_segments_dict = {
+      'motifs': df_motifs.to_json(orient='records'),
+      'motifsMetadata': df_motifs_metadata.to_json(orient='records'),
+      'segments': df_segments_sampled.to_json(orient='records'),
+      'segmentsMetadata': df_segments_metadata_sampled.to_json(orient='records')
+    }
+
+    return Response(json.dumps(motifs_segments_dict))
 
 class LoadUserNames(APIView):
   def get(self, request, format=None):
@@ -222,7 +266,6 @@ class ClusterGroups(APIView):
     df_for_clustering = supp_ratio_df.values
     pca = PCA(n_components=2)
     df_for_clustering_after_pca = pca.fit_transform(df_for_clustering)
-    print('df_for_clustering_after_pca: ', df_for_clustering_after_pca)
     clustering_result = group_by_kmeans(to_time_series_dataset(df_for_clustering_after_pca), num_groups) # row: # of datapoints (=patients), col: # of timepoints
     pd_patient_cluster = pd.DataFrame({'patient_id': patient_ids, 'cluster': clustering_result})
 
@@ -266,14 +309,14 @@ class ClusterGroups(APIView):
 
     return Response(json.dumps({'groupData': {'stat': groups_for_target, 'groups': clusters, 'groupsSax': clusters_sax, 'groupDiscords':group_discords}, 'dimReductions': df_for_dim_reduction_plot.to_json(orient='records')}))
   
-class Predict(APIView):
-  def get(self, request, format=None):
-    pass
+# class Predict(APIView):
+#   def get(self, request, format=None):
+#     pass
 
-  def post(self, request, format=None):
-    # create and fit the LSTM network
-    model = Sequential()
-    model.add(LSTM(4, input_shape=(1, look_back)))
-    model.add(Dense(1))
-    model.compile(loss='mean_squared_error', optimizer='adam')
-    model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2) 
+#   def post(self, request, format=None):
+#     # create and fit the LSTM network
+#     model = Sequential()
+#     model.add(LSTM(4, input_shape=(1, look_back)))
+#     model.add(Dense(1))
+#     model.compile(loss='mean_squared_error', optimizer='adam')
+#     model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2) 

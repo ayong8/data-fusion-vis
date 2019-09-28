@@ -11,11 +11,11 @@ import ControlView from '../ControlView';
 import MainView from '../MainView';
 import PatternView from '../PatternView';
 
-import subseqs from '../../data/subseqs';
-import subseqsRaw from '../../data/subseqs_raw';
-import subseqsInfo from '../../data/subseqs_info';
-import motifs from '../../data/motifs';
-import motifsInfo from '../../data/motifs_info';
+// import subseqs from '../../data/subseqs';
+// import subseqsRaw from '../../data/subseqs_raw';
+// import subseqsInfo from '../../data/subseqs_info';
+// import motifs from '../../data/motifs';
+// import motifsInfo from '../../data/motifs_info';
 
 class App extends Component {
   constructor(props) {
@@ -34,11 +34,10 @@ class App extends Component {
       // For initial load
       userNames: [],
 
-      subseqs: subseqs,
-      subseqsRaw: subseqsRaw,
-      subseqsInfo: subseqsInfo,
-      motifs: motifs,
-      motifsInfo: motifsInfo,
+      segments: [],
+      segmentsMetadata: [],
+      motifs: [],
+      motifsMetadata: [],
 
       // Hyperparameters
       numData: 5000,
@@ -118,7 +117,22 @@ class App extends Component {
         });
       });
 
-    console.log('herrrrrr: ', selectedPatients);
+    fetch('/data/loadMotifsAndSegmentsFile')
+      .then(response => {
+        return response.json();
+      })
+      .then(file => {
+        const motifsAndSegments = JSON.parse(file);
+
+        console.log('motifsAndSegments: ', motifsAndSegments);
+
+        this.setState({
+          motifs: JSON.parse(motifsAndSegments.motifs),
+          motifsMetadata: JSON.parse(motifsAndSegments.motifsMetadata),
+          segments: JSON.parse(motifsAndSegments.segments),
+          segmentsMetadata: JSON.parse(motifsAndSegments.segmentsMetadata)
+        });
+      });
 
     fetch('/data/loadUsers/', {
       method: 'post',
@@ -310,11 +324,10 @@ class App extends Component {
           numDataPerTime={this.state.numDataPerTime}
           onChangeTimeGranularity={this.handleTimeGranularity}
           onSelectPattern={this.handleSelectPattern}
+          segments={this.state.segments}
+          segmentsMetadata={this.state.segmentsMetadata}
           motifs={this.state.motifs}
-          motifsInfo={this.state.motifsInfo}
-          subseqs={this.state.subseqs}
-          subseqsRaw={this.state.subseqsRaw}
-          subseqsInfo={this.state.subseqsInfo}
+          motifsMetadata={this.state.motifsMetadata}
         />
         <PatternView
           userNames={this.state.userNames}
