@@ -1,102 +1,1572 @@
 [
   {
-    "rareness": 415,
-    "importance": 0.49
+    "idx": 312,
+    "cluster": 21,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 30,
+    "num_segments": 178,
+    "critical": 0.09,
+    "importance": 1
   },
   {
-    "rareness": 427,
-    "importance": 0.52
+    "idx": 331,
+    "cluster": 22,
+    "offset_cluster": 5,
+    "change_point_cluster": 1,
+    "rareness": 30,
+    "num_segments": 159,
+    "critical": 0.06,
+    "importance": 1
   },
   {
-    "rareness": 316,
-    "importance": 0.25
+    "idx": 31,
+    "cluster": 2,
+    "offset_cluster": 6,
+    "change_point_cluster": 1,
+    "rareness": 5,
+    "num_segments": 94,
+    "critical": 0.02,
+    "importance": 1
   },
   {
-    "rareness": 426,
-    "importance": 0.5
+    "idx": 118,
+    "cluster": 10,
+    "offset_cluster": 4,
+    "change_point_cluster": 1,
+    "rareness": 21,
+    "num_segments": 59,
+    "critical": 0.16,
+    "importance": 1
   },
   {
-    "rareness": 426,
-    "importance": 0.5
+    "idx": 314,
+    "cluster": 21,
+    "offset_cluster": 5,
+    "change_point_cluster": 2,
+    "rareness": 8,
+    "num_segments": 55,
+    "critical": 0.17,
+    "importance": 1
   },
   {
-    "rareness": 410,
-    "importance": 0.55
+    "idx": 291,
+    "cluster": 20,
+    "offset_cluster": 6,
+    "change_point_cluster": 0,
+    "rareness": 22,
+    "num_segments": 53,
+    "critical": 0.12,
+    "importance": 1
   },
   {
-    "rareness": 404,
-    "importance": 0.62
+    "idx": 332,
+    "cluster": 22,
+    "offset_cluster": 5,
+    "change_point_cluster": 2,
+    "rareness": 7,
+    "num_segments": 52,
+    "critical": 0.18,
+    "importance": 1
   },
   {
-    "rareness": 411,
-    "importance": 0.55
+    "idx": 354,
+    "cluster": 24,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 12,
+    "num_segments": 51,
+    "critical": 0,
+    "importance": 1
   },
   {
-    "rareness": 406,
-    "importance": 0.62
+    "idx": 63,
+    "cluster": 5,
+    "offset_cluster": 6,
+    "change_point_cluster": 0,
+    "rareness": 11,
+    "num_segments": 46,
+    "critical": 0,
+    "importance": 1
   },
   {
-    "rareness": 427,
-    "importance": 0.48
+    "idx": 30,
+    "cluster": 2,
+    "offset_cluster": 6,
+    "change_point_cluster": 0,
+    "rareness": 6,
+    "num_segments": 45,
+    "critical": 0.27,
+    "importance": 1
   },
   {
-    "rareness": 414,
-    "importance": 0.58
+    "idx": 242,
+    "cluster": 17,
+    "offset_cluster": 5,
+    "change_point_cluster": 2,
+    "rareness": 7,
+    "num_segments": 42,
+    "critical": 0,
+    "importance": 1
   },
   {
-    "rareness": 427,
-    "importance": 0.45
+    "idx": 166,
+    "cluster": 13,
+    "offset_cluster": 5,
+    "change_point_cluster": 1,
+    "rareness": 18,
+    "num_segments": 38,
+    "critical": 0.11,
+    "importance": 1
   },
   {
-    "rareness": 389,
+    "idx": 288,
+    "cluster": 20,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 15,
+    "num_segments": 38,
+    "critical": 0.37,
+    "importance": 1
+  },
+  {
+    "idx": 120,
+    "cluster": 10,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 9,
+    "num_segments": 37,
+    "critical": 0,
+    "importance": 1
+  },
+  {
+    "idx": 78,
+    "cluster": 6,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 18,
+    "num_segments": 34,
+    "critical": 0.5,
+    "importance": 1
+  },
+  {
+    "idx": 97,
+    "cluster": 8,
+    "offset_cluster": 4,
+    "change_point_cluster": 1,
+    "rareness": 15,
+    "num_segments": 34,
+    "critical": 0,
+    "importance": 1
+  },
+  {
+    "idx": 212,
+    "cluster": 15,
+    "offset_cluster": 5,
+    "change_point_cluster": 2,
+    "rareness": 18,
+    "num_segments": 33,
+    "critical": 0.64,
+    "importance": 1
+  },
+  {
+    "idx": 294,
+    "cluster": 20,
+    "offset_cluster": 7,
+    "change_point_cluster": 0,
+    "rareness": 12,
+    "num_segments": 32,
+    "critical": 0,
+    "importance": 1
+  },
+  {
+    "idx": 18,
+    "cluster": 0,
+    "offset_cluster": 6,
+    "change_point_cluster": 0,
+    "rareness": 9,
+    "num_segments": 31,
+    "critical": 0,
+    "importance": 1
+  },
+  {
+    "idx": 117,
+    "cluster": 10,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 11,
+    "num_segments": 31,
+    "critical": 0.1,
+    "importance": 1
+  },
+  {
+    "idx": 170,
+    "cluster": 13,
+    "offset_cluster": 6,
+    "change_point_cluster": 2,
+    "rareness": 10,
+    "num_segments": 31,
+    "critical": 0.04,
+    "importance": 1
+  },
+  {
+    "idx": 141,
+    "cluster": 12,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 12,
+    "num_segments": 30,
+    "critical": 0.5,
+    "importance": 1
+  },
+  {
+    "idx": 168,
+    "cluster": 13,
+    "offset_cluster": 6,
+    "change_point_cluster": 0,
+    "rareness": 11,
+    "num_segments": 30,
+    "critical": 0,
+    "importance": 1
+  },
+  {
+    "idx": 61,
+    "cluster": 5,
+    "offset_cluster": 5,
+    "change_point_cluster": 1,
+    "rareness": 12,
+    "num_segments": 28,
+    "critical": 0.18,
+    "importance": 1
+  },
+  {
+    "idx": 214,
+    "cluster": 15,
+    "offset_cluster": 6,
+    "change_point_cluster": 1,
+    "rareness": 11,
+    "num_segments": 28,
+    "critical": 0,
+    "importance": 1
+  },
+  {
+    "idx": 122,
+    "cluster": 10,
+    "offset_cluster": 5,
+    "change_point_cluster": 2,
+    "rareness": 5,
+    "num_segments": 27,
+    "critical": 0.08,
+    "importance": 1
+  },
+  {
+    "idx": 24,
+    "cluster": 1,
+    "offset_cluster": 6,
+    "change_point_cluster": 0,
+    "rareness": 9,
+    "num_segments": 26,
+    "critical": 0,
+    "importance": 1
+  },
+  {
+    "idx": 16,
+    "cluster": 0,
+    "offset_cluster": 5,
+    "change_point_cluster": 1,
+    "rareness": 11,
+    "num_segments": 25,
+    "critical": 0.04,
+    "importance": 1
+  },
+  {
+    "idx": 148,
+    "cluster": 12,
+    "offset_cluster": 6,
+    "change_point_cluster": 1,
+    "rareness": 8,
+    "num_segments": 25,
+    "critical": 0,
+    "importance": 1
+  },
+  {
+    "idx": 241,
+    "cluster": 17,
+    "offset_cluster": 5,
+    "change_point_cluster": 1,
+    "rareness": 5,
+    "num_segments": 25,
+    "critical": 0.08,
+    "importance": 1
+  },
+  {
+    "idx": 36,
+    "cluster": 3,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 9,
+    "num_segments": 23,
+    "critical": 0,
+    "importance": 1
+  },
+  {
+    "idx": 238,
+    "cluster": 17,
+    "offset_cluster": 4,
+    "change_point_cluster": 1,
+    "rareness": 9,
+    "num_segments": 23,
+    "critical": 0.14,
+    "importance": 1
+  },
+  {
+    "idx": 355,
+    "cluster": 24,
+    "offset_cluster": 5,
+    "change_point_cluster": 1,
+    "rareness": 5,
+    "num_segments": 23,
+    "critical": 0.14,
+    "importance": 1
+  },
+  {
+    "idx": 310,
+    "cluster": 21,
+    "offset_cluster": 4,
+    "change_point_cluster": 1,
+    "rareness": 14,
+    "num_segments": 22,
+    "critical": 0.37,
+    "importance": 1
+  },
+  {
+    "idx": 240,
+    "cluster": 17,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 9,
+    "num_segments": 21,
+    "critical": 0,
+    "importance": 1
+  },
+  {
+    "idx": 292,
+    "cluster": 20,
+    "offset_cluster": 6,
+    "change_point_cluster": 1,
+    "rareness": 12,
+    "num_segments": 21,
+    "critical": 0.2,
+    "importance": 1
+  },
+  {
+    "idx": 19,
+    "cluster": 0,
+    "offset_cluster": 6,
+    "change_point_cluster": 1,
+    "rareness": 6,
+    "num_segments": 20,
+    "critical": 0.2,
+    "importance": 1
+  },
+  {
+    "idx": 57,
+    "cluster": 5,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 13,
+    "num_segments": 20,
+    "critical": 0.45,
+    "importance": 1
+  },
+  {
+    "idx": 64,
+    "cluster": 5,
+    "offset_cluster": 6,
+    "change_point_cluster": 1,
+    "rareness": 5,
+    "num_segments": 20,
+    "critical": 0.05,
+    "importance": 1
+  },
+  {
+    "idx": 96,
+    "cluster": 8,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 24,
+    "num_segments": 54,
+    "critical": 0.06,
+    "importance": 0.99
+  },
+  {
+    "idx": 165,
+    "cluster": 13,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 18,
+    "num_segments": 52,
+    "critical": 0.18,
+    "importance": 0.99
+  },
+  {
+    "idx": 348,
+    "cluster": 24,
+    "offset_cluster": 3,
+    "change_point_cluster": 0,
+    "rareness": 37,
+    "num_segments": 92,
+    "critical": 0.31,
+    "importance": 0.98
+  },
+  {
+    "idx": 313,
+    "cluster": 21,
+    "offset_cluster": 5,
+    "change_point_cluster": 1,
+    "rareness": 22,
+    "num_segments": 86,
+    "critical": 0.03,
+    "importance": 0.98
+  },
+  {
+    "idx": 330,
+    "cluster": 22,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 24,
+    "num_segments": 75,
+    "critical": 0.03,
+    "importance": 0.98
+  },
+  {
+    "idx": 15,
+    "cluster": 0,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 23,
+    "num_segments": 50,
+    "critical": 0.15,
+    "importance": 0.98
+  },
+  {
+    "idx": 352,
+    "cluster": 24,
+    "offset_cluster": 4,
+    "change_point_cluster": 1,
+    "rareness": 21,
+    "num_segments": 46,
+    "critical": 0.05,
+    "importance": 0.98
+  },
+  {
+    "idx": 267,
+    "cluster": 19,
+    "offset_cluster": 6,
+    "change_point_cluster": 0,
+    "rareness": 16,
+    "num_segments": 39,
+    "critical": 0.18,
+    "importance": 0.98
+  },
+  {
+    "idx": 186,
+    "cluster": 14,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 21,
+    "num_segments": 38,
+    "critical": 0.48,
+    "importance": 0.98
+  },
+  {
+    "idx": 60,
+    "cluster": 5,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 22,
+    "num_segments": 37,
+    "critical": 0.17,
+    "importance": 0.98
+  },
+  {
+    "idx": 351,
+    "cluster": 24,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 16,
+    "num_segments": 37,
+    "critical": 0.11,
+    "importance": 0.98
+  },
+  {
+    "idx": 144,
+    "cluster": 12,
+    "offset_cluster": 5,
+    "change_point_cluster": 0,
+    "rareness": 18,
+    "num_segments": 32,
+    "critical": 0.22,
+    "importance": 0.97
+  },
+  {
+    "idx": 237,
+    "cluster": 17,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 30,
+    "num_segments": 86,
+    "critical": 0.06,
+    "importance": 0.96
+  },
+  {
+    "idx": 163,
+    "cluster": 13,
+    "offset_cluster": 4,
+    "change_point_cluster": 1,
+    "rareness": 30,
+    "num_segments": 68,
+    "critical": 0.39,
+    "importance": 0.96
+  },
+  {
+    "idx": 235,
+    "cluster": 17,
+    "offset_cluster": 3,
+    "change_point_cluster": 1,
+    "rareness": 29,
+    "num_segments": 51,
+    "critical": 0.36,
+    "importance": 0.95
+  },
+  {
+    "idx": 136,
+    "cluster": 12,
+    "offset_cluster": 2,
+    "change_point_cluster": 1,
+    "rareness": 45,
+    "num_segments": 127,
+    "critical": 0.43,
+    "importance": 0.92
+  },
+  {
+    "idx": 326,
+    "cluster": 22,
+    "offset_cluster": 3,
+    "change_point_cluster": 2,
+    "rareness": 22,
+    "num_segments": 31,
+    "critical": 0.46,
+    "importance": 0.91
+  },
+  {
+    "idx": 135,
+    "cluster": 12,
+    "offset_cluster": 2,
+    "change_point_cluster": 0,
+    "rareness": 12,
+    "num_segments": 21,
+    "critical": 0.34,
+    "importance": 0.91
+  },
+  {
+    "idx": 114,
+    "cluster": 10,
+    "offset_cluster": 3,
+    "change_point_cluster": 0,
+    "rareness": 62,
+    "num_segments": 177,
+    "critical": 0.32,
+    "importance": 0.9
+  },
+  {
+    "idx": 74,
+    "cluster": 6,
+    "offset_cluster": 2,
+    "change_point_cluster": 2,
+    "rareness": 31,
+    "num_segments": 66,
+    "critical": 0.38,
+    "importance": 0.9
+  },
+  {
+    "idx": 183,
+    "cluster": 14,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 21,
+    "num_segments": 38,
+    "critical": 0.29,
+    "importance": 0.9
+  },
+  {
+    "idx": 285,
+    "cluster": 20,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 17,
+    "num_segments": 30,
+    "critical": 0.5,
+    "importance": 0.9
+  },
+  {
+    "idx": 55,
+    "cluster": 5,
+    "offset_cluster": 3,
+    "change_point_cluster": 1,
+    "rareness": 48,
+    "num_segments": 142,
+    "critical": 0.36,
+    "importance": 0.89
+  },
+  {
+    "idx": 231,
+    "cluster": 17,
+    "offset_cluster": 2,
+    "change_point_cluster": 0,
+    "rareness": 16,
+    "num_segments": 36,
+    "critical": 0.14,
+    "importance": 0.89
+  },
+  {
+    "idx": 5,
+    "cluster": 0,
+    "offset_cluster": 1,
+    "change_point_cluster": 2,
+    "rareness": 43,
+    "num_segments": 105,
+    "critical": 0.45,
+    "importance": 0.87
+  },
+  {
+    "idx": 282,
+    "cluster": 20,
+    "offset_cluster": 3,
+    "change_point_cluster": 0,
+    "rareness": 39,
+    "num_segments": 68,
+    "critical": 0.46,
+    "importance": 0.87
+  },
+  {
+    "idx": 284,
+    "cluster": 20,
+    "offset_cluster": 3,
+    "change_point_cluster": 2,
+    "rareness": 24,
+    "num_segments": 44,
+    "critical": 0.37,
+    "importance": 0.87
+  },
+  {
+    "idx": 302,
+    "cluster": 21,
+    "offset_cluster": 1,
+    "change_point_cluster": 2,
+    "rareness": 13,
+    "num_segments": 22,
+    "critical": 0.6,
+    "importance": 0.87
+  },
+  {
+    "idx": 207,
+    "cluster": 15,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 22,
+    "num_segments": 34,
+    "critical": 0.48,
+    "importance": 0.86
+  },
+  {
+    "idx": 108,
+    "cluster": 10,
+    "offset_cluster": 1,
+    "change_point_cluster": 0,
+    "rareness": 16,
+    "num_segments": 28,
+    "critical": 0.4,
+    "importance": 0.86
+  },
+  {
+    "idx": 3,
+    "cluster": 0,
+    "offset_cluster": 1,
+    "change_point_cluster": 0,
+    "rareness": 15,
+    "num_segments": 27,
+    "critical": 0.26,
+    "importance": 0.86
+  },
+  {
+    "idx": 300,
+    "cluster": 21,
+    "offset_cluster": 1,
+    "change_point_cluster": 0,
+    "rareness": 15,
+    "num_segments": 27,
+    "critical": 0.23,
+    "importance": 0.86
+  },
+  {
+    "idx": 177,
+    "cluster": 14,
+    "offset_cluster": 2,
+    "change_point_cluster": 0,
+    "rareness": 17,
+    "num_segments": 21,
+    "critical": 0.58,
+    "importance": 0.86
+  },
+  {
+    "idx": 179,
+    "cluster": 14,
+    "offset_cluster": 2,
+    "change_point_cluster": 2,
+    "rareness": 15,
+    "num_segments": 21,
+    "critical": 0.58,
+    "importance": 0.86
+  },
+  {
+    "idx": 50,
+    "cluster": 5,
+    "offset_cluster": 1,
+    "change_point_cluster": 2,
+    "rareness": 22,
+    "num_segments": 44,
+    "critical": 0.57,
+    "importance": 0.85
+  },
+  {
+    "idx": 180,
+    "cluster": 14,
+    "offset_cluster": 3,
+    "change_point_cluster": 0,
+    "rareness": 20,
+    "num_segments": 33,
+    "critical": 0.28,
+    "importance": 0.85
+  },
+  {
+    "idx": 209,
+    "cluster": 15,
+    "offset_cluster": 4,
+    "change_point_cluster": 2,
+    "rareness": 28,
+    "num_segments": 62,
+    "critical": 0.38,
+    "importance": 0.84
+  },
+  {
+    "idx": 158,
+    "cluster": 13,
+    "offset_cluster": 2,
+    "change_point_cluster": 2,
+    "rareness": 45,
+    "num_segments": 126,
+    "critical": 0.43,
+    "importance": 0.83
+  },
+  {
+    "idx": 232,
+    "cluster": 17,
+    "offset_cluster": 2,
+    "change_point_cluster": 1,
+    "rareness": 43,
+    "num_segments": 106,
+    "critical": 0.34,
+    "importance": 0.83
+  },
+  {
+    "idx": 304,
+    "cluster": 21,
+    "offset_cluster": 2,
+    "change_point_cluster": 1,
+    "rareness": 44,
+    "num_segments": 102,
+    "critical": 0.39,
+    "importance": 0.83
+  },
+  {
+    "idx": 7,
+    "cluster": 0,
+    "offset_cluster": 2,
+    "change_point_cluster": 1,
+    "rareness": 20,
+    "num_segments": 28,
+    "critical": 0.33,
+    "importance": 0.83
+  },
+  {
+    "idx": 202,
+    "cluster": 15,
+    "offset_cluster": 2,
+    "change_point_cluster": 1,
+    "rareness": 14,
+    "num_segments": 23,
+    "critical": 0.61,
+    "importance": 0.83
+  },
+  {
+    "idx": 10,
+    "cluster": 0,
+    "offset_cluster": 3,
+    "change_point_cluster": 1,
+    "rareness": 41,
+    "num_segments": 113,
+    "critical": 0.38,
+    "importance": 0.82
+  },
+  {
+    "idx": 322,
+    "cluster": 22,
+    "offset_cluster": 2,
+    "change_point_cluster": 1,
+    "rareness": 44,
+    "num_segments": 112,
+    "critical": 0.4,
+    "importance": 0.82
+  },
+  {
+    "idx": 77,
+    "cluster": 6,
+    "offset_cluster": 3,
+    "change_point_cluster": 2,
+    "rareness": 32,
+    "num_segments": 58,
+    "critical": 0.32,
+    "importance": 0.82
+  },
+  {
+    "idx": 257,
+    "cluster": 19,
+    "offset_cluster": 2,
+    "change_point_cluster": 2,
+    "rareness": 30,
+    "num_segments": 49,
+    "critical": 0.45,
+    "importance": 0.82
+  },
+  {
+    "idx": 139,
+    "cluster": 12,
+    "offset_cluster": 3,
+    "change_point_cluster": 1,
+    "rareness": 31,
+    "num_segments": 76,
+    "critical": 0.36,
+    "importance": 0.81
+  },
+  {
+    "idx": 328,
+    "cluster": 22,
+    "offset_cluster": 4,
+    "change_point_cluster": 1,
+    "rareness": 36,
+    "num_segments": 62,
+    "critical": 0.39,
+    "importance": 0.81
+  },
+  {
+    "idx": 110,
+    "cluster": 10,
+    "offset_cluster": 1,
+    "change_point_cluster": 2,
+    "rareness": 44,
+    "num_segments": 92,
+    "critical": 0.43,
+    "importance": 0.8
+  },
+  {
+    "idx": 201,
+    "cluster": 15,
+    "offset_cluster": 2,
+    "change_point_cluster": 0,
+    "rareness": 31,
+    "num_segments": 63,
+    "critical": 0.53,
+    "importance": 0.8
+  },
+  {
+    "idx": 342,
+    "cluster": 24,
+    "offset_cluster": 1,
+    "change_point_cluster": 0,
+    "rareness": 10,
+    "num_segments": 20,
+    "critical": 0.4,
+    "importance": 0.8
+  },
+  {
+    "idx": 229,
+    "cluster": 17,
+    "offset_cluster": 1,
+    "change_point_cluster": 1,
+    "rareness": 72,
+    "num_segments": 284,
+    "critical": 0.41,
+    "importance": 0.79
+  },
+  {
+    "idx": 345,
+    "cluster": 24,
+    "offset_cluster": 2,
+    "change_point_cluster": 0,
+    "rareness": 32,
+    "num_segments": 65,
+    "critical": 0.37,
+    "importance": 0.79
+  },
+  {
+    "idx": 347,
+    "cluster": 24,
+    "offset_cluster": 2,
+    "change_point_cluster": 2,
+    "rareness": 51,
+    "num_segments": 110,
+    "critical": 0.48,
+    "importance": 0.78
+  },
+  {
+    "idx": 261,
+    "cluster": 19,
+    "offset_cluster": 4,
+    "change_point_cluster": 0,
+    "rareness": 30,
+    "num_segments": 81,
+    "critical": 0.33,
+    "importance": 0.77
+  },
+  {
+    "idx": 306,
+    "cluster": 21,
+    "offset_cluster": 3,
+    "change_point_cluster": 0,
+    "rareness": 35,
+    "num_segments": 80,
+    "critical": 0.28,
+    "importance": 0.77
+  },
+  {
+    "idx": 344,
+    "cluster": 24,
+    "offset_cluster": 1,
+    "change_point_cluster": 2,
+    "rareness": 37,
+    "num_segments": 71,
+    "critical": 0.36,
+    "importance": 0.77
+  },
+  {
+    "idx": 161,
+    "cluster": 13,
+    "offset_cluster": 3,
+    "change_point_cluster": 2,
+    "rareness": 33,
+    "num_segments": 79,
+    "critical": 0.37,
+    "importance": 0.76
+  },
+  {
+    "idx": 185,
+    "cluster": 14,
+    "offset_cluster": 4,
+    "change_point_cluster": 2,
+    "rareness": 29,
+    "num_segments": 55,
+    "critical": 0.53,
+    "importance": 0.75
+  },
+  {
+    "idx": 255,
+    "cluster": 19,
+    "offset_cluster": 2,
+    "change_point_cluster": 0,
+    "rareness": 16,
+    "num_segments": 24,
+    "critical": 0.38,
+    "importance": 0.75
+  },
+  {
+    "idx": 258,
+    "cluster": 19,
+    "offset_cluster": 3,
+    "change_point_cluster": 0,
+    "rareness": 18,
+    "num_segments": 24,
+    "critical": 0.38,
+    "importance": 0.75
+  },
+  {
+    "idx": 281,
+    "cluster": 20,
+    "offset_cluster": 2,
+    "change_point_cluster": 2,
+    "rareness": 29,
+    "num_segments": 40,
+    "critical": 0.48,
+    "importance": 0.73
+  },
+  {
+    "idx": 155,
+    "cluster": 13,
+    "offset_cluster": 1,
+    "change_point_cluster": 2,
+    "rareness": 24,
+    "num_segments": 37,
+    "critical": 0.3,
+    "importance": 0.71
+  },
+  {
+    "idx": 174,
+    "cluster": 14,
+    "offset_cluster": 1,
+    "change_point_cluster": 0,
+    "rareness": 14,
+    "num_segments": 23,
+    "critical": 0.18,
+    "importance": 0.7
+  },
+  {
+    "idx": 279,
+    "cluster": 20,
+    "offset_cluster": 2,
+    "change_point_cluster": 0,
+    "rareness": 23,
+    "num_segments": 34,
+    "critical": 0.3,
+    "importance": 0.68
+  },
+  {
+    "idx": 278,
+    "cluster": 20,
+    "offset_cluster": 1,
+    "change_point_cluster": 2,
+    "rareness": 22,
+    "num_segments": 27,
+    "critical": 0.19,
+    "importance": 0.67
+  },
+  {
+    "idx": 252,
+    "cluster": 19,
+    "offset_cluster": 1,
+    "change_point_cluster": 0,
+    "rareness": 17,
+    "num_segments": 28,
+    "critical": 0.22,
     "importance": 0.65
   },
   {
-    "rareness": 412,
-    "importance": 0.61
-  },
-  {
-    "rareness": 427,
-    "importance": 0.54
-  },
-  {
-    "rareness": 411,
-    "importance": 0.59
-  },
-  {
-    "rareness": 425,
-    "importance": 0.45
-  },
-  {
-    "rareness": 416,
-    "importance": 0.51
-  },
-  {
-    "rareness": 412,
-    "importance": 0.62
-  },
-  {
-    "rareness": 424,
-    "importance": 0.51
-  },
-  {
-    "rareness": 405,
-    "importance": 0.62
-  },
-  {
-    "rareness": 427,
-    "importance": 0.5
-  },
-  {
-    "rareness": 427,
-    "importance": 0.53
-  },
-  {
-    "rareness": 428,
-    "importance": 0.53
-  },
-  {
-    "rareness": 406,
+    "idx": 324,
+    "cluster": 22,
+    "offset_cluster": 3,
+    "change_point_cluster": 0,
+    "rareness": 12,
+    "num_segments": 22,
+    "critical": 0.19,
     "importance": 0.64
+  },
+  {
+    "idx": 72,
+    "cluster": 6,
+    "offset_cluster": 2,
+    "change_point_cluster": 0,
+    "rareness": 18,
+    "num_segments": 26,
+    "critical": 0.39,
+    "importance": 0.62
+  },
+  {
+    "idx": 225,
+    "cluster": 17,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 203,
+    "num_segments": 974,
+    "critical": 0.2,
+    "importance": 0.4
+  },
+  {
+    "idx": 93,
+    "cluster": 8,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 205,
+    "num_segments": 935,
+    "critical": 0.19,
+    "importance": 0.4
+  },
+  {
+    "idx": 35,
+    "cluster": 3,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 187,
+    "num_segments": 846,
+    "critical": 0.21,
+    "importance": 0.4
+  },
+  {
+    "idx": 21,
+    "cluster": 1,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 179,
+    "num_segments": 797,
+    "critical": 0.21,
+    "importance": 0.4
+  },
+  {
+    "idx": 150,
+    "cluster": 13,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 68,
+    "num_segments": 119,
+    "critical": 0.19,
+    "importance": 0.35
+  },
+  {
+    "idx": 341,
+    "cluster": 24,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 147,
+    "num_segments": 530,
+    "critical": 0.11,
+    "importance": 0.31
+  },
+  {
+    "idx": 67,
+    "cluster": 6,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 117,
+    "num_segments": 229,
+    "critical": 0.14,
+    "importance": 0.31
+  },
+  {
+    "idx": 333,
+    "cluster": 23,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 110,
+    "num_segments": 266,
+    "critical": 0.1,
+    "importance": 0.28
+  },
+  {
+    "idx": 298,
+    "cluster": 21,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 118,
+    "num_segments": 291,
+    "critical": 0.13,
+    "importance": 0.27
+  },
+  {
+    "idx": 275,
+    "cluster": 20,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 95,
+    "num_segments": 180,
+    "critical": 0.08,
+    "importance": 0.27
+  },
+  {
+    "idx": 172,
+    "cluster": 14,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 90,
+    "num_segments": 175,
+    "critical": 0.11,
+    "importance": 0.27
+  },
+  {
+    "idx": 197,
+    "cluster": 15,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 93,
+    "num_segments": 206,
+    "critical": 0.03,
+    "importance": 0.26
+  },
+  {
+    "idx": 41,
+    "cluster": 4,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 93,
+    "num_segments": 343,
+    "critical": 0.02,
+    "importance": 0.25
+  },
+  {
+    "idx": 46,
+    "cluster": 5,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 102,
+    "num_segments": 252,
+    "critical": 0.1,
+    "importance": 0.25
+  },
+  {
+    "idx": 105,
+    "cluster": 10,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 100,
+    "num_segments": 228,
+    "critical": 0.08,
+    "importance": 0.25
+  },
+  {
+    "idx": 28,
+    "cluster": 2,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 24,
+    "num_segments": 29,
+    "critical": 0.07,
+    "importance": 0.25
+  },
+  {
+    "idx": 244,
+    "cluster": 18,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 115,
+    "num_segments": 501,
+    "critical": 0.04,
+    "importance": 0.24
+  },
+  {
+    "idx": 89,
+    "cluster": 7,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 100,
+    "num_segments": 362,
+    "critical": 0.04,
+    "importance": 0.24
+  },
+  {
+    "idx": 129,
+    "cluster": 12,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 140,
+    "num_segments": 342,
+    "critical": 0.03,
+    "importance": 0.24
+  },
+  {
+    "idx": 316,
+    "cluster": 22,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 82,
+    "num_segments": 152,
+    "critical": 0.05,
+    "importance": 0.24
+  },
+  {
+    "idx": 22,
+    "cluster": 1,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 128,
+    "num_segments": 535,
+    "critical": 0.03,
+    "importance": 0.23
+  },
+  {
+    "idx": 334,
+    "cluster": 23,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 129,
+    "num_segments": 528,
+    "critical": 0.04,
+    "importance": 0.23
+  },
+  {
+    "idx": 243,
+    "cluster": 18,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 150,
+    "num_segments": 445,
+    "critical": 0.09,
+    "importance": 0.23
+  },
+  {
+    "idx": 95,
+    "cluster": 8,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 107,
+    "num_segments": 405,
+    "critical": 0.04,
+    "importance": 0.23
+  },
+  {
+    "idx": 221,
+    "cluster": 16,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 92,
+    "num_segments": 311,
+    "critical": 0.04,
+    "importance": 0.23
+  },
+  {
+    "idx": 297,
+    "cluster": 21,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 85,
+    "num_segments": 175,
+    "critical": 0.04,
+    "importance": 0.23
+  },
+  {
+    "idx": 1,
+    "cluster": 0,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 86,
+    "num_segments": 174,
+    "critical": 0.02,
+    "importance": 0.23
+  },
+  {
+    "idx": 196,
+    "cluster": 15,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 88,
+    "num_segments": 167,
+    "critical": 0.1,
+    "importance": 0.23
+  },
+  {
+    "idx": 34,
+    "cluster": 3,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 139,
+    "num_segments": 644,
+    "critical": 0.03,
+    "importance": 0.22
+  },
+  {
+    "idx": 249,
+    "cluster": 19,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 140,
+    "num_segments": 394,
+    "critical": 0.05,
+    "importance": 0.22
+  },
+  {
+    "idx": 39,
+    "cluster": 4,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 107,
+    "num_segments": 285,
+    "critical": 0.06,
+    "importance": 0.22
+  },
+  {
+    "idx": 171,
+    "cluster": 14,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 99,
+    "num_segments": 231,
+    "critical": 0.03,
+    "importance": 0.22
+  },
+  {
+    "idx": 151,
+    "cluster": 13,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 104,
+    "num_segments": 210,
+    "critical": 0.03,
+    "importance": 0.22
+  },
+  {
+    "idx": 99,
+    "cluster": 9,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 154,
+    "num_segments": 634,
+    "critical": 0.05,
+    "importance": 0.21
+  },
+  {
+    "idx": 125,
+    "cluster": 11,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 116,
+    "num_segments": 469,
+    "critical": 0.04,
+    "importance": 0.21
+  },
+  {
+    "idx": 87,
+    "cluster": 7,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 145,
+    "num_segments": 465,
+    "critical": 0.07,
+    "importance": 0.21
+  },
+  {
+    "idx": 124,
+    "cluster": 11,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 117,
+    "num_segments": 302,
+    "critical": 0.08,
+    "importance": 0.21
+  },
+  {
+    "idx": 94,
+    "cluster": 8,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 102,
+    "num_segments": 235,
+    "critical": 0.03,
+    "importance": 0.21
+  },
+  {
+    "idx": 66,
+    "cluster": 6,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 91,
+    "num_segments": 178,
+    "critical": 0.03,
+    "importance": 0.21
+  },
+  {
+    "idx": 29,
+    "cluster": 2,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 86,
+    "num_segments": 4190,
+    "critical": 0.08,
+    "importance": 0.2
+  },
+  {
+    "idx": 339,
+    "cluster": 24,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 141,
+    "num_segments": 493,
+    "critical": 0.03,
+    "importance": 0.2
+  },
+  {
+    "idx": 33,
+    "cluster": 3,
+    "offset_cluster": 0,
+    "change_point_cluster": 0,
+    "rareness": 129,
+    "num_segments": 491,
+    "critical": 0.06,
+    "importance": 0.2
+  },
+  {
+    "idx": 23,
+    "cluster": 1,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 141,
+    "num_segments": 473,
+    "critical": 0.07,
+    "importance": 0.2
+  },
+  {
+    "idx": 226,
+    "cluster": 17,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 139,
+    "num_segments": 427,
+    "critical": 0.05,
+    "importance": 0.2
+  },
+  {
+    "idx": 274,
+    "cluster": 20,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 116,
+    "num_segments": 275,
+    "critical": 0.07,
+    "importance": 0.2
+  },
+  {
+    "idx": 107,
+    "cluster": 10,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 87,
+    "num_segments": 221,
+    "critical": 0.03,
+    "importance": 0.2
+  },
+  {
+    "idx": 220,
+    "cluster": 16,
+    "offset_cluster": 0,
+    "change_point_cluster": 1,
+    "rareness": 107,
+    "num_segments": 312,
+    "critical": 0.05,
+    "importance": 0.19
+  },
+  {
+    "idx": 47,
+    "cluster": 5,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 84,
+    "num_segments": 198,
+    "critical": 0.03,
+    "importance": 0.19
+  },
+  {
+    "idx": 317,
+    "cluster": 22,
+    "offset_cluster": 0,
+    "change_point_cluster": 2,
+    "rareness": 42,
+    "num_segments": 59,
+    "critical": 0.02,
+    "importance": 0.19
   }
 ]

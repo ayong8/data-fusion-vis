@@ -33,6 +33,8 @@ data = './data/right_hemi_small_simple.csv'
 label_data = './data/patient_label.csv'
 motifs_file_name = './data/df_diff_motifs_from_clusters_25_no_run_0_from_segments_10000.csv'
 motifs_metadata_file_name = './data/diff_motifs_metadata_from_clusters_25_no_run_0_from_segments_10000.csv'
+# motifs_metadata_file_name = './data/diff_filtered_motifs_metadata_imp_0.35_0.8_rareness_10_from_clusters_25_no_run_0_from_segments_10000.csv'
+# motifs_file_name = './data/diff_filtered_motifs_imp_0.35_0.8_rareness_10_from_clusters_25_no_run_0_from_segments_10000.csv'
 segments_file_name = './data/segments_10000.csv'
 segments_metadata_file_name = './data/segments_metadata_10000.csv'
 
@@ -116,15 +118,31 @@ class LoadMotifsAndSegmentsFile(APIView):
     segments_file = os.path.join(STATICFILES_DIRS[0], segments_file_name)
     segments_metadata_file = os.path.join(STATICFILES_DIRS[0], segments_metadata_file_name)
 
-    df_motifs = pd.read_csv(open(motifs_file, 'rU')).set_index('idx')
+    df_motifs = pd.read_csv(open(motifs_file, 'rU'))
     df_motifs_metadata = pd.read_csv(open(motifs_metadata_file, 'rU'))
-    df_segments = pd.read_csv(open(segments_file, 'rU')).set_index('idx')
-    df_segments_metadata = pd.read_csv(open(segments_metadata_file, 'rU')).set_index('idx')
+    df_segments = pd.read_csv(open(segments_file, 'rU'))
+    df_segments_metadata = pd.read_csv(open(segments_metadata_file, 'rU'))
+
+    print('df_motifs: ', df_motifs.loc[0])
 
     # Clean up the motifs metadata file since it's originally an aggregated dataframe and columns are not clean
-    df_motifs_metadata.columns = ['cluster', 'offset_cluster', 'change_point_cluster', 'critical', 'importance', 'num_segments', 'rareness']
+    # df_motifs_metadata.columns = ['cluster', 'offset_cluster', 'change_point_cluster', 'rareness', 'num_segments', 'change_point_dist', 'importance', 'critical', 'mean_offset']
+    # df_motifs_metadata['idx'] = range(df_motifs_metadata.shape[0])
+    # df_motifs_metadata = df_motifs_metadata.iloc[2:]
+    df_motifs_metadata.columns = ['idx', 'cluster', 'offset_cluster', 'change_point_cluster', 'rareness', 'num_segments', 'change_point_dist', 'importance', 'critical', 'mean_offset']
     df_motifs_metadata['idx'] = range(df_motifs_metadata.shape[0])
-    df_motifs_metadata = df_motifs_metadata.iloc[2:]
+    #df_motifs_metadata = df_motifs_metadata.iloc[2:]
+
+    df_motifs_metadata['cluster'] = df_motifs_metadata['cluster'].astype(float).astype(int)
+    df_motifs_metadata['offset_cluster'] = df_motifs_metadata['offset_cluster'].astype(float).astype(int)
+    df_motifs_metadata['change_point_cluster'] = df_motifs_metadata['change_point_cluster'].astype(float).astype(int)
+    df_motifs_metadata['rareness'] = df_motifs_metadata['rareness'].astype(float)
+    df_motifs_metadata['num_segments'] = df_motifs_metadata['num_segments'].astype(int)
+    df_motifs_metadata['importance'] = df_motifs_metadata['importance'].astype(float)
+    df_motifs_metadata['critical'] = df_motifs_metadata['critical'].astype(float)
+    df_motifs_metadata['mean_offset'] = df_motifs_metadata['mean_offset'].astype(float)
+
+    print(df_motifs_metadata.dtypes)
 
     # Whatever number of segments being loaded from file, just select 1000 to visualize
     num_segments = df_segments.shape[0]
@@ -139,8 +157,11 @@ class LoadMotifsAndSegmentsFile(APIView):
     print('segments dimension: ', df_segments_sampled.shape)
     print('segments metadata dimension: ', df_segments_metadata_sampled.shape)
 
+    df_motifs_json = df_motifs.to_json(orient='records', index=True)
+    df_segments_metadata_sampled_json = df_segments_metadata_sampled.to_json(orient='records')
+
     motifs_segments_dict = {
-      'motifs': df_motifs.to_json(orient='records'),
+      'motifs': df_motifs.to_json(orient='records', index=True),
       'motifsMetadata': df_motifs_metadata.to_json(orient='records'),
       'segments': df_segments_sampled.to_json(orient='records'),
       'segmentsMetadata': df_segments_metadata_sampled.to_json(orient='records')

@@ -91,12 +91,12 @@ class AnalysisView extends Component {
         }
       },
       subseqPlot: {
-        width: 250,
-        height: 250,
+        width: 400,
+        height: 400,
         padding: 10,
         svg: {
-          width: 260,
-          height: 260
+          width: 400,
+          height: 400
         }
       },
       subseqView: {
@@ -142,6 +142,7 @@ class AnalysisView extends Component {
       selectedUser: ['PUH-2018-056'],
       selectedGroup: 'Group 3',
       selectedSignalType: 'sup_ratio',
+      selectedEmbeddingType: 'raw_segments_for_offset',
       selectedNormalizationOption: 'normalized',
       selectedClusterIdx: 'all',
       selectedSubseqPlotColorOption: 'Cluster',
@@ -181,6 +182,7 @@ class AnalysisView extends Component {
     };
 
     this.handleSelectSignalType = this.handleSelectSignalType.bind(this);
+    this.handleSelectEmbeddingType = this.handleSelectEmbeddingType.bind(this);
     this.handleSelectNormalizationOption = this.handleSelectNormalizationOption.bind(
       this
     );
@@ -232,7 +234,7 @@ class AnalysisView extends Component {
       const selectedClusterIdx = nextState.selectedClusterIdx;
 
       if (selectedClusterIdx === 'All')
-        d3.selectAll('.circle_subseq').style('opacity', 1);
+        d3.selectAll('.circle_subseq').style('opacity', 0.6);
       else {
         d3.selectAll('.circle_subseq').style('opacity', 0);
         d3.selectAll('.circle_subseq_in_cluster_' + selectedClusterIdx).style(
@@ -388,6 +390,14 @@ class AnalysisView extends Component {
       motifsData: motifsData,
       motifsInfoData: motifsInfoData,
       selectedSignalType: selectedSignalType
+    });
+  }
+
+  handleSelectEmbeddingType(e) {
+    const selectedEmbeddingOption = e.option;
+
+    this.setState({
+      selectedEmbeddingType: selectedEmbeddingOption
     });
   }
 
@@ -653,37 +663,122 @@ class AnalysisView extends Component {
           'translate(' + this.layout.subseqView.paddingLeft + ',' + 0 + ')'
         );
 
-    return (
-      // <div
-      //   style={{
-      //     display: 'flex',
-      //     marginBottom: '10px',
-      //     lineHeight: 3,
-      //     fontSize: '0.8rem',
-      //     color: 'dimgray'
-      //   }}
-      // >
-      //   <div style={{ marginRight: '10px', fontWeight: 500 }}>
-      //     {motifIdx}
-      //   </div>
-      //   <div style={{ marginRight: '10px' }}>{motifInfo.rareness}</div>
-      //   <div style={{ marginRight: '10px' }}>{motifInfo.importance}</div>
-      //   {svgMotifView.toReact()}
-      // </div>
-      <div>{svgMotifView.toReact()}</div>
-    );
+    return <div>{svgMotifView.toReact()}</div>;
+  }
+
+  renderChangePointDistribution(cpDistList) {
+    const svgCPView = new ReactFauxDOM.Element('svg');
+    svgCPView.setAttribute('width', this.layout.subseqView.svg.width);
+    svgCPView.setAttribute('height', this.layout.subseqView.svg.height);
+    console.log('cpDistList: ', cpDistList);
+
+    const cpDistDomain = d3.range(-7, 7, 0.2);
+    const xCPIdxScale = d3
+      .scaleBand()
+      .domain(cpDistDomain)
+      .range([
+        0,
+        this.layout.subseqView.svg.width - this.layout.subseqView.paddingLeft
+      ]);
+
+    const yCPFreqScale = d3
+      .scaleLinear()
+      .domain([0, 10])
+      .range([
+        this.layout.subseqView.svg.height -
+          this.layout.subseqView.paddingBottom,
+        this.layout.subseqView.paddingTop
+      ]);
+
+    // Create a json data from two arrays
+    let cpChartData = [];
+    for (let i = 0; i < cpDistDomain.length; i++) {
+      if (typeof cpDistList[i] == 'undefined') {
+        cpChartData.push({
+          x: cpDistDomain[i],
+          y: 0
+        });
+      } else {
+        cpChartData.push({
+          x: cpDistDomain[i],
+          y: cpDistList[i]
+        });
+      }
+    }
+
+    const gCPChart = d3
+      .select(svgCPView)
+      .append('g')
+      .attr(
+        'transform',
+        'translate(' + this.layout.subseqView.paddingLeft + ',' + 0 + ')'
+      );
+
+    const cpBars = gCPChart
+      .selectAll('.cp_dist_rect')
+      .data(cpChartData)
+      .enter()
+      .append('rect')
+      .attr('class', (d, i) => 'cp_dist_rect cp_dist_rect_' + i)
+      .attr('x', (d, i) => xCPIdxScale(d.x))
+      .attr('y', d => yCPFreqScale(d.y))
+      .attr('width', xCPIdxScale.bandwidth() - 0.2)
+      .attr(
+        'height',
+        d =>
+          this.layout.subseqView.svg.height -
+          this.layout.subseqView.paddingBottom -
+          yCPFreqScale(d.y)
+      )
+      .style('fill', 'blue')
+      .style('stroke', 'blue')
+      .style('stroke-width', 2);
+
+    const xAxisSetting = d3
+        .axisBottom(xCPIdxScale)
+        .tickValues([-7, -4, -1, 0, 1, 4, 7])
+        .tickSize(0),
+      xAxis = d3
+        .select(svgCPView)
+        .append('g')
+        .call(xAxisSetting)
+        .attr('class', 'g_cp_dist_x_axis')
+        .attr(
+          'transform',
+          'translate(' +
+            this.layout.subseqView.paddingLeft +
+            ',' +
+            (this.layout.subseqView.svg.height -
+              this.layout.subseqView.paddingBottom) +
+            ')'
+        );
+
+    const yAxisSetting = d3
+        .axisLeft(yCPFreqScale)
+        .tickValues(yCPFreqScale.domain())
+        .tickSize(0),
+      yAxis = d3
+        .select(svgCPView)
+        .append('g')
+        .call(yAxisSetting)
+        .attr('class', 'g_cp_dist_y_axis')
+        .attr(
+          'transform',
+          'translate(' + this.layout.subseqView.paddingLeft + ',' + 0 + ')'
+        );
+
+    return <div>{svgCPView.toReact()}</div>;
   }
 
   renderSubseqPlot() {
+    const { segments, segmentsMetadata, motifs, motifsMetadata } = this.props;
     const {
-      segments,
-      segmentsMetadata,
-      motifs,
-      motifsMetadata,
       selectedSignalType,
+      selectedEmbeddingType,
       selectedNormalizationOption
-    } = this.props;
+    } = this.state;
     //const { subseqsInfo, subseqs, subseqsRaw, motifs, motifsInfo } = this.props;
+    const _self = this;
 
     const motifsIdx = motifs.map(d => d.idx);
     this.numMotifs = motifs.length;
@@ -692,7 +787,23 @@ class AnalysisView extends Component {
     console.log('subseqsInfoData: ', segmentsMetadata);
 
     // Temporarily assign subseqs as motifs
-    const dimReductions = segmentsMetadata.map(d => ({ x: d.x, y: d.y }));
+    let xOffset = '';
+    let yOffset = '';
+
+    if (selectedEmbeddingType == 'raw_segments_for_offset') {
+      xOffset = 'x_raw';
+      yOffset = 'y_raw';
+    } else if (selectedEmbeddingType == 'norm_segments_for_shape') {
+      xOffset = 'x_normalized';
+      yOffset = 'y_normalized';
+    } else if (selectedEmbeddingType == 'cp_dist') {
+      xOffset = 'x_cp_dist';
+      yOffset = 'y_cp_dist';
+    }
+    const dimReductions = segmentsMetadata.map(d => ({
+      x: d[xOffset],
+      y: d[yOffset]
+    }));
 
     const svg = new ReactFauxDOM.Element('svg');
 
@@ -756,8 +867,8 @@ class AnalysisView extends Component {
           ' circle_subseq_in_expert_label_' +
           d.expert_label
       )
-      .attr('cx', d => xScale(d.x))
-      .attr('cy', d => yScale(d.y))
+      .attr('cx', d => xScale(d[xOffset]))
+      .attr('cy', d => yScale(d[yOffset]))
       .attr('r', 3.5)
       .style('fill', (d, i) => this.clusterColorScale(d.cluster))
       // .style('fill-opacity', 0.3)
@@ -770,15 +881,16 @@ class AnalysisView extends Component {
       })
       .style('stroke-width', d => {
         const isMotif = motifsIdx.filter(e => e === d.idx);
-        return isMotif.length === 0 ? '1px' : '2px';
+        return isMotif.length === 0 ? 1 : 2;
       })
-      .on('mouseover', (d, i) => {
-        const svgSubseqPlot = this.renderSubseq(
+      .on('mouseover', function(d, i) {
+        const svgSubseqPlot = _self.renderSubseq(
           segments[i],
           NaN,
           i,
           'renderSubseq'
         );
+
         // const svgRawSubseqPlot = this.renderSubseq(
         //   subseqsRaw[i],
         //   NaN,
@@ -827,12 +939,17 @@ class AnalysisView extends Component {
         );
         tooltip.show();
       })
-      .on('mouseout', (d, i) => {
+      .on('mouseout', function(d, i) {
         tooltip.hide();
       });
 
     const motifIdxList = d3.range(this.numMotifs),
       signalOptions = ['sup_ratio', 'aeeg'],
+      embeddingOptions = [
+        'raw_segments_for_offset',
+        'norm_segments_for_shape',
+        'cp_dist'
+      ],
       normalizationOptions = ['raw', 'normalized'],
       clusterSelectionOptions = ['All', ...motifIdxList],
       subseqPlotColorOptions = ['Cluster', 'Label'],
@@ -841,7 +958,10 @@ class AnalysisView extends Component {
       motifIdx: idx,
       importance: motifsMetadata[idx].importance,
       rareness: motifsMetadata[idx].rareness,
-      motif: motifs[idx]
+      motif: motifs[idx],
+      meanOffset: motifsMetadata[idx].mean_offset,
+      critical: motifsMetadata[idx].critical,
+      changePointDist: motifsMetadata[idx].change_point_dist
     }));
 
     console.log('dataForMotifTable: ', dataForMotifTable);
@@ -852,6 +972,7 @@ class AnalysisView extends Component {
 
         <div style={{ display: 'flex' }}>
           <div>
+            {/*** Select signal type ***/}
             <div style={{ margin: '15px 0 5px 0' }}>Signal type</div>
             <Select
               multiple={true}
@@ -860,6 +981,16 @@ class AnalysisView extends Component {
               options={signalOptions}
               size={'xsmall'}
             />
+            {/*** Select embedding type ***/}
+            <div style={{ margin: '15px 0 5px 0' }}>Embedding type</div>
+            <Select
+              multiple={true}
+              value={this.state.selectedEmbeddingType}
+              onChange={this.handleSelectEmbeddingType}
+              options={embeddingOptions}
+              size={'xsmall'}
+            />
+            {/* ** Select normalization type **
             <div style={{ margin: '15px 0 5px 0' }}>Normalized</div>
             <Select
               multiple={true}
@@ -867,7 +998,7 @@ class AnalysisView extends Component {
               onChange={this.handleSelectNormalizationOption}
               options={normalizationOptions}
               size={'xsmall'}
-            />
+            /> */}
             {svg.toReact()}
             {/*** Select patients ***/}
             <div style={{ margin: '15px 0 5px 0' }}>Select a cluster</div>
@@ -932,9 +1063,26 @@ class AnalysisView extends Component {
                   header: 'Rare'
                 },
                 {
+                  property: 'mean_offset',
+                  header: 'Offset'
+                },
+                {
+                  property: 'critical',
+                  header: 'Critical'
+                },
+                {
                   property: 'motifPlot',
                   header: 'Motif',
                   render: ({ motif }) => this.renderMotif(motif)
+                },
+                {
+                  property: 'changePointDist',
+                  header: 'Change Points',
+                  render: ({ changePointDist }) => {
+                    return this.renderChangePointDistribution(
+                      JSON.parse(changePointDist)
+                    );
+                  }
                 }
               ]}
               data={dataForMotifTable}
@@ -1119,8 +1267,8 @@ class AnalysisView extends Component {
         </div>
         <div className={styles.userView}>
           <div style={{ display: 'flex' }}>
-            <div style={{ width: '55%' }}>{this.renderSubseqPlot()}</div>
-            <div style={{ width: '45%' }}>{this.renderPreprocessingView()}</div>
+            <div style={{ width: '90%' }}>{this.renderSubseqPlot()}</div>
+            {/* <div style={{ width: '45%' }}>{this.renderPreprocessingView()}</div> */}
           </div>
           <div className={index.subTitle + ' ' + index.borderBottom}>
             Input Motifs
